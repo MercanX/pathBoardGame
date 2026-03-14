@@ -17,7 +17,7 @@ import Phaser from "phaser"
 import GameEngine from "../core/GameEngine"
 import { PlayerState } from "../core/GameState"
 //import { tracePlayerPath } from "../core/PathEngine"
-import { canPlace } from "../core/RuleEngine"
+import { canPlace,getValidMovesForPlayer  } from "../core/RuleEngine"
 
 import BoardView from "../ui/BoardView"
 import HandView from "../ui/HandView"
@@ -378,6 +378,7 @@ handleMove(pointer: Phaser.Input.Pointer)
 }
 
 
+
 handleClick(pointer: Phaser.Input.Pointer)
 {
     if(this.isDragging) return
@@ -389,30 +390,51 @@ handleClick(pointer: Phaser.Input.Pointer)
     if(!state) return
 
     const actingPlayer = state.players[state.currentPlayer]
+
     const selectedCard = this.handView.getSelectedCard()
     if(!selectedCard) return
 
+    // next cell kontrolü
     const nextCell = findCurrentPlayerNextCell(state, actingPlayer.id)
 
-    let valid = true
-
-    if(nextCell)
+    if(!nextCell)
     {
-        valid = (
-            nextCell.x === cell.x &&
-            nextCell.y === cell.y
-        )
+        console.log("NO NEXT CELL")
+        return
     }
 
-    if(!valid)
+    if(cell.x !== nextCell.x || cell.y !== nextCell.y)
     {
         console.log("NOT NEXT CELL")
         return
     }
 
+    // hücre boş mu
     if(!canPlace(state.board.board, cell.x, cell.y))
     {
         console.log("INVALID MOVE")
+        return
+    }
+
+    // kart uyumlu mu
+    const validMoves = getValidMovesForPlayer(
+        state,
+        state.currentPlayer
+    )
+    
+    console.log("VALID MOVES:", validMoves)
+    console.log("SELECTED CARD:", selectedCard)
+    console.log("ROTATION:", this.currentRotation)
+
+    const isAllowed = validMoves.some(v =>
+        v.cardId === selectedCard &&
+        v.rotation === this.currentRotation
+    )
+
+
+    if(!isAllowed)
+    {
+        console.log("CARD DOES NOT MATCH PATH")
         return
     }
 
@@ -444,6 +466,9 @@ handleClick(pointer: Phaser.Input.Pointer)
         console.log("Invalid move", error)
     }
 }
+
+
+
 drawFlowDebug(flows:any[])
 {
     for(const f of flows)
