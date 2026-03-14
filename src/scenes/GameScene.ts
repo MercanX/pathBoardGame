@@ -121,4 +121,12 @@ export default class GameScene extends Phaser.Scene
             console.log("Invalid move")
         }
     }
+
+preload()
+{
+    this.load.image("card_01","assets/cards/card_01.png")
+    this.load.image("card_02","assets/cards/card_02.png")
+    this.load.image("card_03","assets/cards/card_03.png")
+}
+
 }

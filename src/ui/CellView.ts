@@ -38,19 +38,22 @@ export default class CellView
         this.rect.setStrokeStyle(2,0xffffff)
     }
 
+    cardSprite?:Phaser.GameObjects.Image
+
     setCard(cardId:string)
     {
-        if(this.cardText)
-            this.cardText.destroy()
+        if(this.cardSprite)
+            this.cardSprite.destroy()
 
-        this.cardText = this.scene.add.text(
-            this.rect.x + 10,
-            this.rect.y + 10,
-            cardId,
-            {
-                fontSize:"14px",
-                color:"#00ff00"
-            }
+        this.cardSprite = this.scene.add.image(
+            this.rect.x + this.rect.width/2,
+            this.rect.y + this.rect.height/2,
+            cardId
+        )
+
+        this.cardSprite.setDisplaySize(
+            this.rect.width - 4,
+            this.rect.height - 4
         )
     }
 }
