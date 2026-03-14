@@ -1,6 +1,10 @@
 /**
  * File: src/ui/BoardView.ts
- * Purpose: Board üzerindeki tüm hücreleri ve kart renderını yönetir
+ * File Name: BoardView.ts
+ * Purpose: Board grid ve card render objelerini board layer içine üretmek.
+ * Usage:
+ * - Tüm board objeleri tek ownership altında boardLayer içine eklenir
+ * - Kamera ayrımı container seviyesinde yapılır
  */
 
 import Phaser from "phaser"
@@ -10,18 +14,19 @@ import GameEngine from "../core/GameEngine"
 export default class BoardView
 {
     scene: Phaser.Scene
+    parentContainer: Phaser.GameObjects.Container
     gameEngine: GameEngine
 
     cells: CellView[][] = []
 
     boardSize: number
     cellSize: number
-
     startX: number
     startY: number
 
     constructor(
         scene: Phaser.Scene,
+        parentContainer: Phaser.GameObjects.Container,
         gameEngine: GameEngine,
         boardSize: number,
         cellSize: number,
@@ -30,11 +35,10 @@ export default class BoardView
     )
     {
         this.scene = scene
+        this.parentContainer = parentContainer
         this.gameEngine = gameEngine
-
         this.boardSize = boardSize
         this.cellSize = cellSize
-
         this.startX = startX
         this.startY = startY
 
@@ -49,11 +53,12 @@ export default class BoardView
 
             for(let x = 0; x < this.boardSize; x++)
             {
-                const px = this.startX + x * this.cellSize
-                const py = this.startY + y * this.cellSize
+                const px = this.startX + (x * this.cellSize)
+                const py = this.startY + (y * this.cellSize)
 
                 const cell = new CellView(
                     this.scene,
+                    this.parentContainer,
                     x,
                     y,
                     px,
@@ -69,7 +74,6 @@ export default class BoardView
     render()
     {
         const state = this.gameEngine.getState()
-
         if(!state) return
 
         const board = state.board.board
@@ -80,34 +84,11 @@ export default class BoardView
             {
                 const cellState = board[y][x]
 
-                if(cellState.cardId)
-                {
-                    this.cells[y][x].setCard(
-                        cellState.cardId,
-                        cellState.rotation
-                    )
-                }
+                this.cells[y][x].setCard(
+                    cellState.cardId,
+                    cellState.rotation
+                )
             }
         }
-    }
-
-    getAllObjects(): Phaser.GameObjects.GameObject[]
-    {
-        const objects: Phaser.GameObjects.GameObject[] = []
-
-        for(let y = 0; y < this.cells.length; y++)
-        {
-            for(let x = 0; x < this.cells[y].length; x++)
-            {
-                const cellObjects = this.cells[y][x].getAllObjects()
-
-                for(const obj of cellObjects)
-                {
-                    objects.push(obj)
-                }
-            }
-        }
-
-        return objects
     }
 }
