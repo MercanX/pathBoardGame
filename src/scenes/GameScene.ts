@@ -7,6 +7,7 @@ import Phaser from "phaser"
 
 import GameEngine from "../core/GameEngine"
 import { PlayerState } from "../core/GameState"
+import { tracePlayerPath } from "../core/PathEngine"
 
 export default class GameScene extends Phaser.Scene
 {
@@ -80,49 +81,55 @@ export default class GameScene extends Phaser.Scene
         }
     }
 
-    handleClick(pointer:Phaser.Input.Pointer)
+handleClick(pointer:Phaser.Input.Pointer)
+{
+    const x = Math.floor(
+        (pointer.x - this.startX) / this.cellSize
+    )
+
+    const y = Math.floor(
+        (pointer.y - this.startY) / this.cellSize
+    )
+
+    if(x<0 || y<0 || x>=this.boardSize || y>=this.boardSize)
+        return
+
+    const state = this.gameEngine.getState()
+
+    if(!state) return
+
+    const player = state.players[state.currentPlayer]
+
+    const card = player.hand[0]
+
+    if(!card) return
+
+    try
     {
-        const x = Math.floor(
-            (pointer.x - this.startX) / this.cellSize
+        this.gameEngine.playCard(
+            card,
+            x,
+            y,
+            0
         )
 
-        const y = Math.floor(
-            (pointer.y - this.startY) / this.cellSize
+        this.renderCards()
+
+        const result = tracePlayerPath(
+            state,
+            player.id
         )
 
-        if(x<0 || y<0 || x>=this.boardSize || y>=this.boardSize)
-            return
+        console.log("PATH RESULT:",result)
 
-        const state = this.gameEngine.getState()
+        console.log("Card placed",x,y)
 
-        if(!state) return
-
-        const player = state.players[state.currentPlayer]
-
-        const card = player.hand[0]
-
-        if(!card) return
-
-        try
-        {
-            this.gameEngine.playCard(
-                card,
-                x,
-                y,
-                0
-            )
-            
-            this.renderCards()
-
-            console.log("Card placed",x,y)
-
-        }
-        catch(e)
-        {
-            console.log("Invalid move")
-        }
     }
-
+    catch(e)
+    {
+        console.log("Invalid move")
+    }
+}
     renderCards()
     {
         const state = this.gameEngine.getState()

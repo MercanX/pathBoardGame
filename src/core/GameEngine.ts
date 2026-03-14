@@ -7,7 +7,8 @@ import BoardEngine from "./BoardEngine"
 import { GameState, PlayerState } from "./GameState"
 
 import { buildDeck, giveCardToPlayer } from "./DeckEngine"
-import { nextPlayer } from "./TurnEngine"
+import { tracePlayerPath } from "./PathEngine"
+import { eliminatePlayer, nextPlayer } from "./TurnEngine"
 
 export default class GameEngine
 {
@@ -47,42 +48,55 @@ export default class GameEngine
     /**
      * Kart oynama
      */
-    playCard(
-        cardId:string,
-        x:number,
-        y:number,
-        rotation:number
+playCard(
+    cardId:string,
+    x:number,
+    y:number,
+    rotation:number
+)
+{
+    if(!this.state)
+        throw new Error("Game not started")
+
+    const player = this.state.players[this.state.currentPlayer]
+
+    // kart yerleştir
+    this.state.board.placeCard(
+        x,
+        y,
+        cardId,
+        rotation,
+        player.id
     )
+
+    // elden kart çıkar
+    const index = player.hand.indexOf(cardId)
+
+    if(index >= 0)
+        player.hand.splice(index,1)
+
+    // yeni kart çek
+    giveCardToPlayer(this.state,this.state.currentPlayer)
+
+    // PATH hesapla
+    const result = tracePlayerPath(
+        this.state,
+        player.id
+    )
+
+    if(result === "OUT_OF_BOARD")
     {
-        if(!this.state)
-        {
-            throw new Error("Game not started")
-        }
+        console.log("PLAYER LOST:",player.id)
 
-        const player = this.state.players[this.state.currentPlayer]
-
-        this.state.board.placeCard(
-            x,
-            y,
-            cardId,
-            rotation,
+        eliminatePlayer(
+            this.state,
             player.id
         )
-
-        // oyuncu elinden kartı çıkar
-        const index = player.hand.indexOf(cardId)
-
-        if(index >= 0)
-        {
-            player.hand.splice(index,1)
-        }
-
-        // yeni kart çek
-        giveCardToPlayer(this.state,this.state.currentPlayer)
-
-        // sırayı değiştir
-        nextPlayer(this.state)
     }
+
+    // sırayı değiştir
+    nextPlayer(this.state)
+}
 
     /**
      * State getir
