@@ -52,7 +52,7 @@ export default class GameScene extends Phaser.Scene
     bottomUiHeight = 260
     sidePadding = 24
 
-    playZoom = 3
+    playZoom = 2
     mapZoom = 1
     isMapMode = false
 
@@ -184,15 +184,18 @@ setupLayoutValues()
             this.boardWorldY
         )
 
-        this.handView = new HandView(
-            this,
-            this.uiLayer,
-            this.gameEngine,
-            24,
-            this.scale.height - this.bottomUiHeight + 20,
-            this.scale.width - 48,
-            this.bottomUiHeight - 40
-        )
+const handWidth = this.scale.width
+const handX = 0
+
+this.handView = new HandView(
+    this,
+    this.uiLayer,
+    this.gameEngine,
+    handX,
+    this.boardViewportY + this.boardViewportHeight + 50, // board altından 50px
+    handWidth,
+    this.bottomUiHeight - 40
+)
 
         this.boardView.render()
         this.handView.render()

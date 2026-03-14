@@ -76,8 +76,8 @@ export default class CellView
         )
 
         this.cardSprite.setDisplaySize(
-            this.size - 4,
-            this.size - 4
+            this.size - 0,
+            this.size - 0
         )
 
         this.cardSprite.setRotation(rotation * Math.PI / 2)
