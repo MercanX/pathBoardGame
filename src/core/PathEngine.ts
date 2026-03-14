@@ -213,3 +213,62 @@ export function findFlowEnds(state:GameState)
 
     return results
 }
+
+
+/**
+ * Oyuncunun mevcut yolunu takip eder ve ilk boş kareyi döndürür
+ */
+export function findCurrentPlayerNextCell(
+    state: GameState,
+    playerId: number
+)
+{
+    const player = state.players.find(p => p.id === playerId)
+    if(!player) return null
+
+    let x = player.startX
+    let y = player.startY
+    let entry = player.entryPort
+
+    while(true)
+    {
+        const cell = state.board.board[y][x]
+
+        if(!cell.cardId)
+        {
+            return {
+                x,
+                y,
+                entryPort: entry
+            }
+        }
+
+        const def = CardDefinitions.find(c => c.id === cell.cardId)
+        if(!def) return null
+
+        const connections = rotateConnections(
+            def.connections,
+            cell.rotation
+        )
+
+        const exit = findExit(entry, connections)
+        if(!exit) return null
+
+        const offset = getNextCellOffset(exit)
+
+        x += offset.x
+        y += offset.y
+
+        if(
+            x < 0 ||
+            y < 0 ||
+            x >= state.board.size ||
+            y >= state.board.size
+        )
+        {
+            return null
+        }
+
+        entry = getOppositePort(exit)
+    }
+}

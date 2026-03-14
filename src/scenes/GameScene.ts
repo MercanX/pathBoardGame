@@ -16,13 +16,13 @@ import Phaser from "phaser"
 
 import GameEngine from "../core/GameEngine"
 import { PlayerState } from "../core/GameState"
-import { tracePlayerPath } from "../core/PathEngine"
+//import { tracePlayerPath } from "../core/PathEngine"
 import { canPlace } from "../core/RuleEngine"
 
 import BoardView from "../ui/BoardView"
 import HandView from "../ui/HandView"
 
-import { findFlowEnds } from "../core/PathEngine"
+import { findCurrentPlayerNextCell, tracePlayerPath } from "../core/PathEngine"
 
 export default class GameScene extends Phaser.Scene
 {
@@ -313,66 +313,69 @@ this.handView = new HandView(
         }
     }
 
-    handleMove(pointer: Phaser.Input.Pointer)
+handleMove(pointer: Phaser.Input.Pointer)
+{
+    const cell = this.getBoardCellFromPointer(pointer)
+
+    if(!cell)
     {
-        const cell = this.getBoardCellFromPointer(pointer)
-
-        if(!cell)
+        if(this.ghostCard)
         {
-            if(this.ghostCard)
-            {
-                this.ghostCard.setVisible(false)
-            }
-            return
+            this.ghostCard.setVisible(false)
         }
-
-        const selectedCard = this.handView.getSelectedCard()
-
-        if(!selectedCard)
-        {
-            if(this.ghostCard)
-            {
-                this.ghostCard.setVisible(false)
-            }
-            return
-        }
-
-        const center = this.getCellCenter(cell.x, cell.y)
-
-        if(!this.ghostCard)
-        {
-            this.ghostCard = this.add.image(center.x, center.y, selectedCard)
-            this.ghostCard.setDisplaySize(this.cellSize - 4, this.cellSize - 4)
-            this.ghostCard.setAlpha(0.5)
-            this.ghostCard.setDepth(200)
-            this.boardLayer.add(this.ghostCard)
-        }
-        else
-        {
-            this.ghostCard.setTexture(selectedCard)
-            this.ghostCard.setPosition(center.x, center.y)
-            this.ghostCard.setVisible(true)
-        }
-
-        this.ghostCard.setRotation(this.currentRotation * Math.PI / 2)
-
-        const state = this.gameEngine.getState()
-        if(!state) return
-
-        const valid = canPlace(state.board.board, cell.x, cell.y)
-
-        if(valid)
-        {
-            this.ghostCard.setTint(0x00ff88)
-        }
-        else
-        {
-            this.ghostCard.setTint(0xff4d4f)
-        }
+        return
     }
 
+    const selectedCard = this.handView.getSelectedCard()
 
+    if(!selectedCard)
+    {
+        if(this.ghostCard)
+        {
+            this.ghostCard.setVisible(false)
+        }
+        return
+    }
 
+    const center = this.getCellCenter(cell.x, cell.y)
+
+    if(!this.ghostCard)
+    {
+        this.ghostCard = this.add.image(center.x, center.y, selectedCard)
+        this.ghostCard.setDisplaySize(this.cellSize - 4, this.cellSize - 4)
+        this.ghostCard.setAlpha(0.5)
+        this.ghostCard.setDepth(200)
+        this.boardLayer.add(this.ghostCard)
+    }
+    else
+    {
+        this.ghostCard.setTexture(selectedCard)
+        this.ghostCard.setPosition(center.x, center.y)
+        this.ghostCard.setVisible(true)
+    }
+
+    this.ghostCard.setRotation(this.currentRotation * Math.PI / 2)
+
+    const state = this.gameEngine.getState()
+    if(!state) return
+
+    const player = state.players[state.currentPlayer]
+    const nextCell = findCurrentPlayerNextCell(state, player.id)
+
+    if(
+        nextCell &&
+        nextCell.x === cell.x &&
+        nextCell.y === cell.y &&
+        state.board.board[cell.y][cell.x].cardId === null
+    )
+    {
+        this.ghostCard.setTint(0x00ff88)
+    }
+    else
+    {
+        this.ghostCard.clearTint()
+    }
+}
 
 
 handleClick(pointer: Phaser.Input.Pointer)
@@ -385,25 +388,27 @@ handleClick(pointer: Phaser.Input.Pointer)
     const state = this.gameEngine.getState()
     if(!state) return
 
-const flows = findFlowEnds(state)
-
-let valid = true
-
-if(flows.length > 0)
-{
-    valid = flows.some(f => f.x === cell.x && f.y === cell.y)
-}
-
-if(!valid)
-{
-    console.log("NOT FLOW POSITION")
-    return
-}
-
     const actingPlayer = state.players[state.currentPlayer]
-
     const selectedCard = this.handView.getSelectedCard()
     if(!selectedCard) return
+
+    const nextCell = findCurrentPlayerNextCell(state, actingPlayer.id)
+
+    let valid = true
+
+    if(nextCell)
+    {
+        valid = (
+            nextCell.x === cell.x &&
+            nextCell.y === cell.y
+        )
+    }
+
+    if(!valid)
+    {
+        console.log("NOT NEXT CELL")
+        return
+    }
 
     if(!canPlace(state.board.board, cell.x, cell.y))
     {
@@ -439,7 +444,6 @@ if(!valid)
         console.log("Invalid move", error)
     }
 }
-
 drawFlowDebug(flows:any[])
 {
     for(const f of flows)
