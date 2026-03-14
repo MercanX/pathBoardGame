@@ -95,7 +95,7 @@ playCard(
     }
 
     // sırayı değiştir
-    nextPlayer(this.state)
+    //nextPlayer(this.state)
 }
 
     /**

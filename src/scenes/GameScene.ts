@@ -106,16 +106,8 @@ export default class GameScene extends Phaser.Scene
                 isAlive: true,
                 startX: 0,
                 startY: 7,
-                entryPort: 7
+                entryPort: 6
             },
-            {
-                id: 2,
-                hand: [],
-                isAlive: true,
-                startX: 7,
-                startY: 7,
-                entryPort: 3
-            }
         ]
 
         this.gameEngine = new GameEngine()
@@ -383,59 +375,70 @@ this.handView = new HandView(
 
 
 
-    handleClick(pointer: Phaser.Input.Pointer)
+handleClick(pointer: Phaser.Input.Pointer)
+{
+    if(this.isDragging) return
+
+    const cell = this.getBoardCellFromPointer(pointer)
+    if(!cell) return
+
+    const state = this.gameEngine.getState()
+    if(!state) return
+
+const flows = findFlowEnds(state)
+
+let valid = true
+
+if(flows.length > 0)
+{
+    valid = flows.some(f => f.x === cell.x && f.y === cell.y)
+}
+
+if(!valid)
+{
+    console.log("NOT FLOW POSITION")
+    return
+}
+
+    const actingPlayer = state.players[state.currentPlayer]
+
+    const selectedCard = this.handView.getSelectedCard()
+    if(!selectedCard) return
+
+    if(!canPlace(state.board.board, cell.x, cell.y))
     {
-        if(this.isDragging) return
-        const cell = this.getBoardCellFromPointer(pointer)
-        if(!cell) return
-
-        const state = this.gameEngine.getState()
-        if(!state) return
-
-        const actingPlayer = state.players[state.currentPlayer]
-        
-        const flows = findFlowEnds(state)
-
-        console.log("FLOW ENDS", flows)
-        
-        const selectedCard = this.handView.getSelectedCard()
-
-        if(!selectedCard) return
-
-        if(!canPlace(state.board.board, cell.x, cell.y))
-        {
-            console.log("INVALID MOVE")
-            return
-        }
-
-        try
-        {
-            this.gameEngine.playCard(
-                selectedCard,
-                cell.x,
-                cell.y,
-                this.currentRotation
-            )
-
-            this.boardView.render()
-            this.handView.render()
-
-            if(this.ghostCard)
-            {
-                this.ghostCard.destroy()
-                this.ghostCard = undefined
-            }
-
-            this.focusBoardCell(cell.x, cell.y, true)
-
-            const result = tracePlayerPath(state, actingPlayer.id)
-            console.log("PATH RESULT:", result)
-        }
-        catch(error)
-        {
-            console.log("Invalid move", error)
-        }
+        console.log("INVALID MOVE")
+        return
     }
+
+    try
+    {
+        this.gameEngine.playCard(
+            selectedCard,
+            cell.x,
+            cell.y,
+            this.currentRotation
+        )
+
+        this.boardView.render()
+        this.handView.render()
+
+        if(this.ghostCard)
+        {
+            this.ghostCard.destroy()
+            this.ghostCard = undefined
+        }
+
+        this.focusBoardCell(cell.x, cell.y, true)
+
+        const result = tracePlayerPath(state, actingPlayer.id)
+        console.log("PATH RESULT:", result)
+    }
+    catch(error)
+    {
+        console.log("Invalid move", error)
+    }
+}
 
 drawFlowDebug(flows:any[])
 {

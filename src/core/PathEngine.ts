@@ -30,19 +30,23 @@ export function findExit(
  */
 export function getNextCellOffset(port:Port)
 {
+    // üst kenar
     if(port === 1 || port === 2)
-        return {x:0, y:1}
+        return {x:0, y:-1}
 
+    // sağ kenar
     if(port === 3 || port === 4)
         return {x:1, y:0}
 
+    // alt kenar
     if(port === 5 || port === 6)
-        return {x:0, y:-1}
+        return {x:0, y:1}
 
+    // sol kenar
     if(port === 7 || port === 8)
         return {x:-1, y:0}
 
-    return {x:0,y:0}
+    return {x:0, y:0}
 }
 
 /**
@@ -67,8 +71,8 @@ export function getOppositePort(port:Port):Port
  * Player yolunu takip eder
  */
 export function tracePlayerPath(
-    state:GameState,
-    playerId:number
+    state: GameState,
+    playerId: number
 )
 {
     const player = state.players.find(p => p.id === playerId)
@@ -79,17 +83,24 @@ export function tracePlayerPath(
     let y = player.startY
     let entry = player.entryPort
 
+    console.log("PLAYER START")
+    console.log("start cell:", x, y)
+    console.log("entry port:", entry)
+
     while(true)
     {
         const cell = state.board.board[y][x]
 
+        console.log("CURRENT CELL:", x, y)
+        console.log("CARD:", cell.cardId, "ROT:", cell.rotation)
+
         if(!cell.cardId)
         {
+            console.log("OPEN PATH")
             return "OPEN_PATH"
         }
 
         const def = CardDefinitions.find(c => c.id === cell.cardId)
-
         if(!def) return
 
         const connections = rotateConnections(
@@ -97,17 +108,26 @@ export function tracePlayerPath(
             cell.rotation
         )
 
-        const exit = findExit(entry,connections)
+        console.log("ROTATED CONNECTIONS:", connections)
+
+        const exit = findExit(entry, connections)
+
+        console.log("ENTRY:", entry, "EXIT:", exit)
 
         if(!exit)
         {
+            console.log("DEAD END")
             return "DEAD_END"
         }
 
         const offset = getNextCellOffset(exit)
 
+        console.log("OFFSET:", offset)
+
         x += offset.x
         y += offset.y
+
+        console.log("NEXT CELL:", x, y)
 
         if(
             x < 0 ||
@@ -116,10 +136,13 @@ export function tracePlayerPath(
             y >= state.board.size
         )
         {
+            console.log("OUT OF BOARD")
             return "OUT_OF_BOARD"
         }
 
         entry = getOppositePort(exit)
+
+        console.log("NEXT ENTRY:", entry)
     }
 }
 
