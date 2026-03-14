@@ -1,12 +1,11 @@
 /**
  * File: src/scenes/GameScene.ts
- * Purpose: Phaser sahnesi + GameEngine + BoardView bağlantısı
+ * Purpose: Phaser sahnesi + GameEngine + BoardView + HandView bağlantısı
  * Usage:
- * - Board için ayrı bir viewport mantığı kurar
- * - Üst UI boşluğu ve yan padding her zaman korunur
- * - Zoom sadece board alanında çalışır
- * - Map mode ile tüm board gösterilir
- * - Play mode ile son kare / başlangıç noktası odakta tutulur
+ * - Main camera = UI
+ * - Board camera = sadece board
+ * - Üst UI boşluğu ve alt hand alanı korunur
+ * - Map mode / play mode zoom board kamerasında çalışır
  */
 
 import Phaser from "phaser"
@@ -16,16 +15,20 @@ import { PlayerState } from "../core/GameState"
 import { tracePlayerPath } from "../core/PathEngine"
 
 import BoardView from "../ui/BoardView"
+import HandView from "../ui/HandView"
+
 import { canPlace } from "../core/RuleEngine"
 
 export default class GameScene extends Phaser.Scene
 {
     gameEngine!: GameEngine
     boardView!: BoardView
+    handView!: HandView
 
     ghostCard?: Phaser.GameObjects.Image
 
     boardCamera!: Phaser.Cameras.Scene2D.Camera
+    uiCamera!: Phaser.Cameras.Scene2D.Camera
 
     boardSize = 8
     cellSize: number = 0
@@ -36,12 +39,10 @@ export default class GameScene extends Phaser.Scene
     isMapMode: boolean = false
     currentRotation = 0
 
-    // Layout sabitleri
     topUiHeight: number = 300
     bottomUiHeight: number = 260
     sidePadding: number = 24
 
-    // Zoom değerleri
     playZoom: number = 3
     mapZoom: number = 1
 
@@ -81,13 +82,11 @@ export default class GameScene extends Phaser.Scene
         const screenWidth = this.scale.width
         const screenHeight = this.scale.height
 
-        // Board'ın gösterileceği sabit viewport alanı
         const boardViewportX = this.sidePadding
         const boardViewportY = this.topUiHeight
         const boardViewportWidth = screenWidth - (this.sidePadding * 2)
         const boardViewportHeight = screenHeight - this.topUiHeight - this.bottomUiHeight
 
-        // Board'un tamamı map mode'da viewport içine sığsın
         this.cellSize = Math.min(
             boardViewportWidth / this.boardSize,
             boardViewportHeight / this.boardSize
@@ -96,9 +95,31 @@ export default class GameScene extends Phaser.Scene
         const boardPixelWidth = this.boardSize * this.cellSize
         const boardPixelHeight = this.boardSize * this.cellSize
 
-        // World içinde board 0,0'dan başlasın
         this.startX = 0
         this.startY = 0
+
+        // Camera 1 = UI camera (full screen)
+        this.uiCamera = this.cameras.main
+        this.uiCamera.setViewport(0, 0, screenWidth, screenHeight)
+        this.uiCamera.setZoom(1)
+
+        // Camera 2 = Board camera
+        this.boardCamera = this.cameras.add(
+            boardViewportX,
+            boardViewportY,
+            boardViewportWidth,
+            boardViewportHeight
+        )
+
+        this.boardCamera.setBounds(
+            this.startX,
+            this.startY,
+            boardPixelWidth,
+            boardPixelHeight
+        )
+
+        this.boardCamera.setZoom(this.playZoom)
+        this.boardCamera.roundPixels = true
 
         // Board render
         this.boardView = new BoardView(
@@ -110,34 +131,31 @@ export default class GameScene extends Phaser.Scene
             this.startY
         )
 
-        // Ana kamerayı board kamerası gibi kullanıyoruz
-        this.boardCamera = this.cameras.main
-        this.boardCamera.setViewport(
-            boardViewportX,
-            boardViewportY,
-            boardViewportWidth,
-            boardViewportHeight
+        // Hand UI render
+        this.handView = new HandView(
+            this,
+            this.gameEngine,
+            24,
+            screenHeight - this.bottomUiHeight + 20,
+            screenWidth - 48,
+            this.bottomUiHeight - 40
         )
 
-        // Kamera sadece board world içinde hareket etsin
-        this.boardCamera.setBounds(
-            this.startX,
-            this.startY,
-            boardPixelWidth,
-            boardPixelHeight
-        )
+        // Board objeleri UI kamerada görünmesin
+        const boardObjects = this.boardView.getAllObjects()
+        this.uiCamera.ignore(boardObjects)
 
-        this.boardCamera.setZoom(this.playZoom)
-        this.boardCamera.roundPixels = true
+        // Hand objeleri board kamerada görünmesin
+        const handObjects = this.handView.getAllObjects()
+        this.boardCamera.ignore(handObjects)
 
-        // Başlangıç oyuncusuna odaklan
+        // Başlangıç odak
         const player = this.gameEngine.getState()?.players[0]
         if(player)
         {
             this.focusBoardCell(player.startX, player.startY, false)
         }
 
-        // Kart döndürme
         this.input.keyboard?.on("keydown-R", () => {
 
             this.currentRotation++
@@ -155,7 +173,6 @@ export default class GameScene extends Phaser.Scene
             console.log("ROTATION:", this.currentRotation)
         })
 
-        // Map mode toggle
         this.input.keyboard?.on("keydown-M", () => {
             this.toggleMapMode()
         })
@@ -215,7 +232,7 @@ export default class GameScene extends Phaser.Scene
         if(!state) return
 
         const player = state.players[state.currentPlayer]
-        const card = player.hand[0]
+        const card = this.handView.getSelectedCard()
 
         if(!card) return
 
@@ -235,6 +252,12 @@ export default class GameScene extends Phaser.Scene
             )
 
             this.boardView.render()
+            this.handView.render()
+
+            // ignore listeleri render sonrası güncelle
+            this.boardCamera.ignore(this.handView.getAllObjects())
+            this.uiCamera.ignore(this.boardView.getAllObjects())
+
             this.focusBoardCell(x, y, true)
 
             const result = tracePlayerPath(
@@ -278,12 +301,7 @@ export default class GameScene extends Phaser.Scene
             return
         }
 
-        const state = this.gameEngine.getState()
-        if(!state) return
-
-        const player = state.players[state.currentPlayer]
-        const card = player.hand[0]
-
+        const card = this.handView.getSelectedCard()
         if(!card) return
 
         const px = this.startX + (x * this.cellSize) + (this.cellSize / 2)
@@ -299,6 +317,9 @@ export default class GameScene extends Phaser.Scene
             )
 
             this.ghostCard.setAlpha(0.5)
+
+            // ghost sadece board kamerada görünsün
+            this.uiCamera.ignore(this.ghostCard)
         }
         else
         {
@@ -310,6 +331,9 @@ export default class GameScene extends Phaser.Scene
         this.ghostCard.setRotation(
             this.currentRotation * Math.PI / 2
         )
+
+        const state = this.gameEngine.getState()
+        if(!state) return
 
         const valid = canPlace(
             state.board.board,

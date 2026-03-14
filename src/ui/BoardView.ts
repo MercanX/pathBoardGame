@@ -9,24 +9,24 @@ import GameEngine from "../core/GameEngine"
 
 export default class BoardView
 {
-    scene:Phaser.Scene
-    gameEngine:GameEngine
+    scene: Phaser.Scene
+    gameEngine: GameEngine
 
-    cells:CellView[][] = []
+    cells: CellView[][] = []
 
-    boardSize:number
-    cellSize:number
+    boardSize: number
+    cellSize: number
 
-    startX:number
-    startY:number
+    startX: number
+    startY: number
 
     constructor(
-        scene:Phaser.Scene,
-        gameEngine:GameEngine,
-        boardSize:number,
-        cellSize:number,
-        startX:number,
-        startY:number
+        scene: Phaser.Scene,
+        gameEngine: GameEngine,
+        boardSize: number,
+        cellSize: number,
+        startX: number,
+        startY: number
     )
     {
         this.scene = scene
@@ -43,14 +43,14 @@ export default class BoardView
 
     createBoard()
     {
-        for(let y=0;y<this.boardSize;y++)
+        for(let y = 0; y < this.boardSize; y++)
         {
             this.cells[y] = []
 
-            for(let x=0;x<this.boardSize;x++)
+            for(let x = 0; x < this.boardSize; x++)
             {
-                const px = this.startX + x*this.cellSize
-                const py = this.startY + y*this.cellSize
+                const px = this.startX + x * this.cellSize
+                const py = this.startY + y * this.cellSize
 
                 const cell = new CellView(
                     this.scene,
@@ -74,9 +74,9 @@ export default class BoardView
 
         const board = state.board.board
 
-        for(let y=0;y<this.boardSize;y++)
+        for(let y = 0; y < this.boardSize; y++)
         {
-            for(let x=0;x<this.boardSize;x++)
+            for(let x = 0; x < this.boardSize; x++)
             {
                 const cellState = board[y][x]
 
@@ -89,5 +89,25 @@ export default class BoardView
                 }
             }
         }
+    }
+
+    getAllObjects(): Phaser.GameObjects.GameObject[]
+    {
+        const objects: Phaser.GameObjects.GameObject[] = []
+
+        for(let y = 0; y < this.cells.length; y++)
+        {
+            for(let x = 0; x < this.cells[y].length; x++)
+            {
+                const cellObjects = this.cells[y][x].getAllObjects()
+
+                for(const obj of cellObjects)
+                {
+                    objects.push(obj)
+                }
+            }
+        }
+
+        return objects
     }
 }
