@@ -1,5 +1,9 @@
 import Phaser from "phaser"
 
+import BootScene from "./scenes/BootScene"
+import MainMenuScene from "./scenes/MainMenuScene"
+import GameScene from "./scenes/GameScene"
+
 const config: Phaser.Types.Core.GameConfig = {
 
     type: Phaser.AUTO,
@@ -11,19 +15,11 @@ const config: Phaser.Types.Core.GameConfig = {
 
     backgroundColor: "#1d1d1d",
 
-    scene: {
-        create()
-        {
-            const text = this.add.text(
-                400,
-                300,
-                "Path Board Game",
-                {fontSize:"40px", color:"#ffffff"}
-            )
-
-            text.setOrigin(0.5)
-        }
-    }
+    scene: [
+        BootScene,
+        MainMenuScene,
+        GameScene
+    ]
 
 }
 
