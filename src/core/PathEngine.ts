@@ -122,3 +122,71 @@ export function tracePlayerPath(
         entry = getOppositePort(exit)
     }
 }
+
+
+/**
+ * Board üzerindeki flow uçlarını bulur
+ */
+export function findFlowEnds(state:GameState)
+{
+    const board = state.board.board
+    const size = state.board.size
+
+    const results:{
+        x:number
+        y:number
+        fromPort:Port
+    }[] = []
+
+    for(let y=0;y<size;y++)
+    {
+        for(let x=0;x<size;x++)
+        {
+            const cell = board[y][x]
+
+            if(!cell.cardId) continue
+
+            const def = CardDefinitions.find(c=>c.id===cell.cardId)
+            if(!def) continue
+
+            const connections = rotateConnections(
+                def.connections,
+                cell.rotation
+            )
+
+            for(const conn of connections)
+            {
+                const ports = [conn[0], conn[1]]
+
+                for(const port of ports)
+                {
+                    const offset = getNextCellOffset(port)
+
+                    const nx = x + offset.x
+                    const ny = y + offset.y
+
+                    if(
+                        nx < 0 ||
+                        ny < 0 ||
+                        nx >= size ||
+                        ny >= size
+                    )
+                        continue
+
+                    const nextCell = board[ny][nx]
+
+                    if(!nextCell.cardId)
+                    {
+                        results.push({
+                            x:nx,
+                            y:ny,
+                            fromPort:getOppositePort(port)
+                        })
+                    }
+                }
+            }
+        }
+    }
+
+    return results
+}

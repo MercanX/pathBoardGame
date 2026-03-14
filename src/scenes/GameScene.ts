@@ -22,6 +22,8 @@ import { canPlace } from "../core/RuleEngine"
 import BoardView from "../ui/BoardView"
 import HandView from "../ui/HandView"
 
+import { findFlowEnds } from "../core/PathEngine"
+
 export default class GameScene extends Phaser.Scene
 {
     gameEngine!: GameEngine
@@ -392,7 +394,9 @@ this.handView = new HandView(
 
         const actingPlayer = state.players[state.currentPlayer]
         
-        
+        const flows = findFlowEnds(state)
+
+        console.log("FLOW ENDS", flows)
         
         const selectedCard = this.handView.getSelectedCard()
 
@@ -432,6 +436,27 @@ this.handView = new HandView(
             console.log("Invalid move", error)
         }
     }
+
+drawFlowDebug(flows:any[])
+{
+    for(const f of flows)
+    {
+        const center = this.getCellCenter(f.x,f.y)
+
+        const r = this.add.rectangle(
+            center.x,
+            center.y,
+            this.cellSize - 6,
+            this.cellSize - 6
+        )
+
+        r.setStrokeStyle(3,0xffff00)
+        r.setDepth(300)
+
+        this.boardLayer.add(r)
+    }
+}
+
 
 toggleMapMode()
 {

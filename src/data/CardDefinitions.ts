@@ -11,8 +11,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_01",
     sprite:"card_01",
     connections:[
-        [1,5],
-        [2,6]
+        [1,2],
+        [5,6]
     ]
 },
 
@@ -20,8 +20,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_02",
     sprite:"card_02",
     connections:[
-        [1,3],
-        [4,7]
+        [3,8],
+        [5,6]
     ]
 },
 
@@ -29,8 +29,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_03",
     sprite:"card_03",
     connections:[
-        [2,8],
-        [3,5]
+        [2,4],
+        [5,6]
     ]
 },
 
@@ -38,7 +38,7 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_04",
     sprite:"card_04",
     connections:[
-        [1,7],
+        [1,6],
         [2,4]
     ]
 },
@@ -47,8 +47,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_05",
     sprite:"card_05",
     connections:[
-        [3,6],
-        [4,8]
+        [1,7],
+        [2,4]
     ]
 },
 
@@ -56,8 +56,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_06",
     sprite:"card_06",
     connections:[
-        [1,4],
-        [2,3]
+        [1,7],
+        [3,5]
     ]
 },
 
@@ -65,8 +65,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_07",
     sprite:"card_07",
     connections:[
-        [5,7],
-        [6,8]
+        [1,6],
+        [3,7]
     ]
 },
 
@@ -74,8 +74,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_08",
     sprite:"card_08",
     connections:[
-        [1,8],
-        [2,7]
+        [2,5],
+        [3,7]
     ]
 },
 
@@ -83,8 +83,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_09",
     sprite:"card_09",
     connections:[
-        [3,5],
-        [4,6]
+        [1,5],
+        [2,6]
     ]
 },
 
@@ -92,8 +92,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_10",
     sprite:"card_10",
     connections:[
-        [1,6],
-        [2,5]
+        [1,5],
+        [4,7]
     ]
 },
 
@@ -101,8 +101,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_11",
     sprite:"card_11",
     connections:[
-        [1,2],
-        [5,6]
+        [2,6],
+        [7,8]
     ]
 },
 
@@ -110,7 +110,7 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_12",
     sprite:"card_12",
     connections:[
-        [3,4],
+        [1,5],
         [7,8]
     ]
 },
@@ -119,8 +119,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_13",
     sprite:"card_13",
     connections:[
-        [1,4],
-        [5,8]
+        [1,7],
+        [2,3]
     ]
 },
 
@@ -128,8 +128,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_14",
     sprite:"card_14",
     connections:[
-        [2,3],
-        [6,7]
+        [1,5],
+        [2,3]
     ]
 },
 
@@ -137,8 +137,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_15",
     sprite:"card_15",
     connections:[
-        [1,7],
-        [3,5]
+        [1,6],
+        [2,3]
     ]
 },
 
@@ -146,8 +146,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_16",
     sprite:"card_16",
     connections:[
-        [2,8],
-        [4,6]
+        [2,3],
+        [4,7]
     ]
 },
 
@@ -155,8 +155,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_17",
     sprite:"card_17",
     connections:[
-        [1,3],
-        [6,8]
+        [2,3],
+        [4,8]
     ]
 },
 
@@ -164,8 +164,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_18",
     sprite:"card_18",
     connections:[
-        [2,4],
-        [5,7]
+        [3,5],
+        [4,8]
     ]
 },
 
@@ -182,8 +182,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_20",
     sprite:"card_20",
     connections:[
-        [2,7],
-        [4,5]
+        [1,8],
+        [2,3]
     ]
 }
 
