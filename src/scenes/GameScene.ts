@@ -1,12 +1,15 @@
 /**
  * File: GameScene.ts
- * Purpose: Oyun sahnesi
+ * Purpose: Oyun sahnesi + ilk board grid render
  */
 
 import Phaser from "phaser"
 
 export default class GameScene extends Phaser.Scene
 {
+    boardSize = 8
+    cellSize = 64
+
     constructor()
     {
         super("GameScene")
@@ -14,13 +17,28 @@ export default class GameScene extends Phaser.Scene
 
     create()
     {
-        const text = this.add.text(
-            400,
-            300,
-            "GAME STARTED",
-            { fontSize: "32px", color: "#ffffff" }
-        )
+        this.drawBoard()
+    }
 
-        text.setOrigin(0.5)
+    drawBoard()
+    {
+        const startX = 100
+        const startY = 50
+
+        for(let y = 0; y < this.boardSize; y++)
+        {
+            for(let x = 0; x < this.boardSize; x++)
+            {
+                const rect = this.add.rectangle(
+                    startX + x * this.cellSize,
+                    startY + y * this.cellSize,
+                    this.cellSize,
+                    this.cellSize
+                )
+
+                rect.setStrokeStyle(2, 0xffffff)
+                rect.setOrigin(0)
+            }
+        }
     }
 }
