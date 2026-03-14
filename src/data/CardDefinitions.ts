@@ -3,9 +3,9 @@
  * Purpose: Oyunda kullanılacak kartların tanımları
  */
 
-import {CardDefinition} from "./CardData"
+import { CardDefinition } from "./CardData"
 
-export const CardDefinitions:CardDefinition[] = [
+export const CardDefinitions: CardDefinition[] = [
 
 {
     id:"card_01",
@@ -31,6 +31,159 @@ export const CardDefinitions:CardDefinition[] = [
     connections:[
         [2,8],
         [3,5]
+    ]
+},
+
+{
+    id:"card_04",
+    sprite:"card_04",
+    connections:[
+        [1,7],
+        [2,4]
+    ]
+},
+
+{
+    id:"card_05",
+    sprite:"card_05",
+    connections:[
+        [3,6],
+        [4,8]
+    ]
+},
+
+{
+    id:"card_06",
+    sprite:"card_06",
+    connections:[
+        [1,4],
+        [2,3]
+    ]
+},
+
+{
+    id:"card_07",
+    sprite:"card_07",
+    connections:[
+        [5,7],
+        [6,8]
+    ]
+},
+
+{
+    id:"card_08",
+    sprite:"card_08",
+    connections:[
+        [1,8],
+        [2,7]
+    ]
+},
+
+{
+    id:"card_09",
+    sprite:"card_09",
+    connections:[
+        [3,5],
+        [4,6]
+    ]
+},
+
+{
+    id:"card_10",
+    sprite:"card_10",
+    connections:[
+        [1,6],
+        [2,5]
+    ]
+},
+
+{
+    id:"card_11",
+    sprite:"card_11",
+    connections:[
+        [1,2],
+        [5,6]
+    ]
+},
+
+{
+    id:"card_12",
+    sprite:"card_12",
+    connections:[
+        [3,4],
+        [7,8]
+    ]
+},
+
+{
+    id:"card_13",
+    sprite:"card_13",
+    connections:[
+        [1,4],
+        [5,8]
+    ]
+},
+
+{
+    id:"card_14",
+    sprite:"card_14",
+    connections:[
+        [2,3],
+        [6,7]
+    ]
+},
+
+{
+    id:"card_15",
+    sprite:"card_15",
+    connections:[
+        [1,7],
+        [3,5]
+    ]
+},
+
+{
+    id:"card_16",
+    sprite:"card_16",
+    connections:[
+        [2,8],
+        [4,6]
+    ]
+},
+
+{
+    id:"card_17",
+    sprite:"card_17",
+    connections:[
+        [1,3],
+        [6,8]
+    ]
+},
+
+{
+    id:"card_18",
+    sprite:"card_18",
+    connections:[
+        [2,4],
+        [5,7]
+    ]
+},
+
+{
+    id:"card_19",
+    sprite:"card_19",
+    connections:[
+        [1,8],
+        [3,6]
+    ]
+},
+
+{
+    id:"card_20",
+    sprite:"card_20",
+    connections:[
+        [2,7],
+        [4,5]
     ]
 }
 
