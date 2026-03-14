@@ -21,6 +21,7 @@ export default class GameScene extends Phaser.Scene
 
     startX = 100
     startY = 50
+    currentRotation = 0
 
     constructor()
     {
@@ -39,6 +40,16 @@ export default class GameScene extends Phaser.Scene
             this.startX,
             this.startY
         )
+        this.input.keyboard?.on("keydown-R", () => {
+
+            this.currentRotation++
+
+            if(this.currentRotation > 3)
+                this.currentRotation = 0
+
+            console.log("ROTATION:", this.currentRotation)
+
+        })
 
         this.input.on("pointerdown",this.handleClick,this)
     }
@@ -102,7 +113,7 @@ export default class GameScene extends Phaser.Scene
                 card,
                 x,
                 y,
-                0
+                this.currentRotation
             )
 
             this.boardView.render()

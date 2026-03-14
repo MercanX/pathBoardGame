@@ -40,20 +40,23 @@ export default class CellView
 
     cardSprite?:Phaser.GameObjects.Image
 
-    setCard(cardId:string)
-    {
-        if(this.cardSprite)
-            this.cardSprite.destroy()
+setCard(cardId:string, rotation:number)
+{
+    if(this.cardSprite)
+        this.cardSprite.destroy()
 
-        this.cardSprite = this.scene.add.image(
-            this.rect.x + this.rect.width/2,
-            this.rect.y + this.rect.height/2,
-            cardId
-        )
+    this.cardSprite = this.scene.add.image(
+        this.rect.x + this.rect.width/2,
+        this.rect.y + this.rect.height/2,
+        cardId
+    )
 
-        this.cardSprite.setDisplaySize(
-            this.rect.width - 4,
-            this.rect.height - 4
-        )
-    }
+    this.cardSprite.setDisplaySize(
+        this.rect.width - 4,
+        this.rect.height - 4
+    )
+
+    // ROTATION EKLE
+    this.cardSprite.setRotation(rotation * Math.PI/2)
+}
 }

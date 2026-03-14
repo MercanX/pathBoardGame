@@ -83,7 +83,8 @@ export default class BoardView
                 if(cellState.cardId)
                 {
                     this.cells[y][x].setCard(
-                        cellState.cardId
+                        cellState.cardId,
+                        cellState.rotation
                     )
                 }
             }
