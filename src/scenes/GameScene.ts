@@ -16,6 +16,8 @@ export default class GameScene extends Phaser.Scene
     gameEngine!:GameEngine
     boardView!:BoardView
 
+    ghostCard?:Phaser.GameObjects.Image
+
     boardSize = 8
     cellSize = 64
 
@@ -50,6 +52,8 @@ export default class GameScene extends Phaser.Scene
             console.log("ROTATION:", this.currentRotation)
 
         })
+
+        this.input.on("pointermove",this.handleMove,this)
 
         this.input.on("pointerdown",this.handleClick,this)
     }
@@ -123,6 +127,13 @@ export default class GameScene extends Phaser.Scene
                 player.id
             )
 
+            if(this.ghostCard)
+            {
+                this.ghostCard.destroy()
+                this.ghostCard = undefined
+            }
+
+
             console.log("PATH RESULT:",result)
 
             console.log("Card placed",x,y)
@@ -138,6 +149,59 @@ preload()
     this.load.image("card_01","assets/cards/card_01.png")
     this.load.image("card_02","assets/cards/card_02.png")
     this.load.image("card_03","assets/cards/card_03.png")
+}
+
+handleMove(pointer:Phaser.Input.Pointer)
+{
+    const x = Math.floor(
+        (pointer.x - this.startX) / this.cellSize
+    )
+
+    const y = Math.floor(
+        (pointer.y - this.startY) / this.cellSize
+    )
+
+    if(x<0 || y<0 || x>=this.boardSize || y>=this.boardSize)
+    {
+        if(this.ghostCard)
+            this.ghostCard.setVisible(false)
+
+        return
+    }
+
+    const state = this.gameEngine.getState()
+
+    if(!state) return
+
+    const player = state.players[state.currentPlayer]
+    const card = player.hand[0]
+
+    if(!card) return
+
+    const px = this.startX + x*this.cellSize + this.cellSize/2
+    const py = this.startY + y*this.cellSize + this.cellSize/2
+
+    if(!this.ghostCard)
+    {
+        this.ghostCard = this.add.image(px,py,card)
+
+        this.ghostCard.setDisplaySize(
+            this.cellSize-4,
+            this.cellSize-4
+        )
+
+        this.ghostCard.setAlpha(0.5)
+    }
+    else
+    {
+        this.ghostCard.setTexture(card)
+        this.ghostCard.setPosition(px,py)
+        this.ghostCard.setVisible(true)
+    }
+
+    this.ghostCard.setRotation(
+        this.currentRotation * Math.PI/2
+    )
 }
 
 }
