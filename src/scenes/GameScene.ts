@@ -10,6 +10,7 @@ import { PlayerState } from "../core/GameState"
 import { tracePlayerPath } from "../core/PathEngine"
 
 import BoardView from "../ui/BoardView"
+import { canPlace } from "../core/RuleEngine"
 
 export default class GameScene extends Phaser.Scene
 {
@@ -111,6 +112,13 @@ export default class GameScene extends Phaser.Scene
 
         if(!card) return
 
+
+        if(!canPlace(state.board.board,x,y))
+        {
+            console.log("INVALID MOVE")
+            return
+        }
+
         try
         {
             this.gameEngine.playCard(
@@ -132,7 +140,6 @@ export default class GameScene extends Phaser.Scene
                 this.ghostCard.destroy()
                 this.ghostCard = undefined
             }
-
 
             console.log("PATH RESULT:",result)
 
@@ -202,6 +209,22 @@ handleMove(pointer:Phaser.Input.Pointer)
     this.ghostCard.setRotation(
         this.currentRotation * Math.PI/2
     )
+
+    const valid = canPlace(
+        state.board.board,
+        x,
+        y
+    )
+
+    if(valid)
+    {
+        this.ghostCard.setTint(0x00ff00)
+    }
+    else
+    {
+        this.ghostCard.setTint(0xff0000)
+    }
+
 }
 
 }
