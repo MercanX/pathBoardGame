@@ -58,6 +58,14 @@ export default class GameScene extends Phaser.Scene
 
     currentRotation = 0
 
+    dragStartX = 0
+    dragStartY = 0
+    isDragging = false
+
+
+    savedScrollX = 0
+    savedScrollY = 0
+
     constructor()
     {
         super("GameScene")
@@ -82,6 +90,8 @@ export default class GameScene extends Phaser.Scene
         this.setupInput()
         this.renderStaticUi()
         this.focusInitialPlayer()
+        //this.setupMobileCameraControls()
+        this.setupZoom()
     }
 
     initGame()
@@ -110,26 +120,26 @@ export default class GameScene extends Phaser.Scene
         this.gameEngine.startGame(this.boardSize, players)
     }
 
-setupLayoutValues()
-{
-    const screenWidth = this.scale.width
-    const screenHeight = this.scale.height
+    setupLayoutValues()
+    {
+        const screenWidth = this.scale.width
+        const screenHeight = this.scale.height
 
-    const usableWidth = screenWidth - (this.sidePadding * 2)
+        const usableWidth = screenWidth - (this.sidePadding * 2)
 
-    this.cellSize = usableWidth / this.boardSize
+        this.cellSize = usableWidth / this.boardSize
 
-    const boardPixelSize = this.cellSize * this.boardSize
+        const boardPixelSize = this.cellSize * this.boardSize
 
-    this.boardViewportWidth = boardPixelSize
-    this.boardViewportHeight = boardPixelSize
+        this.boardViewportWidth = boardPixelSize
+        this.boardViewportHeight = boardPixelSize
 
-    this.boardViewportX = (screenWidth - boardPixelSize) / 2
-    this.boardViewportY = this.topUiHeight
+        this.boardViewportX = (screenWidth - boardPixelSize) / 2
+        this.boardViewportY = this.topUiHeight
 
-    this.boardWorldX = 0
-    this.boardWorldY = 0
-}
+        this.boardWorldX = 0
+        this.boardWorldY = 0
+    }
 
     setupLayers()
     {
@@ -367,8 +377,13 @@ this.handView = new HandView(
         }
     }
 
+
+
+
+
     handleClick(pointer: Phaser.Input.Pointer)
     {
+        if(this.isDragging) return
         const cell = this.getBoardCellFromPointer(pointer)
         if(!cell) return
 
@@ -376,6 +391,9 @@ this.handView = new HandView(
         if(!state) return
 
         const actingPlayer = state.players[state.currentPlayer]
+        
+        
+        
         const selectedCard = this.handView.getSelectedCard()
 
         if(!selectedCard) return
@@ -415,29 +433,32 @@ this.handView = new HandView(
         }
     }
 
-    toggleMapMode()
+toggleMapMode()
+{
+    this.isMapMode = !this.isMapMode
+
+    if(this.isMapMode)
     {
-        this.isMapMode = !this.isMapMode
+        // mevcut kamera konumunu kaydet
+        this.savedScrollX = this.boardCamera.scrollX
+        this.savedScrollY = this.boardCamera.scrollY
 
-        if(this.isMapMode)
-        {
-            const boardCenterX = this.boardWorldX + ((this.boardSize * this.cellSize) / 2)
-            const boardCenterY = this.boardWorldY + ((this.boardSize * this.cellSize) / 2)
+        const boardCenterX = this.boardWorldX + ((this.boardSize * this.cellSize) / 2)
+        const boardCenterY = this.boardWorldY + ((this.boardSize * this.cellSize) / 2)
 
-            this.boardCamera.stopFollow()
-            this.boardCamera.setZoom(this.mapZoom)
-            this.boardCamera.pan(boardCenterX, boardCenterY, 250)
-            return
-        }
+        this.boardCamera.setZoom(this.mapZoom)
+        this.boardCamera.pan(boardCenterX, boardCenterY, 250)
 
-        this.boardCamera.setZoom(this.playZoom)
-
-        const state = this.gameEngine.getState()
-        if(!state) return
-
-        const currentPlayer = state.players[state.currentPlayer]
-        this.focusBoardCell(currentPlayer.startX, currentPlayer.startY, true)
+        return
     }
+
+    // map modundan çıkınca eski yere dön
+    this.boardCamera.setZoom(this.playZoom)
+
+    this.boardCamera.scrollX = this.savedScrollX
+    this.boardCamera.scrollY = this.savedScrollY
+}
+
 
     focusBoardCell(x: number, y: number, animate = true)
     {
@@ -452,4 +473,44 @@ this.handView = new HandView(
             this.boardCamera.centerOn(center.x, center.y)
         }
     }
+
+
+
+
+setupZoom()
+{
+    this.input.on(
+        "wheel",
+        (
+            _pointer: Phaser.Input.Pointer,
+            _gameObjects: Phaser.GameObjects.GameObject[],
+            _deltaX: number,
+            deltaY: number
+        ) => {
+
+            const newZoom = Phaser.Math.Clamp(
+                this.boardCamera.zoom - deltaY * 0.001,
+                0.7,
+                3
+            )
+
+            this.boardCamera.setZoom(newZoom)
+
+            this.clampCamera()
+        }
+    )
+}
+
+clampCamera()
+{
+    const cam = this.boardCamera
+
+    const maxX = this.boardSize * this.cellSize - cam.width / cam.zoom
+    const maxY = this.boardSize * this.cellSize - cam.height / cam.zoom
+
+    cam.scrollX = Phaser.Math.Clamp(cam.scrollX, 0, maxX)
+    cam.scrollY = Phaser.Math.Clamp(cam.scrollY, 0, maxY)
+}
+
+
 }
