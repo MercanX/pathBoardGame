@@ -1,6 +1,6 @@
 /**
- * File: GameScene.ts
- * Purpose: Board render + hücre tıklama + kart koyma
+ * File: src/scenes/GameScene.ts
+ * Purpose: Phaser sahnesi + GameEngine + BoardView bağlantısı
  */
 
 import Phaser from "phaser"
@@ -9,9 +9,12 @@ import GameEngine from "../core/GameEngine"
 import { PlayerState } from "../core/GameState"
 import { tracePlayerPath } from "../core/PathEngine"
 
+import BoardView from "../ui/BoardView"
+
 export default class GameScene extends Phaser.Scene
 {
     gameEngine!:GameEngine
+    boardView!:BoardView
 
     boardSize = 8
     cellSize = 64
@@ -27,7 +30,15 @@ export default class GameScene extends Phaser.Scene
     create()
     {
         this.initGame()
-        this.drawBoard()
+
+        this.boardView = new BoardView(
+            this,
+            this.gameEngine,
+            this.boardSize,
+            this.cellSize,
+            this.startX,
+            this.startY
+        )
 
         this.input.on("pointerdown",this.handleClick,this)
     }
@@ -62,100 +73,52 @@ export default class GameScene extends Phaser.Scene
         )
     }
 
-    drawBoard()
+    handleClick(pointer:Phaser.Input.Pointer)
     {
-        for(let y=0;y<this.boardSize;y++)
-        {
-            for(let x=0;x<this.boardSize;x++)
-            {
-                const rect = this.add.rectangle(
-                    this.startX + x*this.cellSize,
-                    this.startY + y*this.cellSize,
-                    this.cellSize,
-                    this.cellSize
-                )
-
-                rect.setOrigin(0)
-                rect.setStrokeStyle(2,0xffffff)
-            }
-        }
-    }
-
-handleClick(pointer:Phaser.Input.Pointer)
-{
-    const x = Math.floor(
-        (pointer.x - this.startX) / this.cellSize
-    )
-
-    const y = Math.floor(
-        (pointer.y - this.startY) / this.cellSize
-    )
-
-    if(x<0 || y<0 || x>=this.boardSize || y>=this.boardSize)
-        return
-
-    const state = this.gameEngine.getState()
-
-    if(!state) return
-
-    const player = state.players[state.currentPlayer]
-
-    const card = player.hand[0]
-
-    if(!card) return
-
-    try
-    {
-        this.gameEngine.playCard(
-            card,
-            x,
-            y,
-            0
+        const x = Math.floor(
+            (pointer.x - this.startX) / this.cellSize
         )
 
-        this.renderCards()
-
-        const result = tracePlayerPath(
-            state,
-            player.id
+        const y = Math.floor(
+            (pointer.y - this.startY) / this.cellSize
         )
 
-        console.log("PATH RESULT:",result)
+        if(x<0 || y<0 || x>=this.boardSize || y>=this.boardSize)
+            return
 
-        console.log("Card placed",x,y)
-
-    }
-    catch(e)
-    {
-        console.log("Invalid move")
-    }
-}
-    renderCards()
-    {
         const state = this.gameEngine.getState()
 
         if(!state) return
 
-        const board = state.board.board
+        const player = state.players[state.currentPlayer]
 
-        for(let y=0;y<this.boardSize;y++)
+        const card = player.hand[0]
+
+        if(!card) return
+
+        try
         {
-            for(let x=0;x<this.boardSize;x++)
-            {
-                const cell = board[y][x]
+            this.gameEngine.playCard(
+                card,
+                x,
+                y,
+                0
+            )
 
-                if(cell.cardId)
-                {
-                    this.add.text(
-                        this.startX + x*this.cellSize + 20,
-                        this.startY + y*this.cellSize + 20,
-                        cell.cardId,
-                        {fontSize:"14px",color:"#00ff00"}
-                    )
-                }
-            }
+            this.boardView.render()
+
+            const result = tracePlayerPath(
+                state,
+                player.id
+            )
+
+            console.log("PATH RESULT:",result)
+
+            console.log("Card placed",x,y)
+        }
+        catch(e)
+        {
+            console.log("Invalid move")
         }
     }
-
-
 }
