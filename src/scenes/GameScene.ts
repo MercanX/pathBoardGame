@@ -75,6 +75,12 @@ export default class GameScene extends Phaser.Scene
     dragStartY = 0
     isDragging = false
 
+    bottomUI!: Phaser.GameObjects.Container
+
+    btnRestart!: Phaser.GameObjects.Image
+    btnRotate!: Phaser.GameObjects.Image
+    btnMap!: Phaser.GameObjects.Image
+
 
     savedScrollX = 0
     savedScrollY = 0
@@ -90,7 +96,7 @@ export default class GameScene extends Phaser.Scene
 
     preload()
     {
-        this.load.image("game_bg", "/assets/bg01.png")
+        this.load.image("game_bg", "/assets/bg/bg01.png")
         this.load.image("board", "/assets/board/board.png")
         for(let i = 1; i <= 20; i++)
         {
@@ -117,6 +123,10 @@ export default class GameScene extends Phaser.Scene
             }
         }
 
+        this.load.image("ui_restart", "assets/ui/restart.png")
+        this.load.image("ui_rotate", "assets/ui/rotate.png")
+        this.load.image("ui_map", "assets/ui/map.png")
+
     }
 
     create()
@@ -133,6 +143,7 @@ export default class GameScene extends Phaser.Scene
         this.setupInput()
         this.renderStaticUi()
         this.focusInitialPlayer()
+        this.createBottomUI()
         //this.setupMobileCameraControls()
         //this.setupZoom()
     }
@@ -824,5 +835,32 @@ clampCamera()
     cam.scrollY = Phaser.Math.Clamp(cam.scrollY, 0, maxY)
 }
 
+
+createBottomUI()
+{
+    const width = this.scale.width
+    const height = this.scale.height
+
+    const y = height - 160
+
+    this.bottomUI = this.add.container(0,0)
+
+    this.uiLayer.add(this.bottomUI)
+
+    this.btnRestart = this.add.image(width * 0.20, y, "ui_restart")
+    this.btnRotate  = this.add.image(width * 0.50, y, "ui_rotate")
+    this.btnMap     = this.add.image(width * 0.80, y, "ui_map")
+
+    // SCALE FIX
+    this.btnRestart.setScale(0.45)
+    this.btnRotate.setScale(0.45)
+    this.btnMap.setScale(0.45)
+
+    this.bottomUI.add([
+        this.btnRestart,
+        this.btnRotate,
+        this.btnMap
+    ])
+}
 
 }
