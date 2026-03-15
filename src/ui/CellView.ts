@@ -50,8 +50,9 @@ export default class CellView
         )
 
         this.rect.setOrigin(0)
-        this.rect.setStrokeStyle(1, 0xffffff, 0.35)
+        this.rect.setStrokeStyle(0, 0xffffff, 0.35)
         this.rect.setFillStyle(0x0f1720, 0.12)
+        //this.rect.setVisible(false)
 
         this.parentContainer.add(this.rect)
     }

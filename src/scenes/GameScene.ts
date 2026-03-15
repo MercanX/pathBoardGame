@@ -46,7 +46,9 @@ export default class GameScene extends Phaser.Scene
     pathPreview?: Phaser.GameObjects.Graphics
 
     boardSize = 8
+
     cellSize = 0
+    boardMargin = 60
 
     boardWorldX = 0
     boardWorldY = 0
@@ -79,8 +81,11 @@ export default class GameScene extends Phaser.Scene
         super("GameScene")
     }
 
+    
+
     preload()
     {
+        this.load.image("board", "/assets/board/board.png")
         for(let i = 1; i <= 20; i++)
         {
             const num = i.toString().padStart(2, "0")
@@ -90,6 +95,9 @@ export default class GameScene extends Phaser.Scene
 
     create()
     {
+
+
+
         this.initGame()
         this.setupLayoutValues()
         this.setupLayers()
@@ -111,7 +119,7 @@ export default class GameScene extends Phaser.Scene
                 hand: [],
                 isAlive: true,
                 startX: 0,
-                startY: 7,
+                startY: this.boardSize-1,
                 entryPort: 6
             },
         ]
@@ -123,19 +131,30 @@ export default class GameScene extends Phaser.Scene
     setupLayoutValues()
     {
         const screenWidth = this.scale.width
-        const screenHeight = this.scale.height
+        //const screenHeight = this.scale.height
 
         const usableWidth = screenWidth - (this.sidePadding * 2)
 
-        this.cellSize = usableWidth / this.boardSize
 
-        const boardPixelSize = this.cellSize * this.boardSize
+        this.cellSize = Math.floor(usableWidth / this.boardSize)
+
+        const boardPixelSize = this.cellSize * this.boardSize + (this.boardMargin*2)
 
         this.boardViewportWidth = boardPixelSize
         this.boardViewportHeight = boardPixelSize
 
-        this.boardViewportX = (screenWidth - boardPixelSize) / 2
-        this.boardViewportY = this.topUiHeight
+        this.boardViewportX = Math.floor((screenWidth - boardPixelSize) / 2)
+        this.boardViewportY = Math.floor(this.topUiHeight)
+
+        console.log('boardPixelSize '+ boardPixelSize)
+        console.log('boardViewportWidth '+ this.boardViewportWidth)
+        console.log('boardViewportHeight '+ this.boardViewportHeight)
+        console.log('boardViewportX '+ this.boardViewportX)
+        console.log('boardViewportY '+ this.boardViewportY)
+
+        console.log("cellSize", this.cellSize)
+        console.log("grid width", this.cellSize * this.boardSize)
+        console.log("grid remainder", usableWidth % this.boardSize)
 
         this.boardWorldX = 0
         this.boardWorldY = 0
@@ -170,8 +189,8 @@ export default class GameScene extends Phaser.Scene
         this.boardCamera.setBounds(
             this.boardWorldX,
             this.boardWorldY,
-            boardPixelWidth,
-            boardPixelHeight
+            boardPixelWidth + (this.boardMargin * 2),
+            boardPixelHeight + (this.boardMargin * 2)
         )
 
         this.boardCamera.setZoom(this.playZoom)
@@ -191,7 +210,8 @@ export default class GameScene extends Phaser.Scene
             this.boardSize,
             this.cellSize,
             this.boardWorldX,
-            this.boardWorldY
+            this.boardWorldY,
+            this.boardMargin
         )
 
         const handWidth = this.scale.width
@@ -329,8 +349,13 @@ if(state)
 
         const worldPoint = this.boardCamera.getWorldPoint(pointer.x, pointer.y)
 
-        const x = Math.floor((worldPoint.x - this.boardWorldX) / this.cellSize)
-        const y = Math.floor((worldPoint.y - this.boardWorldY) / this.cellSize)
+        const x = Math.floor(
+            (worldPoint.x - this.boardWorldX - this.boardMargin) / this.cellSize
+        )
+
+        const y = Math.floor(
+            (worldPoint.y - this.boardWorldY - this.boardMargin) / this.cellSize
+        )
 
         if(x < 0 || y < 0 || x >= this.boardSize || y >= this.boardSize)
         {
@@ -343,8 +368,8 @@ if(state)
     getCellCenter(x: number, y: number)
     {
         return {
-            x: this.boardWorldX + (x * this.cellSize) + (this.cellSize / 2),
-            y: this.boardWorldY + (y * this.cellSize) + (this.cellSize / 2)
+            x: this.boardWorldX + this.boardMargin + (x * this.cellSize) + (this.cellSize / 2),
+            y: this.boardWorldY + this.boardMargin + (y * this.cellSize) + (this.cellSize / 2)
         }
     }
 

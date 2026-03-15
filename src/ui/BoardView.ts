@@ -25,6 +25,12 @@ export default class BoardView
     cellSize: number
     startX: number
     startY: number
+    //gridOffset = 60
+
+    boardPadding = 0
+    boardMargin: number
+    //boardMargin = 60
+    
 
     constructor(
         scene: Phaser.Scene,
@@ -33,9 +39,11 @@ export default class BoardView
         boardSize: number,
         cellSize: number,
         startX: number,
-        startY: number
+        startY: number,
+        boardMargin: number
     )
     {
+
         this.scene = scene
         this.parentContainer = parentContainer
         this.gameEngine = gameEngine
@@ -43,8 +51,34 @@ export default class BoardView
         this.cellSize = cellSize
         this.startX = startX
         this.startY = startY
+        this.boardMargin = boardMargin
+
+        // BOARD BACKGROUND
+
+        const gridSize = this.boardSize * this.cellSize
+
+        const boardPixelSize = gridSize + (this.boardMargin * 2)
+
+        const boardBg = this.scene.add.image(
+            this.startX + this.boardMargin + gridSize / 2,
+            this.startY + this.boardMargin + gridSize / 2,
+            "board"
+        )
+
+        boardBg.setDisplaySize(boardPixelSize, boardPixelSize)
+ 
+        //boardBg.setDisplaySize(boardPixelSize + this.boardPadding * 2,boardPixelSize + this.boardPadding * 2)
+
+        this.parentContainer.add(boardBg)
+
+
+        boardBg.setDepth(-10)
+
+        this.parentContainer.add(boardBg)
 
         this.createBoard()
+
+
     }
 
     createBoard()
@@ -55,8 +89,12 @@ export default class BoardView
 
             for(let x = 0; x < this.boardSize; x++)
             {
-                const px = this.startX + (x * this.cellSize)
-                const py = this.startY + (y * this.cellSize)
+
+
+
+
+                const px = this.startX + this.boardMargin + (x * this.cellSize)
+                const py = this.startY + this.boardMargin + (y * this.cellSize)
 
                 const cell = new CellView(
                     this.scene,
@@ -103,8 +141,8 @@ export default class BoardView
 
         if(nextCell)
         {
-            const px = this.startX + (nextCell.x * this.cellSize)
-            const py = this.startY + (nextCell.y * this.cellSize)
+            const px = this.startX + this.boardMargin + (nextCell.x * this.cellSize)
+            const py = this.startY + this.boardMargin + (nextCell.y * this.cellSize)
 
             this.nextCellHighlight = this.scene.add.rectangle(
                 px + this.cellSize / 2,
