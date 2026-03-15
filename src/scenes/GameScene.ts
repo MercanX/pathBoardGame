@@ -39,6 +39,7 @@ export default class GameScene extends Phaser.Scene
 
     uiCamera!: Phaser.Cameras.Scene2D.Camera
     boardCamera!: Phaser.Cameras.Scene2D.Camera
+    highlightCell?: Phaser.GameObjects.Rectangle
 
     boardLayer!: Phaser.GameObjects.Container
     uiLayer!: Phaser.GameObjects.Container
@@ -427,6 +428,11 @@ handleMove(pointer: Phaser.Input.Pointer)
         {
             this.ghostCard.setVisible(false)
         }
+
+        if(this.highlightCell)
+        {
+            this.highlightCell.setVisible(false)
+        }
         return
     }
 
@@ -440,16 +446,41 @@ handleMove(pointer: Phaser.Input.Pointer)
         {
             this.ghostCard.setVisible(false)
         }
+        if(this.highlightCell)
+        {
+            this.highlightCell.setVisible(false)
+        }
         return
     }
 
     const center = this.getCellCenter(cell.x, cell.y)
 
+    if(!this.highlightCell)
+    {
+        this.highlightCell = this.add.rectangle(
+            center.x,
+            center.y,
+            this.cellSize - 6,
+            this.cellSize - 6
+        )
+
+        this.highlightCell.setStrokeStyle(4, 0xffffff, 0.9)
+        this.highlightCell.setFillStyle(0x000000, 0)
+        this.highlightCell.setDepth(150)
+        this.highlightCell.setVisible(false)
+
+        this.boardLayer.add(this.highlightCell)
+    }
+    else
+    {
+        this.highlightCell.setPosition(center.x, center.y)
+    }
+
     if(!this.ghostCard)
     {
         this.ghostCard = this.add.image(center.x, center.y, selectedCard)
         this.ghostCard.setDisplaySize(this.cellSize - 4, this.cellSize - 4)
-        this.ghostCard.setAlpha(0.5)
+        //this.ghostCard.setAlpha(0.9)
         this.ghostCard.setDepth(200)
         this.boardLayer.add(this.ghostCard)
     }
@@ -516,20 +547,24 @@ handleMove(pointer: Phaser.Input.Pointer)
         state.board.board[cell.y][cell.x].cardId === null
     )
     {
+        this.highlightCell.setVisible(true)
+        this.ghostCard.setAlpha(1)
+
         if(isAllowedCard)
         {
-            // valid placement
-            this.ghostCard.setTint(0x00ff88)
+            this.highlightCell.setStrokeStyle(20, 0x22c55e, 0.5)
+            this.highlightCell.setFillStyle(0x22c55e, 0.5)
         }
         else
         {
-            // wrong card
-            this.ghostCard.setTint(0xff4444)
+            this.highlightCell.setStrokeStyle(20, 0xef4444, 0.5)
+            this.highlightCell.setFillStyle(0xef4444, 0.5)
         }
     }
     else
     {
-        this.ghostCard.clearTint()
+        this.highlightCell.setVisible(false)
+        this.ghostCard.setAlpha(0.5)
     }
 
 
