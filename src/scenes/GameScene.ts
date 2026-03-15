@@ -77,6 +77,8 @@ export default class GameScene extends Phaser.Scene
 
     savedScrollX = 0
     savedScrollY = 0
+    savedCenterX = 0
+    savedCenterY = 0
 
     constructor()
     {
@@ -87,6 +89,7 @@ export default class GameScene extends Phaser.Scene
 
     preload()
     {
+        this.load.image("game_bg", "/assets/bg01.png")
         this.load.image("board", "/assets/board/board.png")
         for(let i = 1; i <= 20; i++)
         {
@@ -123,13 +126,14 @@ export default class GameScene extends Phaser.Scene
         this.initGame()
         this.setupLayoutValues()
         this.setupLayers()
+        this.createBackground() 
         this.setupCameras()
         this.setupViews()
         this.setupInput()
         this.renderStaticUi()
         this.focusInitialPlayer()
         //this.setupMobileCameraControls()
-        this.setupZoom()
+        //this.setupZoom()
     }
 
     initGame()
@@ -149,6 +153,22 @@ export default class GameScene extends Phaser.Scene
         this.gameEngine = new GameEngine()
         this.gameEngine.startGame(this.boardSize, players)
     }
+
+createBackground()
+{
+    const bg = this.add.image(
+        this.scale.width / 2,
+        this.scale.height / 2,
+        "game_bg"
+    )
+
+    bg.setDisplaySize(
+        this.scale.width,
+        this.scale.height
+    )
+
+    bg.setDepth(-1000)
+}
 
     setupLayoutValues()
     {
@@ -217,7 +237,7 @@ export default class GameScene extends Phaser.Scene
 
         this.boardCamera.setZoom(this.playZoom)
         this.boardCamera.setRoundPixels(true)
-        this.boardCamera.setBackgroundColor("#0f1720")
+        //this.boardCamera.setBackgroundColor("#0f1720")
 
         this.uiCamera.ignore(this.boardLayer)
         this.boardCamera.ignore(this.uiLayer)
@@ -599,12 +619,21 @@ handleClick(pointer: Phaser.Input.Pointer)
 
         const newState = this.gameEngine.getState()
 
+        let focusX = cell.x
+        let focusY = cell.y
+
         if(newState)
         {
             const nextCellAfterMove = findCurrentPlayerNextCell(
                 newState,
                 newState.players[newState.currentPlayer].id
             )
+
+            if(nextCellAfterMove)
+            {
+                focusX = nextCellAfterMove.x
+                focusY = nextCellAfterMove.y
+            }
 
             const nextCellForRender = nextCellAfterMove
                 ? { x: nextCellAfterMove.x, y: nextCellAfterMove.y }
@@ -631,7 +660,7 @@ handleClick(pointer: Phaser.Input.Pointer)
             this.ghostCard = undefined
         }
 
-        this.focusBoardCell(cell.x, cell.y, true)
+        this.focusBoardCell(focusX, focusY, true)
 
 
         if(newState)
@@ -679,26 +708,32 @@ toggleMapMode()
 {
     this.isMapMode = !this.isMapMode
 
+    const gridWidth = this.boardSize * this.cellSize
+    const gridHeight = this.boardSize * this.cellSize
+
+    const boardCenterX =
+        this.boardWorldX +
+        this.boardMargin +
+        (gridWidth / 2)
+
+    const boardCenterY =
+        this.boardWorldY +
+        this.boardMargin +
+        (gridHeight / 2)
+
     if(this.isMapMode)
     {
-        // mevcut kamera konumunu kaydet
-        this.savedScrollX = this.boardCamera.scrollX
-        this.savedScrollY = this.boardCamera.scrollY
-
-        const boardCenterX = this.boardWorldX + ((this.boardSize * this.cellSize) / 2)
-        const boardCenterY = this.boardWorldY + ((this.boardSize * this.cellSize) / 2)
+        this.savedCenterX = this.boardCamera.midPoint.x
+        this.savedCenterY = this.boardCamera.midPoint.y
 
         this.boardCamera.setZoom(this.mapZoom)
-        this.boardCamera.pan(boardCenterX, boardCenterY, 250)
+        this.boardCamera.pan(boardCenterX, boardCenterY, 250, "Sine.easeInOut")
 
         return
     }
 
-    // map modundan çıkınca eski yere dön
     this.boardCamera.setZoom(this.playZoom)
-
-    this.boardCamera.scrollX = this.savedScrollX
-    this.boardCamera.scrollY = this.savedScrollY
+    this.boardCamera.centerOn(this.savedCenterX, this.savedCenterY)
 }
 
 
