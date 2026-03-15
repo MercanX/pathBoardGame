@@ -422,7 +422,7 @@ handleMove(pointer: Phaser.Input.Pointer)
         }
         return
     }
-    
+
     const center = this.getCellCenter(cell.x, cell.y)
 
     if(!this.ghostCard)
@@ -467,7 +467,7 @@ handleMove(pointer: Phaser.Input.Pointer)
         this.pathPreview = undefined
     }
 
-    this.boardView.clearGhostOverlays()
+    //this.boardView.clearGhostOverlays()
 
     if(
         nextCell &&
@@ -482,6 +482,10 @@ handleMove(pointer: Phaser.Input.Pointer)
             cell.x,
             cell.y
         )
+    }
+    else
+    {
+        this.boardView.clearGhostOverlays()
     }
 
 
