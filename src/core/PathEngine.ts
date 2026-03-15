@@ -81,7 +81,7 @@ export function tracePlayerPath(
 
     let x = player.startX
     let y = player.startY
-    let entry = player.entryPort
+    let entry = player.entryPort as Port
 
     console.log("PLAYER START")
     console.log("start cell:", x, y)
@@ -228,7 +228,7 @@ export function findCurrentPlayerNextCell(
 
     let x = player.startX
     let y = player.startY
-    let entry = player.entryPort
+    let entry = player.entryPort as Port
 
     while(true)
     {

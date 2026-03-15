@@ -205,21 +205,32 @@ export default class GameScene extends Phaser.Scene
 
         this.boardView.render()
 
-        const state = this.gameEngine.getState()
+const state = this.gameEngine.getState()
 
-        if(state)
-        {
-            const validMoves = getValidMovesForPlayer(
-                state,
-                state.currentPlayer
-            )
+if(state)
+{
+    const nextCell = findCurrentPlayerNextCell(
+        state,
+        state.players[state.currentPlayer].id
+    )
 
-            const validCardIds = new Set(
-                validMoves.map(v => v.cardId)
-            )
+    const nextCellForRender = nextCell
+        ? { x: nextCell.x, y: nextCell.y }
+        : undefined
 
-            this.handView.render(validCardIds)
-        }
+    this.boardView.render(nextCellForRender)
+
+    const validMoves = getValidMovesForPlayer(
+        state,
+        state.currentPlayer
+    )
+
+    const validCardIds = new Set(
+        validMoves.map(v => v.cardId)
+    )
+
+    this.handView.render(validCardIds)
+}
 
     }
 
@@ -496,13 +507,25 @@ handleClick(pointer: Phaser.Input.Pointer)
             this.currentRotation
         )
 
-        this.boardView.render()
+        //this.boardView.render()
         //this.handView.render()
 
         const newState = this.gameEngine.getState()
 
         if(newState)
         {
+            const nextCellAfterMove = findCurrentPlayerNextCell(
+                newState,
+                newState.players[newState.currentPlayer].id
+            )
+
+            const nextCellForRender = nextCellAfterMove
+                ? { x: nextCellAfterMove.x, y: nextCellAfterMove.y }
+                : undefined
+
+
+            this.boardView.render(nextCellForRender)
+
             const validMoves = getValidMovesForPlayer(
                 newState,
                 newState.currentPlayer

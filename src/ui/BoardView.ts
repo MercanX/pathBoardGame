@@ -19,6 +19,8 @@ export default class BoardView
 
     cells: CellView[][] = []
 
+    nextCellHighlight?: Phaser.GameObjects.Rectangle
+
     boardSize: number
     cellSize: number
     startX: number
@@ -71,7 +73,7 @@ export default class BoardView
         }
     }
 
-    render()
+    render(nextCell?: {x:number,y:number})
     {
         const state = this.gameEngine.getState()
         if(!state) return
@@ -90,5 +92,34 @@ export default class BoardView
                 )
             }
         }
+
+        // NEXT CELL HIGHLIGHT
+
+        if(this.nextCellHighlight)
+        {
+            this.nextCellHighlight.destroy()
+            this.nextCellHighlight = undefined
+        }
+
+        if(nextCell)
+        {
+
+            const px = this.startX + (nextCell.x * this.cellSize)
+            const py = this.startY + (nextCell.y * this.cellSize)
+
+            this.nextCellHighlight = this.scene.add.rectangle(
+                px + this.cellSize / 2,
+                py + this.cellSize / 2,
+                this.cellSize - 0,
+                this.cellSize - 0
+            )
+
+            this.nextCellHighlight.setStrokeStyle(1,0x00ffff)
+            this.nextCellHighlight.setDepth(50)
+
+            this.parentContainer.add(this.nextCellHighlight)
+        }
+
+
     }
 }
