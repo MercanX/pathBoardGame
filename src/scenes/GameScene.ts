@@ -22,7 +22,11 @@ import { canPlace,getValidMovesForPlayer  } from "../core/RuleEngine"
 import BoardView from "../ui/BoardView"
 import HandView from "../ui/HandView"
 
-import { findCurrentPlayerNextCell, tracePlayerPath } from "../core/PathEngine"
+import { 
+    findCurrentPlayerNextCell,
+    tracePlayerPath,
+    tracePlayerPathCells
+} from "../core/PathEngine"
 
 export default class GameScene extends Phaser.Scene
 {
@@ -38,6 +42,8 @@ export default class GameScene extends Phaser.Scene
     uiLayer!: Phaser.GameObjects.Container
 
     ghostCard?: Phaser.GameObjects.Image
+
+    pathPreview?: Phaser.GameObjects.Graphics
 
     boardSize = 8
     cellSize = 0
@@ -403,6 +409,13 @@ handleMove(pointer: Phaser.Input.Pointer)
     )
 
     const nextCell = findCurrentPlayerNextCell(state, player.id)
+    // PATH PREVIEW RESET
+    if(this.pathPreview)
+    {
+        this.pathPreview.destroy()
+        this.pathPreview = undefined
+    }
+
 
     if(
         nextCell &&
@@ -426,6 +439,8 @@ handleMove(pointer: Phaser.Input.Pointer)
     {
         this.ghostCard.clearTint()
     }
+
+
 }
 
 

@@ -103,21 +103,31 @@ export default class BoardView
 
         if(nextCell)
         {
-
             const px = this.startX + (nextCell.x * this.cellSize)
             const py = this.startY + (nextCell.y * this.cellSize)
 
             this.nextCellHighlight = this.scene.add.rectangle(
                 px + this.cellSize / 2,
                 py + this.cellSize / 2,
-                this.cellSize - 0,
-                this.cellSize - 0
+                this.cellSize - 1,
+                this.cellSize - 1
             )
 
-            this.nextCellHighlight.setStrokeStyle(1,0x00ffff)
+            this.nextCellHighlight.setStrokeStyle(1,0x22d3ee)
             this.nextCellHighlight.setDepth(50)
+            this.nextCellHighlight.setAlpha(0.9)
 
             this.parentContainer.add(this.nextCellHighlight)
+
+            // pulse animation
+            this.scene.tweens.add({
+                targets: this.nextCellHighlight,
+                alpha: 0.35,
+                duration: 700,
+                yoyo: true,
+                repeat: -1,
+                ease: "Sine.easeInOut"
+            })
         }
 
 

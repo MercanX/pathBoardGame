@@ -146,6 +146,56 @@ export function tracePlayerPath(
     }
 }
 
+export function tracePlayerPathCells(
+    state: GameState,
+    playerId: number
+)
+{
+    const player = state.players.find(p => p.id === playerId)
+
+    if(!player) return []
+
+    let x = player.startX
+    let y = player.startY
+    let entry = player.entryPort
+
+    const visitedCells:{x:number,y:number}[] = []
+
+    while(true)
+    {
+        visitedCells.push({ x, y })
+
+        const cell = state.board.board[y][x]
+
+        if(!cell.cardId)
+        {
+            return visitedCells
+        }
+
+        const def = CardDefinitions.find(c => c.id === cell.cardId)
+        if(!def) return visitedCells
+
+        const connections = rotateConnections(
+            def.connections,
+            cell.rotation
+        )
+
+       
+
+        if(
+            x < 0 ||
+            y < 0 ||
+            x >= state.board.size ||
+            y >= state.board.size
+        )
+        {
+            return visitedCells
+        }
+
+    }
+}
+
+
 
 /**
  * Board üzerindeki flow uçlarını bulur
