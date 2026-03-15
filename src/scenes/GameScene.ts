@@ -844,14 +844,12 @@ createBottomUI()
     const y = height - 160
 
     this.bottomUI = this.add.container(0,0)
-
     this.uiLayer.add(this.bottomUI)
 
     this.btnRestart = this.add.image(width * 0.20, y, "ui_restart")
     this.btnRotate  = this.add.image(width * 0.50, y, "ui_rotate")
     this.btnMap     = this.add.image(width * 0.80, y, "ui_map")
 
-    // SCALE FIX
     this.btnRestart.setScale(0.45)
     this.btnRotate.setScale(0.45)
     this.btnMap.setScale(0.45)
@@ -861,6 +859,34 @@ createBottomUI()
         this.btnRotate,
         this.btnMap
     ])
+
+    // BUTTON INTERACTION
+
+    this.btnRestart.setInteractive({ useHandCursor: true })
+    this.btnRotate.setInteractive({ useHandCursor: true })
+    this.btnMap.setInteractive({ useHandCursor: true })
+
+    // RESTART BUTTON
+    this.btnRestart.on("pointerdown", () => {
+        this.scene.restart()
+    })
+
+    // ROTATE BUTTON
+    this.btnRotate.on("pointerdown", () => {
+
+        this.currentRotation = (this.currentRotation + 1) % 4
+
+        if(this.ghostCard)
+        {
+            this.ghostCard.setRotation(this.currentRotation * Math.PI / 2)
+        }
+
+    })
+
+    // MAP BUTTON
+    this.btnMap.on("pointerdown", () => {
+        this.toggleMapMode()
+    })
 }
 
 }
