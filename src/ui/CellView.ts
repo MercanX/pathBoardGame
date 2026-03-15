@@ -9,10 +9,13 @@
 
 import Phaser from "phaser"
 
+
 export default class CellView
 {
     scene: Phaser.Scene
     parentContainer: Phaser.GameObjects.Container
+
+    overlay?: Phaser.GameObjects.Image
 
     x: number
     y: number
@@ -84,4 +87,48 @@ export default class CellView
         this.cardSprite.setRotation(rotation * Math.PI / 2)
         this.parentContainer.add(this.cardSprite)
     }
+
+getPathOverlayKey(cardId: string, a: number, b: number)
+{
+    const min = Math.min(a,b)
+    const max = Math.max(a,b)
+
+    return `${cardId}_path_${min}_${max}`
+}
+
+setPathOverlay(cardId: string, a: number, b: number)
+{
+    const key = this.getPathOverlayKey(cardId, a, b)
+
+    if(this.overlay)
+    {
+        this.overlay.destroy()
+        this.overlay = undefined
+    }
+
+    this.overlay = this.scene.add.image(
+        this.px + this.size / 2,
+        this.py + this.size / 2,
+        key
+    )
+
+    this.overlay.setDisplaySize(this.size, this.size)
+
+    this.overlay.setDepth(10)
+
+    this.overlay.setRotation(this.cardSprite?.rotation || 0)
+
+    this.parentContainer.add(this.overlay)
+
+    // debug glow
+    this.overlay.setTint(0xff0000)
+
+    this.scene.tweens.add({
+        targets: this.overlay,
+        alpha: 0.4,
+        duration: 400,
+        yoyo: true,
+        repeat: -1
+    })
+}
 }

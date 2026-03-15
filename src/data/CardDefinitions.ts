@@ -174,7 +174,7 @@ export const CardDefinitions: CardDefinition[] = [
     sprite:"card_19",
     connections:[
         [1,8],
-        [3,6]
+        [2,3]
     ]
 },
 
@@ -183,7 +183,7 @@ export const CardDefinitions: CardDefinition[] = [
     sprite:"card_20",
     connections:[
         [1,8],
-        [2,3]
+        [4,5]
     ]
 }
 

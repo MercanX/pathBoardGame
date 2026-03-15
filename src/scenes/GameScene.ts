@@ -22,6 +22,8 @@ import { canPlace,getValidMovesForPlayer  } from "../core/RuleEngine"
 import BoardView from "../ui/BoardView"
 import HandView from "../ui/HandView"
 
+import { CardDefinitions } from "../data/CardDefinitions"
+
 import { 
     findCurrentPlayerNextCell,
     tracePlayerPath,
@@ -91,6 +93,26 @@ export default class GameScene extends Phaser.Scene
             const num = i.toString().padStart(2, "0")
             this.load.image(`card_${num}`, `assets/cards/card_${num}.jpg`)
         }
+
+        for(const card of CardDefinitions)
+        {
+            for(const conn of card.connections)
+            {
+                const a = conn[0]
+                const b = conn[1]
+
+                const min = Math.min(a,b)
+                const max = Math.max(a,b)
+
+                const key = `${card.id}_path_${min}_${max}`
+
+                this.load.image(
+                    key,
+                    `assets/cards/${key}.png`
+                )
+            }
+        }
+
     }
 
     create()

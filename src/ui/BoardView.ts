@@ -11,6 +11,10 @@ import Phaser from "phaser"
 import CellView from "./CellView"
 import GameEngine from "../core/GameEngine"
 
+import { findExit } from "../core/PathEngine"
+import { CardDefinitions } from "../data/CardDefinitions"
+import { rotateConnections } from "../core/CardEngine"
+
 export default class BoardView
 {
     scene: Phaser.Scene
@@ -20,6 +24,9 @@ export default class BoardView
     cells: CellView[][] = []
 
     nextCellHighlight?: Phaser.GameObjects.Rectangle
+
+    flowLight?: Phaser.GameObjects.Arc
+    flowTween?: Phaser.Tweens.Tween
 
     boardSize: number
     cellSize: number
@@ -78,6 +85,8 @@ export default class BoardView
 
         this.createBoard()
 
+        this.createFlowLight()
+
 
     }
 
@@ -128,6 +137,31 @@ export default class BoardView
                     cellState.cardId,
                     cellState.rotation
                 )
+
+                if(cellState.cardId)
+                {
+                    const def = CardDefinitions.find(c => c.id === cellState.cardId)
+
+                    if(def)
+                    {
+                        const connections = rotateConnections(
+                            def.connections,
+                            cellState.rotation
+                        )
+
+                        // DEBUG için ilk connection'ı çizelim
+                        const a = connections[0][0]
+                        const b = connections[0][1]
+
+                        this.cells[y][x].setPathOverlay(
+                            cellState.cardId,
+                            a,
+                            b
+                        )
+                    }
+                }
+
+
             }
         }
 
@@ -170,4 +204,31 @@ export default class BoardView
 
 
     }
+
+createFlowLight()
+{
+    if(this.flowLight)
+    {
+        this.flowLight.destroy()
+    }
+
+    const px = this.startX + this.boardMargin
+    const py = this.startY + this.boardMargin
+
+    const x = px + this.cellSize / 2
+    const y = py + this.cellSize / 2
+
+    this.flowLight = this.scene.add.circle(
+        x,
+        y,
+        this.cellSize * 0.15,
+        0x22d3ee
+    )
+
+    this.flowLight.setDepth(200)
+    this.flowLight.setAlpha(0.9)
+
+    this.parentContainer.add(this.flowLight)
+}
+
 }
