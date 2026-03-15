@@ -35,6 +35,8 @@ export default class HandView
     slotRects: Phaser.GameObjects.Rectangle[] = []
     cards: Phaser.GameObjects.Image[] = []
 
+    validCards?: Set<string>
+
     constructor(
         scene: Phaser.Scene,
         parentContainer: Phaser.GameObjects.Container,
@@ -74,8 +76,10 @@ export default class HandView
         this.slotRects = []
     }
 
-render()
+render(validCards?: Set<string>)
 {
+
+    this.validCards = validCards
     const state = this.gameEngine.getState()
     if(!state) return
 
@@ -180,6 +184,16 @@ player.hand.forEach((cardId, index) => {
     card.setInteractive({ useHandCursor: true })
     card.setDepth(10)
 
+    // VALID CARD CONTROL
+    if(validCards && !validCards.has(cardId))
+    {
+        card.setAlpha(0.35)
+    }
+    else
+    {
+        card.setAlpha(1)
+    }
+
     card.on("pointerdown", () => {
         this.selectedIndex = index
         this.highlight()
@@ -196,15 +210,38 @@ player.hand.forEach((cardId, index) => {
 
     this.highlight()
 }
+
+
 highlight()
 {
+    const state = this.gameEngine.getState()
+    if(!state) return
+
+    const player = state.players[state.currentPlayer]
+
     for(let i = 0; i < this.cards.length; i++)
     {
         const card = this.cards[i]
+        const cardId = player.hand[i]
+
+        const isValid =
+            this.validCards ?
+            this.validCards.has(cardId) :
+            true
 
         if(i === this.selectedIndex)
         {
-            card.setTint(0xfff1a8)
+            if(isValid)
+            {
+                // VALID SELECTED
+                card.setTint(0xfff1a8)
+            }
+            else
+            {
+                // INVALID SELECTED
+                card.setTint(0xff4444)
+            }
+
             card.setDepth(20)
         }
         else

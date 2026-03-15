@@ -188,21 +188,39 @@ export default class GameScene extends Phaser.Scene
             this.boardWorldY
         )
 
-const handWidth = this.scale.width
-const handX = 0
+        const handWidth = this.scale.width
+        const handX = 0
 
-this.handView = new HandView(
-    this,
-    this.uiLayer,
-    this.gameEngine,
-    handX,
-    this.boardViewportY + this.boardViewportHeight + 50, // board altından 50px
-    handWidth,
-    this.bottomUiHeight - 40
-)
+        this.handView = new HandView(
+            this,
+            this.uiLayer,
+            this.gameEngine,
+            handX,
+            this.boardViewportY + this.boardViewportHeight + 50, // board altından 50px
+            handWidth,
+            this.bottomUiHeight - 40
+        )
+
+        //this.handView.render()
 
         this.boardView.render()
-        this.handView.render()
+
+        const state = this.gameEngine.getState()
+
+        if(state)
+        {
+            const validMoves = getValidMovesForPlayer(
+                state,
+                state.currentPlayer
+            )
+
+            const validCardIds = new Set(
+                validMoves.map(v => v.cardId)
+            )
+
+            this.handView.render(validCardIds)
+        }
+
     }
 
     renderStaticUi()
@@ -356,10 +374,23 @@ handleMove(pointer: Phaser.Input.Pointer)
 
     this.ghostCard.setRotation(this.currentRotation * Math.PI / 2)
 
+    this.ghostCard.clearTint()
+
     const state = this.gameEngine.getState()
     if(!state) return
 
     const player = state.players[state.currentPlayer]
+
+    const validMoves = getValidMovesForPlayer(
+        state,
+        state.currentPlayer
+    )
+
+    const isAllowedCard = validMoves.some(v =>
+        v.cardId === selectedCard &&
+        v.rotation === this.currentRotation
+    )
+
     const nextCell = findCurrentPlayerNextCell(state, player.id)
 
     if(
@@ -369,7 +400,16 @@ handleMove(pointer: Phaser.Input.Pointer)
         state.board.board[cell.y][cell.x].cardId === null
     )
     {
-        this.ghostCard.setTint(0x00ff88)
+        if(isAllowedCard)
+        {
+            // valid placement
+            this.ghostCard.setTint(0x00ff88)
+        }
+        else
+        {
+            // wrong card
+            this.ghostCard.setTint(0xff4444)
+        }
     }
     else
     {
@@ -394,7 +434,34 @@ handleClick(pointer: Phaser.Input.Pointer)
     const selectedCard = this.handView.getSelectedCard()
     if(!selectedCard) return
 
-    // next cell kontrolü
+    const validMoves = getValidMovesForPlayer(
+        state,
+        state.currentPlayer
+    )
+
+    console.log("VALID MOVES:", validMoves)
+    console.log("SELECTED CARD:", selectedCard)
+    console.log("ROTATION:", this.currentRotation)
+
+    if(validMoves.length === 0)
+    {
+        console.log("NO VALID CARDS")
+        return
+    }
+
+    // 1) önce kart + rotasyon doğru mu?
+    const isAllowedCard = validMoves.some(v =>
+        v.cardId === selectedCard &&
+        v.rotation === this.currentRotation
+    )
+
+    if(!isAllowedCard)
+    {
+        console.log("CARD DOES NOT MATCH PATH")
+        return
+    }
+
+    // 2) sonra doğru next cell mi?
     const nextCell = findCurrentPlayerNextCell(state, actingPlayer.id)
 
     if(!nextCell)
@@ -403,38 +470,20 @@ handleClick(pointer: Phaser.Input.Pointer)
         return
     }
 
-    if(cell.x !== nextCell.x || cell.y !== nextCell.y)
+    const isCorrectCell =
+        cell.x === nextCell.x &&
+        cell.y === nextCell.y
+
+    if(!isCorrectCell)
     {
         console.log("NOT NEXT CELL")
         return
     }
 
-    // hücre boş mu
+    // 3) hücre boş mu?
     if(!canPlace(state.board.board, cell.x, cell.y))
     {
         console.log("INVALID MOVE")
-        return
-    }
-
-    // kart uyumlu mu
-    const validMoves = getValidMovesForPlayer(
-        state,
-        state.currentPlayer
-    )
-    
-    console.log("VALID MOVES:", validMoves)
-    console.log("SELECTED CARD:", selectedCard)
-    console.log("ROTATION:", this.currentRotation)
-
-    const isAllowed = validMoves.some(v =>
-        v.cardId === selectedCard &&
-        v.rotation === this.currentRotation
-    )
-
-
-    if(!isAllowed)
-    {
-        console.log("CARD DOES NOT MATCH PATH")
         return
     }
 
@@ -448,7 +497,23 @@ handleClick(pointer: Phaser.Input.Pointer)
         )
 
         this.boardView.render()
-        this.handView.render()
+        //this.handView.render()
+
+        const newState = this.gameEngine.getState()
+
+        if(newState)
+        {
+            const validMoves = getValidMovesForPlayer(
+                newState,
+                newState.currentPlayer
+            )
+
+            const validCardIds = new Set(
+                validMoves.map(v => v.cardId)
+            )
+
+            this.handView.render(validCardIds)
+        }
 
         if(this.ghostCard)
         {
@@ -466,8 +531,6 @@ handleClick(pointer: Phaser.Input.Pointer)
         console.log("Invalid move", error)
     }
 }
-
-
 
 drawFlowDebug(flows:any[])
 {
