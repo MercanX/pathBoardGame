@@ -401,6 +401,8 @@ handleMove(pointer: Phaser.Input.Pointer)
 
     if(!cell)
     {
+        this.boardView.clearGhostOverlays()
+
         if(this.ghostCard)
         {
             this.ghostCard.setVisible(false)
@@ -412,13 +414,15 @@ handleMove(pointer: Phaser.Input.Pointer)
 
     if(!selectedCard)
     {
+        this.boardView.clearGhostOverlays()
+
         if(this.ghostCard)
         {
             this.ghostCard.setVisible(false)
         }
         return
     }
-
+    
     const center = this.getCellCenter(cell.x, cell.y)
 
     if(!this.ghostCard)
@@ -461,6 +465,23 @@ handleMove(pointer: Phaser.Input.Pointer)
     {
         this.pathPreview.destroy()
         this.pathPreview = undefined
+    }
+
+    this.boardView.clearGhostOverlays()
+
+    if(
+        nextCell &&
+        nextCell.x === cell.x &&
+        nextCell.y === cell.y &&
+        state.board.board[cell.y][cell.x].cardId === null
+    )
+    {
+        this.boardView.renderGhostPath(
+            selectedCard,
+            this.currentRotation,
+            cell.x,
+            cell.y
+        )
     }
 
 

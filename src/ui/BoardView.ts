@@ -10,11 +10,14 @@
 import Phaser from "phaser"
 import CellView from "./CellView"
 import GameEngine from "../core/GameEngine"
-
-import { findExit } from "../core/PathEngine"
-import { CardDefinitions } from "../data/CardDefinitions"
-import { rotateConnections } from "../core/CardEngine"
+import { Port } from "../data/CardData"
 import { tracePlayerPathDetailed } from "../core/PathEngine"
+import { getRotatedConnections } from "../core/CardEngine"
+import { findExit, getNextCellOffset, getOppositePort } from "../core/PathEngine"
+import { CardDefinitions } from "../data/CardDefinitions"
+
+import { rotatePort } from "../core/CardEngine"
+
 
 export default class BoardView
 {
@@ -23,6 +26,7 @@ export default class BoardView
     gameEngine: GameEngine
 
     cells: CellView[][] = []
+    ghostOverlays: Phaser.GameObjects.Image[] = []
 
     nextCellHighlight?: Phaser.GameObjects.Rectangle
 
@@ -259,5 +263,139 @@ createFlowLight()
 
     this.parentContainer.add(this.flowLight)
 }
+
+clearGhostOverlays()
+{
+    for(const overlay of this.ghostOverlays)
+    {
+        overlay.destroy()
+    }
+
+    this.ghostOverlays = []
+}
+
+addGhostOverlay(
+    x: number,
+    y: number,
+    textureKey: string,
+    rotation: number
+)
+{
+    const px =
+        this.startX +
+        this.boardMargin +
+        (x * this.cellSize) +
+        (this.cellSize / 2)
+
+    const py =
+        this.startY +
+        this.boardMargin +
+        (y * this.cellSize) +
+        (this.cellSize / 2)
+
+    const overlay = this.scene.add.image(
+        px,
+        py,
+        textureKey
+    )
+
+    overlay.setDisplaySize(this.cellSize, this.cellSize)
+    overlay.setDepth(30)
+    overlay.setRotation(rotation * Math.PI / 2)
+    overlay.setTint(0x00ffff)
+    overlay.setAlpha(0.9)
+    overlay.setBlendMode(Phaser.BlendModes.ADD)
+    overlay.setDepth(500)
+
+    this.parentContainer.add(overlay)
+    this.ghostOverlays.push(overlay)
+}
+
+
+renderGhostPath(
+    cardId: string,
+    rotation: number,
+    placeX: number,
+    placeY: number
+)
+{
+    const state = this.gameEngine.getState()
+    if(!state) return
+
+    this.clearGhostOverlays()
+
+    const player = state.players[state.currentPlayer]
+
+    let x = player.startX
+    let y = player.startY
+    let entry: Port = player.entryPort as Port
+
+    while(true)
+    {
+        let cell = state.board.board[y][x]
+
+        let useCardId = cell.cardId
+        let useRotation = cell.rotation
+
+        // hover edilen yere geçici kart koy
+        if(x === placeX && y === placeY)
+        {
+            useCardId = cardId
+            useRotation = rotation
+        }
+
+        if(!useCardId) break
+
+        const def = CardDefinitions.find(c => c.id === useCardId)
+        if(!def) break
+
+        const connections = getRotatedConnections(
+            useCardId,
+            useRotation
+        )
+
+        const exit = findExit(entry, connections)
+        if(!exit) break
+
+        const min = Math.min(entry, exit)
+        const max = Math.max(entry, exit)
+
+        const reverseRotation = (4 - useRotation) % 4
+
+        const baseA = rotatePort(min as Port, reverseRotation)
+        const baseB = rotatePort(max as Port, reverseRotation)
+
+        const baseMin = Math.min(baseA, baseB)
+        const baseMax = Math.max(baseA, baseB)
+
+        const key = `${useCardId}_path_${baseMin}_${baseMax}`
+
+
+        this.addGhostOverlay(
+            x,
+            y,
+            key,
+            useRotation
+        )
+
+        const offset = getNextCellOffset(exit)
+
+        x += offset.x
+        y += offset.y
+
+        if(
+            x < 0 ||
+            y < 0 ||
+            x >= state.board.size ||
+            y >= state.board.size
+        )
+        {
+            break
+        }
+
+        entry = getOppositePort(exit)
+    }
+}
+
 
 }
