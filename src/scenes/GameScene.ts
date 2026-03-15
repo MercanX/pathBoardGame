@@ -608,8 +608,20 @@ handleClick(pointer: Phaser.Input.Pointer)
 
         this.focusBoardCell(cell.x, cell.y, true)
 
-        const result = tracePlayerPath(state, actingPlayer.id)
-        console.log("PATH RESULT:", result)
+
+        if(newState)
+        {
+            const flows = tracePlayerPathCells(
+                newState,
+                actingPlayer.id
+            )
+
+            console.log("===== TRACE AFTER MOVE =====")
+            console.table(flows)
+        }
+
+
+
     }
     catch(error)
     {

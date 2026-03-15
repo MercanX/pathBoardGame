@@ -152,12 +152,11 @@ export function tracePlayerPathCells(
 )
 {
     const player = state.players.find(p => p.id === playerId)
-
     if(!player) return []
 
     let x = player.startX
     let y = player.startY
-    let entry = player.entryPort
+    let entry = player.entryPort as Port
 
     const visitedCells:{x:number,y:number}[] = []
 
@@ -180,7 +179,16 @@ export function tracePlayerPathCells(
             cell.rotation
         )
 
-       
+        const exit = findExit(entry, connections)
+        if(!exit)
+        {
+            return visitedCells
+        }
+
+        const offset = getNextCellOffset(exit)
+
+        x += offset.x
+        y += offset.y
 
         if(
             x < 0 ||
@@ -192,9 +200,80 @@ export function tracePlayerPathCells(
             return visitedCells
         }
 
+        entry = getOppositePort(exit)
     }
 }
 
+
+export function tracePlayerPathDetailed(
+    state: GameState,
+    playerId: number
+)
+{
+    const player = state.players.find(p => p.id === playerId)
+    if(!player) return []
+
+    let x = player.startX
+    let y = player.startY
+    let entry = player.entryPort as Port
+
+    const path:{
+        x:number
+        y:number
+        entry:Port
+        exit:Port
+    }[] = []
+
+    while(true)
+    {
+        const cell = state.board.board[y][x]
+
+        if(!cell.cardId)
+        {
+            return path
+        }
+
+        const def = CardDefinitions.find(c => c.id === cell.cardId)
+        if(!def) return path
+
+        const connections = rotateConnections(
+            def.connections,
+            cell.rotation
+        )
+
+        const exit = findExit(entry, connections)
+
+        if(!exit)
+        {
+            return path
+        }
+
+        // Path step kaydet
+        path.push({
+            x,
+            y,
+            entry,
+            exit
+        })
+
+        const offset = getNextCellOffset(exit)
+
+        x += offset.x
+        y += offset.y
+
+        if(
+            x < 0 ||
+            y < 0 ||
+            x >= state.board.size ||
+            y >= state.board.size
+        )
+        {
+            return path
+        }
+
+        entry = getOppositePort(exit)
+    }
+}
 
 
 /**

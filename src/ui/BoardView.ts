@@ -14,6 +14,7 @@ import GameEngine from "../core/GameEngine"
 import { findExit } from "../core/PathEngine"
 import { CardDefinitions } from "../data/CardDefinitions"
 import { rotateConnections } from "../core/CardEngine"
+import { tracePlayerPathDetailed } from "../core/PathEngine"
 
 export default class BoardView
 {
@@ -120,90 +121,118 @@ export default class BoardView
         }
     }
 
-    render(nextCell?: {x:number,y:number})
+render(nextCell?: {x:number,y:number})
+{
+    const state = this.gameEngine.getState()
+    if(!state) return
+
+
+    for(let y = 0; y < this.boardSize; y++)
     {
-        const state = this.gameEngine.getState()
-        if(!state) return
-
-        const board = state.board.board
-
-        for(let y = 0; y < this.boardSize; y++)
+        for(let x = 0; x < this.boardSize; x++)
         {
-            for(let x = 0; x < this.boardSize; x++)
-            {
-                const cellState = board[y][x]
-
-                this.cells[y][x].setCard(
-                    cellState.cardId,
-                    cellState.rotation
-                )
-
-                if(cellState.cardId)
-                {
-                    const def = CardDefinitions.find(c => c.id === cellState.cardId)
-
-                    if(def)
-                    {
-                        const connections = rotateConnections(
-                            def.connections,
-                            cellState.rotation
-                        )
-
-                        // DEBUG için ilk connection'ı çizelim
-                        const a = connections[0][0]
-                        const b = connections[0][1]
-
-                        this.cells[y][x].setPathOverlay(
-                            cellState.cardId,
-                            a,
-                            b
-                        )
-                    }
-                }
-
-
-            }
+            this.cells[y][x].clearOverlays()
         }
-
-        // NEXT CELL HIGHLIGHT
-
-        if(this.nextCellHighlight)
-        {
-            this.nextCellHighlight.destroy()
-            this.nextCellHighlight = undefined
-        }
-
-        if(nextCell)
-        {
-            const px = this.startX + this.boardMargin + (nextCell.x * this.cellSize)
-            const py = this.startY + this.boardMargin + (nextCell.y * this.cellSize)
-
-            this.nextCellHighlight = this.scene.add.rectangle(
-                px + this.cellSize / 2,
-                py + this.cellSize / 2,
-                this.cellSize - 1,
-                this.cellSize - 1
-            )
-
-            this.nextCellHighlight.setStrokeStyle(1,0x22d3ee)
-            this.nextCellHighlight.setDepth(50)
-            this.nextCellHighlight.setAlpha(0.9)
-
-            this.parentContainer.add(this.nextCellHighlight)
-
-            // pulse animation
-            this.scene.tweens.add({
-                targets: this.nextCellHighlight,
-                alpha: 0.35,
-                duration: 700,
-                yoyo: true,
-                repeat: -1,
-                ease: "Sine.easeInOut"
-            })
-        }
-
-
     }
+
+    const board = state.board.board
+
+    console.log("===== BOARDVIEW STATE =====")
+    console.log(state)
+
+    // 1️⃣ Önce kart sprite'larını çiz
+    for(let y = 0; y < this.boardSize; y++)
+    {
+        for(let x = 0; x < this.boardSize; x++)
+        {
+            const cellState = board[y][x]
+
+            this.cells[y][x].setCard(
+                cellState.cardId,
+                cellState.rotation
+            )
+        }
+    }
+
+    // 2️⃣ PathEngine'den oyuncu yolunu al
+    const path = tracePlayerPathDetailed(
+        state,
+        state.players[0].id
+    )
+
+    console.log("RENDER PATH:", path)
+
+    // 3️⃣ Path üzerindeki kartların overlay'ini çiz
+    for(const step of path)
+    {
+        const x = step.x
+        const y = step.y
+
+        const cellState = board[y][x]
+        if(!cellState.cardId) continue
+
+        const cell = this.cells[y][x]
+
+        const min = Math.min(step.entry, step.exit)
+        const max = Math.max(step.entry, step.exit)
+
+        console.log(
+            "DRAW OVERLAY",
+            cellState.cardId,
+            "PORTS:",
+            min,"→",max,
+            "POS:",
+            x,y
+        )
+
+        const cellData = state.board.board[step.y][step.x]
+
+        if(!cellData.cardId) continue
+
+        cell.setPathOverlay(
+            cellData.cardId,
+            min,
+            max,
+            cellData.rotation
+        )
+    }
+
+    // 4️⃣ NEXT CELL HIGHLIGHT
+
+    if(this.nextCellHighlight)
+    {
+        this.nextCellHighlight.destroy()
+        this.nextCellHighlight = undefined
+    }
+
+    if(nextCell)
+    {
+        const px = this.startX + this.boardMargin + (nextCell.x * this.cellSize)
+        const py = this.startY + this.boardMargin + (nextCell.y * this.cellSize)
+
+        this.nextCellHighlight = this.scene.add.rectangle(
+            px + this.cellSize / 2,
+            py + this.cellSize / 2,
+            this.cellSize - 1,
+            this.cellSize - 1
+        )
+
+        this.nextCellHighlight.setStrokeStyle(1,0x22d3ee)
+        this.nextCellHighlight.setDepth(50)
+        this.nextCellHighlight.setAlpha(0.9)
+
+        this.parentContainer.add(this.nextCellHighlight)
+
+        this.scene.tweens.add({
+            targets: this.nextCellHighlight,
+            alpha: 0.35,
+            duration: 700,
+            yoyo: true,
+            repeat: -1,
+            ease: "Sine.easeInOut"
+        })
+    }
+}
 
 createFlowLight()
 {

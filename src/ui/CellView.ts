@@ -8,6 +8,8 @@
  */
 
 import Phaser from "phaser"
+import { Port } from "../data/CardData"
+import { rotatePort } from "../core/CardEngine"
 
 
 export default class CellView
@@ -15,7 +17,7 @@ export default class CellView
     scene: Phaser.Scene
     parentContainer: Phaser.GameObjects.Container
 
-    overlay?: Phaser.GameObjects.Image
+    overlays: Phaser.GameObjects.Image[] = []
 
     x: number
     y: number
@@ -60,6 +62,16 @@ export default class CellView
         this.parentContainer.add(this.rect)
     }
 
+    clearOverlays()
+    {
+        for(const overlay of this.overlays)
+        {
+            overlay.destroy()
+        }
+
+        this.overlays = []
+    }
+
     setCard(cardId: string | null, rotation: number)
     {
         if(this.cardSprite)
@@ -70,6 +82,7 @@ export default class CellView
 
         if(!cardId)
         {
+            this.clearOverlays()
             return
         }
 
@@ -88,47 +101,64 @@ export default class CellView
         this.parentContainer.add(this.cardSprite)
     }
 
-getPathOverlayKey(cardId: string, a: number, b: number)
+getPathOverlayKey(
+    cardId: string,
+    a: number,
+    b: number,
+    rotation: number
+)
 {
-    const min = Math.min(a,b)
-    const max = Math.max(a,b)
+    const reverseRotation = (4 - rotation) % 4
+
+    const baseA = rotatePort(a as Port, reverseRotation)
+    const baseB = rotatePort(b as Port, reverseRotation)
+
+    const min = Math.min(baseA, baseB)
+    const max = Math.max(baseA, baseB)
 
     return `${cardId}_path_${min}_${max}`
 }
 
-setPathOverlay(cardId: string, a: number, b: number)
+setPathOverlay(
+    cardId: string,
+    a: number,
+    b: number,
+    rotation: number
+)
 {
-    const key = this.getPathOverlayKey(cardId, a, b)
+    const key = this.getPathOverlayKey(cardId, a, b, rotation)
 
-    if(this.overlay)
-    {
-        this.overlay.destroy()
-        this.overlay = undefined
-    }
+    console.log("OVERLAY DEBUG", {
+        cardId,
+        entryExit: `${a}-${b}`,
+        rotation,
+        key
+    })
 
-    this.overlay = this.scene.add.image(
+    const overlay = this.scene.add.image(
         this.px + this.size / 2,
         this.py + this.size / 2,
         key
     )
 
-    this.overlay.setDisplaySize(this.size, this.size)
+    overlay.setDisplaySize(this.size, this.size)
+    overlay.setDepth(10)
 
-    this.overlay.setDepth(10)
+    // önemli: sprite base key ile geliyor, burada döndürüyoruz
+    overlay.setRotation(rotation * Math.PI / 2)
 
-    this.overlay.setRotation(this.cardSprite?.rotation || 0)
+    this.parentContainer.add(overlay)
 
-    this.parentContainer.add(this.overlay)
-
-    // debug glow
-    this.overlay.setTint(0xff0000)
+    overlay.setTint(0xff0000)
 
     this.scene.tweens.add({
-        targets: this.overlay,
-        alpha: 0.4,
-        duration: 400,
+        targets: overlay,
+        alpha: { from: 1, to: 0.3 },
+        duration: 500,
         yoyo: true,
         repeat: -1
     })
+
+    this.overlays.push(overlay)
 }
 }
