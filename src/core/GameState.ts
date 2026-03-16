@@ -12,7 +12,7 @@ export interface PlayerState
     isAlive:boolean
 
     isBot:boolean
-    botLevel?: "easy" | "normal" | "hard"
+    botLevel?: "easy" | "normal" | "hard" | "ultra" | "insane" | "insane02"
 
     startX:number
     startY:number

@@ -210,6 +210,9 @@ export function tracePlayerPathDetailed(
     playerId: number
 )
 {
+
+    const visited = new Set<string>()
+
     const player = state.players.find(p => p.id === playerId)
     if(!player) return []
 
@@ -226,6 +229,16 @@ export function tracePlayerPathDetailed(
 
     while(true)
     {
+        
+        const key = `${x}_${y}_${entry}`
+
+        if(visited.has(key))
+        {
+            return path
+        }
+
+        visited.add(key)
+
         const cell = state.board.board[y][x]
 
         if(!cell.cardId)

@@ -177,7 +177,7 @@ export default class GameScene extends Phaser.Scene
                 hand: [],
                 isAlive: true,
                 isBot: true,
-                 botLevel: "normal",//"easy" | "normal" | "hard"
+                 botLevel: "ultra",//"easy" | "normal" | "hard"
                 startX: this.boardSize-1,
                 startY: 0,
                 entryPort: 2

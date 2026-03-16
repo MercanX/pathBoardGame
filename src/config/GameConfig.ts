@@ -9,4 +9,8 @@ export const GameConfig =
 
     BOT_AFTER_MOVE_DELAY: 1000,
     BOT_GHOST_DELAY: 1111,
+    
+    HUMAN_PATH_COLOR: 0x3399ff,
+    BOT_PATH_COLOR: 0xff0000,
+
 }

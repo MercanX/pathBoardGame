@@ -123,7 +123,8 @@ setPathOverlay(
     cardId: string,
     a: number,
     b: number,
-    rotation: number
+    rotation: number,
+    color: number
 )
 {
     const key = this.getPathOverlayKey(cardId, a, b, rotation)
@@ -149,7 +150,7 @@ setPathOverlay(
 
     this.parentContainer.add(overlay)
 
-    overlay.setTint(0xff0000)
+    overlay.setTint(color)
 
     this.scene.tweens.add({
         targets: overlay,

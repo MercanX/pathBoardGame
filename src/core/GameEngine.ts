@@ -464,7 +464,7 @@ runBotTurn()
         )
 
         const enemies = this.state.players.filter(
-            p => p.id !== currentPlayer.id && p.alive !== false
+            p => p.id !== currentPlayer.id && p.isAlive!== false
         )
 
         if(!nextCell)
@@ -578,7 +578,7 @@ runBotTurn()
         )
 
         const enemies = this.state.players.filter(
-            p => p.id !== currentPlayer.id && p.alive !== false
+            p => p.id !== currentPlayer.id && p.isAlive!== false
         )
 
         if(!nextCell)

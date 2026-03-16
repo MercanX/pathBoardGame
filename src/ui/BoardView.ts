@@ -18,6 +18,8 @@ import { CardDefinitions } from "../data/CardDefinitions"
 
 import { rotatePort } from "../core/CardEngine"
 
+import { GameConfig } from "../config/GameConfig"
+
 
 export default class BoardView
 {
@@ -158,49 +160,47 @@ render(nextCell?: {x:number,y:number})
         }
     }
 
-    // 2️⃣ PathEngine'den oyuncu yolunu al
-    const path = tracePlayerPathDetailed(
-        state,
-        state.players[0].id
-    )
 
-    console.log("RENDER PATH:", path)
-
-    // 3️⃣ Path üzerindeki kartların overlay'ini çiz
-    for(const step of path)
+    // 2️⃣ Tüm oyuncular için path çiz
+    for(const player of state.players)
     {
-        const x = step.x
-        const y = step.y
-
-        const cellState = board[y][x]
-        if(!cellState.cardId) continue
-
-        const cell = this.cells[y][x]
-
-        const min = Math.min(step.entry, step.exit)
-        const max = Math.max(step.entry, step.exit)
-
-        console.log(
-            "DRAW OVERLAY",
-            cellState.cardId,
-            "PORTS:",
-            min,"→",max,
-            "POS:",
-            x,y
+        const path = tracePlayerPathDetailed(
+            state,
+            player.id
         )
 
-        const cellData = state.board.board[step.y][step.x]
+        console.log("RENDER PATH PLAYER:", player.id, path)
 
-        if(!cellData.cardId) continue
+        for(const step of path)
+        {
+            const x = step.x
+            const y = step.y
 
-        cell.setPathOverlay(
-            cellData.cardId,
-            min,
-            max,
-            cellData.rotation
-        )
+            const cellState = board[y][x]
+            if(!cellState.cardId) continue
+
+            const cell = this.cells[y][x]
+
+            const min = Math.min(step.entry, step.exit)
+            const max = Math.max(step.entry, step.exit)
+
+            const cellData = state.board.board[y][x]
+
+            if(!cellData.cardId) continue
+
+            const color = player.isBot
+                ? GameConfig.BOT_PATH_COLOR
+                : GameConfig.HUMAN_PATH_COLOR
+
+            cell.setPathOverlay(
+                cellData.cardId,
+                min,
+                max,
+                cellData.rotation,
+                color
+            )
+        }
     }
-
     // 4️⃣ NEXT CELL HIGHLIGHT
 
     if(this.nextCellHighlight)
