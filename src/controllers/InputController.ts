@@ -17,13 +17,14 @@ import {
     tracePlayerPathCells
 } from "../core/PathEngine"
 
+import GameScene from "../scenes/GameScene"
 
 export default class InputController
 {
-    scene: Phaser.Scene
+    scene: GameScene
 
     constructor(
-        scene: Phaser.Scene,
+        scene: GameScene,
         private boardView:any,
         private handView:any,
         private gameEngine:any,
@@ -195,8 +196,7 @@ handleClick(pointer: Phaser.Input.Pointer)
         const ghost = this.getGhost()
         if(ghost)
         {
-            ghost.destroy()
-            this.setGhost(undefined)
+            this.scene.clearGhostObjects()
         }
 
         this.focusBoardCell(focusX, focusY, true)

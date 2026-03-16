@@ -47,14 +47,49 @@ export default class GameScene extends Phaser.Scene
 
     uiCamera!: Phaser.Cameras.Scene2D.Camera
     boardCamera!: Phaser.Cameras.Scene2D.Camera
-    highlightCell?: Phaser.GameObjects.Rectangle
+   
 
     boardLayer!: Phaser.GameObjects.Container
     uiLayer!: Phaser.GameObjects.Container
 
-    ghostCard?: Phaser.GameObjects.Image
+    ghost =
+    {
+        card: undefined as Phaser.GameObjects.Image | undefined,
+        highlight: undefined as Phaser.GameObjects.Rectangle | undefined,
+        preview: undefined as Phaser.GameObjects.Graphics | undefined
+    }
 
-    pathPreview?: Phaser.GameObjects.Graphics
+    get ghostCard()
+    {
+        return this.ghost.card
+    }
+
+    set ghostCard(value: Phaser.GameObjects.Image | undefined)
+    {
+        this.ghost.card = value
+    }
+
+    get highlightCell()
+    {
+        return this.ghost.highlight
+    }
+
+    set highlightCell(value: Phaser.GameObjects.Rectangle | undefined)
+    {
+        this.ghost.highlight = value
+    }
+
+    get pathPreview()
+    {
+        return this.ghost.preview
+    }
+
+    set pathPreview(value: Phaser.GameObjects.Graphics | undefined)
+    {
+        this.ghost.preview = value
+    }
+
+
 
     boardSize = 8
 
@@ -620,8 +655,7 @@ updateGhostForSelectedCard()
 
     if(this.pathPreview)
     {
-        this.pathPreview.destroy()
-        this.pathPreview = undefined
+        this.clearGhostObjects()
     }
 
     if(
@@ -650,6 +684,30 @@ focusBoardCell(x: number, y: number, animate = true)
         this.boardCamera.centerOn(center.x, center.y)
     }
 }
+
+clearGhostObjects()
+{
+    if(this.ghostCard)
+    {
+        this.ghostCard.destroy()
+        this.ghostCard = undefined
+    }
+
+    if(this.highlightCell)
+    {
+        this.highlightCell.destroy()
+        this.highlightCell = undefined
+    }
+
+    if(this.pathPreview)
+    {
+        this.pathPreview.destroy()
+        this.pathPreview = undefined
+    }
+
+    this.boardView.clearGhostOverlays()
+}
+
 
 checkBotTurn()
 {
