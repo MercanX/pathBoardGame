@@ -32,8 +32,8 @@ export default class BoardView
 
     nextCellHighlight?: Phaser.GameObjects.Rectangle
 
-    flowLight?: Phaser.GameObjects.Arc
-    flowTween?: Phaser.Tweens.Tween
+    //flowLight?: Phaser.GameObjects.Arc
+    //flowTween?: Phaser.Tweens.Tween
 
     boardSize: number
     cellSize: number
@@ -92,7 +92,7 @@ export default class BoardView
 
         this.createBoard()
 
-        this.createFlowLight()
+        //this.createFlowLight()
 
 
     }
@@ -238,6 +238,7 @@ render(nextCell?: {x:number,y:number})
     }
 }
 
+/*
 createFlowLight()
 {
     if(this.flowLight)
@@ -263,6 +264,7 @@ createFlowLight()
 
     this.parentContainer.add(this.flowLight)
 }
+*/
 
 clearGhostOverlays()
 {
