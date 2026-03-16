@@ -146,7 +146,25 @@ export default class GameScene extends Phaser.Scene
             this,
             this.gameEngine
         )
-        this.inputController = new InputController(this)
+
+        this.inputController = new InputController(
+            this,
+            this.boardView,
+            this.handView,
+            this.gameEngine,
+            this.boardLayer,
+            this.getBoardCellFromPointer.bind(this),
+            this.getCellCenter.bind(this),
+            () => this.cellSize,
+            () => this.currentRotation,
+            (r:number)=>this.currentRotation=r,
+            () => this.ghostCard,
+            (g)=>this.ghostCard=g,
+            () => this.highlightCell,
+            (h)=>this.highlightCell=h,
+            () => this.pathPreview,
+            (p)=>this.pathPreview=p
+        )
 
         this.setupLayoutValues()
         this.setupLayers()
@@ -200,21 +218,21 @@ export default class GameScene extends Phaser.Scene
         this.gameEngine.startGame(this.boardSize, players)
     }
 
-createBackground()
-{
-    const bg = this.add.image(
-        this.scale.width / 2,
-        this.scale.height / 2,
-        "game_bg"
-    )
+    createBackground()
+    {
+        const bg = this.add.image(
+            this.scale.width / 2,
+            this.scale.height / 2,
+            "game_bg"
+        )
 
-    bg.setDisplaySize(
-        this.scale.width,
-        this.scale.height
-    )
+        bg.setDisplaySize(
+            this.scale.width,
+            this.scale.height
+        )
 
-    bg.setDepth(-1000)
-}
+        bg.setDepth(-1000)
+    }
 
     setupLayoutValues()
     {
@@ -452,161 +470,6 @@ if(state)
             y: this.boardWorldY + this.boardMargin + (y * this.cellSize) + (this.cellSize / 2)
         }
     }
-
-handleMove(pointer: Phaser.Input.Pointer)
-{
-    const cell = this.getBoardCellFromPointer(pointer)
-
-    if(!cell)
-    {
-        this.boardView.clearGhostOverlays()
-
-        if(this.ghostCard)
-        {
-            this.ghostCard.setVisible(false)
-        }
-
-        if(this.highlightCell)
-        {
-            this.highlightCell.setVisible(false)
-        }
-        return
-    }
-
-    const selectedCard = this.handView.getSelectedCard()
-
-    if(!selectedCard)
-    {
-        this.boardView.clearGhostOverlays()
-
-        if(this.ghostCard)
-        {
-            this.ghostCard.setVisible(false)
-        }
-        if(this.highlightCell)
-        {
-            this.highlightCell.setVisible(false)
-        }
-        return
-    }
-
-    const center = this.getCellCenter(cell.x, cell.y)
-
-    if(!this.highlightCell)
-    {
-        this.highlightCell = this.add.rectangle(
-            center.x,
-            center.y,
-            this.cellSize - 6,
-            this.cellSize - 6
-        )
-
-        this.highlightCell.setStrokeStyle(4, 0xffffff, 0.9)
-        this.highlightCell.setFillStyle(0x000000, 0)
-        this.highlightCell.setDepth(150)
-        this.highlightCell.setVisible(false)
-
-        this.boardLayer.add(this.highlightCell)
-    }
-    else
-    {
-        this.highlightCell.setPosition(center.x, center.y)
-    }
-
-    if(!this.ghostCard)
-    {
-        this.ghostCard = this.add.image(center.x, center.y, selectedCard)
-        this.ghostCard.setDisplaySize(this.cellSize - 4, this.cellSize - 4)
-        //this.ghostCard.setAlpha(0.9)
-        this.ghostCard.setDepth(200)
-        this.boardLayer.add(this.ghostCard)
-    }
-    else
-    {
-        this.ghostCard.setTexture(selectedCard)
-        this.ghostCard.setPosition(center.x, center.y)
-        this.ghostCard.setVisible(true)
-    }
-
-    this.ghostCard.setRotation(this.currentRotation * Math.PI / 2)
-
-    this.ghostCard.clearTint()
-
-    const state = this.gameEngine.getState()
-    if(!state) return
-
-    const player = state.players[state.currentPlayer]
-
-    const validMoves = getValidMovesForPlayer(
-        state,
-        state.currentPlayer
-    )
-
-    const isAllowedCard = validMoves.some(v =>
-        v.cardId === selectedCard &&
-        v.rotation === this.currentRotation
-    )
-
-    const nextCell = findCurrentPlayerNextCell(state, player.id)
-    // PATH PREVIEW RESET
-    if(this.pathPreview)
-    {
-        this.pathPreview.destroy()
-        this.pathPreview = undefined
-    }
-
-    //this.boardView.clearGhostOverlays()
-
-    if(
-        nextCell &&
-        nextCell.x === cell.x &&
-        nextCell.y === cell.y &&
-        state.board.board[cell.y][cell.x].cardId === null
-    )
-    {
-        this.boardView.renderGhostPath(
-            selectedCard,
-            this.currentRotation,
-            cell.x,
-            cell.y
-        )
-    }
-    else
-    {
-        this.boardView.clearGhostOverlays()
-    }
-
-
-    if(
-        nextCell &&
-        nextCell.x === cell.x &&
-        nextCell.y === cell.y &&
-        state.board.board[cell.y][cell.x].cardId === null
-    )
-    {
-        this.highlightCell.setVisible(true)
-        this.ghostCard.setAlpha(1)
-
-        if(isAllowedCard)
-        {
-            this.highlightCell.setStrokeStyle(20, 0x22c55e, 0.5)
-            this.highlightCell.setFillStyle(0x22c55e, 0.5)
-        }
-        else
-        {
-            this.highlightCell.setStrokeStyle(20, 0xef4444, 0.5)
-            this.highlightCell.setFillStyle(0xef4444, 0.5)
-        }
-    }
-    else
-    {
-        this.highlightCell.setVisible(false)
-        this.ghostCard.setAlpha(0.5)
-    }
-
-
-}
-
 
 
 handleClick(pointer: Phaser.Input.Pointer)
