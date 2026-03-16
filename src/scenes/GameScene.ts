@@ -34,6 +34,7 @@ import { GameConfig } from "../config/GameConfig"
 
 import BotController from "../controllers/BotController"
 import InputController from "../controllers/InputController"
+import GhostController from "../controllers/GhostController"
 
 export default class GameScene extends Phaser.Scene
 {
@@ -44,6 +45,7 @@ export default class GameScene extends Phaser.Scene
 
     botController!: BotController
     inputController!: InputController
+    ghostController!: GhostController
 
     uiCamera!: Phaser.Cameras.Scene2D.Camera
     boardCamera!: Phaser.Cameras.Scene2D.Camera
@@ -188,6 +190,8 @@ export default class GameScene extends Phaser.Scene
             this.gameEngine
         )
 
+        this.ghostController = new GhostController(this)
+
         this.inputController = new InputController(
             this,
 
@@ -232,7 +236,7 @@ export default class GameScene extends Phaser.Scene
         this.events.on(
             "hand_card_selected",
             () => {
-                this.updateGhostForSelectedCard()
+                this.ghostController.updateGhostForSelectedCard()
             }
         )
 
@@ -559,118 +563,6 @@ toggleMapMode()
     this.boardCamera.centerOn(this.savedCenterX, this.savedCenterY)
 }
 
-updateGhostForSelectedCard()
-{
-    const state = this.gameEngine.getState()
-    if(!state) return
-
-    const selectedCard = this.handView.getSelectedCard()
-    if(!selectedCard) return
-
-    const player = state.players[state.currentPlayer]
-
-    const nextCell = findCurrentPlayerNextCell(
-        state,
-        player.id
-    )
-
-    if(!nextCell) return
-
-    const center = this.getCellCenter(nextCell.x, nextCell.y)
-
-    // GHOST CARD
-
-    if(!this.ghostCard)
-    {
-        this.ghostCard = this.add.image(
-            center.x,
-            center.y,
-            selectedCard
-        )
-
-        this.ghostCard.setDisplaySize(
-            this.cellSize - 4,
-            this.cellSize - 4
-        )
-
-        this.ghostCard.setDepth(200)
-
-        this.boardLayer.add(this.ghostCard)
-    }
-    else
-    {
-        this.ghostCard.setTexture(selectedCard)
-        this.ghostCard.setPosition(center.x, center.y)
-        this.ghostCard.setVisible(true)
-    }
-
-    this.ghostCard.setRotation(
-        this.currentRotation * Math.PI / 2
-    )
-
-    // HIGHLIGHT CELL
-
-    if(!this.highlightCell)
-    {
-        this.highlightCell = this.add.rectangle(
-            center.x,
-            center.y,
-            this.cellSize - 6,
-            this.cellSize - 6
-        )
-
-        this.highlightCell.setDepth(150)
-        this.boardLayer.add(this.highlightCell)
-    }
-
-    this.highlightCell.setPosition(center.x, center.y)
-    this.highlightCell.setVisible(true)
-
-    // VALID MOVE CHECK
-
-    const validMoves = getValidMovesForPlayer(
-        state,
-        state.currentPlayer
-    )
-
-    const isAllowedCard = validMoves.some(v =>
-        v.cardId === selectedCard &&
-        v.rotation === this.currentRotation
-    )
-
-    if(isAllowedCard)
-    {
-        this.highlightCell.setStrokeStyle(20, 0x22c55e, 0.5)
-        this.highlightCell.setFillStyle(0x22c55e, 0.5)
-        this.ghostCard.setAlpha(1)
-    }
-    else
-    {
-        this.highlightCell.setStrokeStyle(20, 0xef4444, 0.5)
-        this.highlightCell.setFillStyle(0xef4444, 0.5)
-        this.ghostCard.setAlpha(0.5)
-    }
-
-    // PATH PREVIEW
-
-    if(this.pathPreview)
-    {
-        this.clearGhostObjects()
-    }
-
-    if(
-        state.board.board[nextCell.y][nextCell.x].cardId === null
-    )
-    {
-        this.boardView.renderGhostPath(
-            selectedCard,
-            this.currentRotation,
-            nextCell.x,
-            nextCell.y
-        )
-    }
-}
-
 focusBoardCell(x: number, y: number, animate = true)
 {
     const center = this.getCellCenter(x, y)
@@ -687,27 +579,26 @@ focusBoardCell(x: number, y: number, animate = true)
 
 clearGhostObjects()
 {
-    if(this.ghostCard)
+    if(this.ghost.card)
     {
-        this.ghostCard.destroy()
-        this.ghostCard = undefined
+        this.ghost.card.destroy()
+        this.ghost.card = undefined
     }
 
-    if(this.highlightCell)
+    if(this.ghost.highlight)
     {
-        this.highlightCell.destroy()
-        this.highlightCell = undefined
+        this.ghost.highlight.destroy()
+        this.ghost.highlight = undefined
     }
 
-    if(this.pathPreview)
+    if(this.ghost.preview)
     {
-        this.pathPreview.destroy()
-        this.pathPreview = undefined
+        this.ghost.preview.destroy()
+        this.ghost.preview = undefined
     }
 
     this.boardView.clearGhostOverlays()
 }
-
 
 checkBotTurn()
 {
@@ -799,7 +690,7 @@ createBottomUI()
 
         this.currentRotation = (this.currentRotation + 1) % 4
 
-        this.updateGhostForSelectedCard()
+        this.ghostController.updateGhostForSelectedCard()
 
     })
 
