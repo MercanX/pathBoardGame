@@ -195,8 +195,12 @@ player.hand.forEach((cardId, index) => {
     }
 
     card.on("pointerdown", () => {
+
         this.selectedIndex = index
         this.highlight()
+
+        this.scene.events.emit("hand_card_selected")
+
     })
 
     this.parentContainer.add(card)

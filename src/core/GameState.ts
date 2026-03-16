@@ -10,6 +10,7 @@ export interface PlayerState
     id:number
     hand:string[]
     isAlive:boolean
+    isBot:boolean
     startX:number
     startY:number
     entryPort:number
