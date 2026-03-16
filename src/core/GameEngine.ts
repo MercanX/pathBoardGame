@@ -168,7 +168,7 @@ runBotTurn()
                     currentPlayer: this.state.currentPlayer
                 }
 
-                // Board kopyala
+                // BOARD COPY
                 for(let y = 0; y < this.state.board.size; y++)
                 {
                     for(let x = 0; x < this.state.board.size; x++)
@@ -191,7 +191,7 @@ runBotTurn()
                 const simPlayer =
                     testState.players[testState.currentPlayer]
 
-                // BOT move simulate
+                // SIMULATE MOVE
                 testState.board.placeCard(
                     nextCell.x,
                     nextCell.y,
@@ -205,10 +205,31 @@ runBotTurn()
                     simPlayer.id
                 )
 
-                if(result !== "OUT_OF_BOARD")
+                // Ölüm kontrolü
+                if(result === "OUT_OF_BOARD")
                 {
-                    safeMoves.push(move)
+                    continue
                 }
+
+                // PATH sonrası next cell
+  
+                const nextCellSim = findCurrentPlayerNextCell(
+                    testState,
+                    simPlayer.id
+                )
+
+                if(!nextCellSim)
+                {
+                    continue
+                }
+
+                // sadece cell boş mu kontrol et
+                if(!testState.board.isCellEmpty(nextCellSim.x, nextCellSim.y))
+                {
+                    continue
+                }
+
+                safeMoves.push(move)
             }
 
             if(safeMoves.length > 0)
