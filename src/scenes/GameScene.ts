@@ -32,12 +32,16 @@ import {
 
 import { GameConfig } from "../config/GameConfig"
 
+import BotController from "../controllers/BotController"
+
 export default class GameScene extends Phaser.Scene
 {
     gameEngine!: GameEngine
 
     boardView!: BoardView
     handView!: HandView
+
+    botController!: BotController
 
     uiCamera!: Phaser.Cameras.Scene2D.Camera
     boardCamera!: Phaser.Cameras.Scene2D.Camera
@@ -137,6 +141,12 @@ export default class GameScene extends Phaser.Scene
 
 
         this.initGame()
+
+        this.botController = new BotController(
+            this,
+            this.gameEngine
+        )
+
         this.setupLayoutValues()
         this.setupLayers()
         this.createBackground() 
@@ -937,116 +947,15 @@ focusBoardCell(x: number, y: number, animate = true)
 
 checkBotTurn()
 {
-    const state = this.gameEngine.getState()
-    if(!state) return
-
-    const nextPlayer = state.players[state.currentPlayer]
-
-    if(!nextPlayer.isBot) return
-
-    const botThinkingText = this.add.text(
-        this.scale.width / 2,
-        120,
-        "Player THINKING...",
-        {
-            fontSize: "22px",
-            color: "#ffffff",
-            fontStyle: "bold"
-        }
+    this.botController.checkBotTurn(
+        this.boardLayer,
+        this.uiLayer,
+        this.boardView,
+        this.handView,
+        this.cellSize,
+        this.getCellCenter.bind(this),
+        this.focusBoardCell.bind(this)
     )
-
-    botThinkingText.setOrigin(0.5)
-    botThinkingText.setDepth(500)
-    this.uiLayer.add(botThinkingText)
-
-    const thinkDelay =
-        Phaser.Math.Between(
-            GameConfig.BOT_THINK_MIN,
-            GameConfig.BOT_THINK_MAX
-        )
-
-    setTimeout(() => {
-
-        const botMove = this.gameEngine.runBotTurn()
-
-        if(!botMove) return
-
-        const center = this.getCellCenter(botMove.x, botMove.y)
-
-        const botGhost = this.add.image(
-            center.x,
-            center.y,
-            botMove.cardId
-        )
-
-        botGhost.setDisplaySize(
-            this.cellSize - 4,
-            this.cellSize - 4
-        )
-
-        botGhost.setRotation(botMove.rotation * Math.PI / 2)
-        botGhost.setAlpha(0.6)
-        botGhost.setTint(0x88ccff)
-        botGhost.setDepth(210)
-
-        this.boardLayer.add(botGhost)
-
-        setTimeout(() => {
-
-            botGhost.destroy()
-            botThinkingText.destroy()
-
-            this.gameEngine.playCard(
-                botMove.cardId,
-                botMove.x,
-                botMove.y,
-                botMove.rotation
-            )
-
-            const newState = this.gameEngine.getState()
-
-            if(newState)
-            {
-                const nextCell = findCurrentPlayerNextCell(
-                    newState,
-                    newState.players[newState.currentPlayer].id
-                )
-
-                const nextCellForRender = nextCell
-                    ? { x: nextCell.x, y: nextCell.y }
-                    : undefined
-
-                this.boardView.render(nextCellForRender)
-
-                const validMoves = getValidMovesForPlayer(
-                    newState,
-                    newState.currentPlayer
-                )
-
-                const validCardIds = new Set(
-                    validMoves.map(v => v.cardId)
-                )
-
-                this.handView.render(validCardIds)
-
-                const focus = findCurrentPlayerNextCell(
-                    newState,
-                    newState.players[newState.currentPlayer].id
-                )
-
-                if(focus)
-                {
-                    setTimeout(() => {
-
-                        this.focusBoardCell(focus.x, focus.y, true)
-
-                    }, GameConfig.BOT_AFTER_MOVE_DELAY)
-                }
-            }
-
-        }, GameConfig.BOT_GHOST_DELAY)
-
-    }, thinkDelay)
 }
 
 
