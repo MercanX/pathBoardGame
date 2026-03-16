@@ -567,7 +567,154 @@ runBotTurn()
         }
     }
 
+    else if(botLevel === "ultra")
+    {
+        let bestMove = null
+        let bestScore = -999999
 
+        const nextCell = findCurrentPlayerNextCell(
+            this.state,
+            currentPlayer.id
+        )
+
+        const enemies = this.state.players.filter(
+            p => p.id !== currentPlayer.id && p.alive !== false
+        )
+
+        if(!nextCell)
+        {
+            selectedMove =
+                validMoves[Math.floor(Math.random() * validMoves.length)]
+        }
+        else
+        {
+            for(const move of validMoves)
+            {
+                const testState: GameState =
+                {
+                    board: new BoardEngine(this.state.board.size),
+                    players: JSON.parse(JSON.stringify(this.state.players)),
+                    deck: [...this.state.deck],
+                    discard: [...this.state.discard],
+                    currentPlayer: this.state.currentPlayer
+                }
+
+                // BOARD COPY
+                for(let y = 0; y < this.state.board.size; y++)
+                {
+                    for(let x = 0; x < this.state.board.size; x++)
+                    {
+                        const cell = this.state.board.getCell(x,y)
+
+                        if(cell && cell.cardId !== null && cell.owner !== null)
+                        {
+                            testState.board.placeCard(
+                                x,
+                                y,
+                                cell.cardId,
+                                cell.rotation,
+                                cell.owner
+                            )
+                        }
+                    }
+                }
+
+                const simPlayer =
+                    testState.players[testState.currentPlayer]
+
+                // MOVE SIMULATION
+                testState.board.placeCard(
+                    nextCell.x,
+                    nextCell.y,
+                    move.cardId,
+                    move.rotation,
+                    simPlayer.id
+                )
+
+                const result = tracePlayerPath(
+                    testState,
+                    simPlayer.id
+                )
+
+                if(result === "OUT_OF_BOARD")
+                {
+                    continue
+                }
+
+                const pathCells = tracePlayerPathCells(
+                    testState,
+                    simPlayer.id
+                )
+
+                let score = pathCells.length * 10
+
+                // FUTURE MOVE ANALYSIS
+                const nextCell2 = findCurrentPlayerNextCell(
+                    testState,
+                    simPlayer.id
+                )
+
+                if(nextCell2)
+                {
+                    const validMoves2 = getValidMovesForPlayer(
+                        testState,
+                        testState.currentPlayer
+                    )
+
+                    score += validMoves2.length * 5
+                }
+
+                // EDGE RISK
+                const lastCell = pathCells[pathCells.length - 1]
+
+                if(lastCell)
+                {
+                    const distToEdge =
+                        Math.min(
+                            lastCell.x,
+                            lastCell.y,
+                            this.state.board.size - 1 - lastCell.x,
+                            this.state.board.size - 1 - lastCell.y
+                        )
+
+                    score += distToEdge * 3
+                }
+
+                // ENEMY BLOCK
+                for(const enemy of enemies)
+                {
+                    const enemyPath = tracePlayerPathCells(
+                        testState,
+                        enemy.id
+                    )
+
+                    for(const cell of enemyPath)
+                    {
+                        if(cell.x === nextCell.x && cell.y === nextCell.y)
+                        {
+                            score += 50
+                        }
+                    }
+                }
+
+                if(score > bestScore)
+                {
+                    bestScore = score
+                    bestMove = move
+                }
+            }
+
+            if(bestMove)
+            {
+                selectedMove = bestMove
+            }
+            else
+            {
+                selectedMove =
+                    validMoves[Math.floor(Math.random() * validMoves.length)]
+            }
+        }
+    }
     else
     {
         selectedMove =
