@@ -7,10 +7,9 @@ import BoardEngine from "./BoardEngine"
 import { GameState, PlayerState } from "./GameState"
 
 import { buildDeck, giveCardToPlayer } from "./DeckEngine"
-import { tracePlayerPath } from "./PathEngine"
+import { tracePlayerPath, tracePlayerPathCells,findCurrentPlayerNextCell } from "./PathEngine"
 import { eliminatePlayer, nextPlayer } from "./TurnEngine"
 
-import { findCurrentPlayerNextCell } from "./PathEngine"
 import { getValidMovesForPlayer } from "./RuleEngine"
 
 export default class GameEngine
@@ -143,7 +142,8 @@ runBotTurn()
 
     else if(botLevel === "normal")
     {
-        const safeMoves = []
+        let bestMove = null
+        let bestScore = -1
 
         const nextCell = findCurrentPlayerNextCell(
             this.state,
@@ -191,7 +191,7 @@ runBotTurn()
                 const simPlayer =
                     testState.players[testState.currentPlayer]
 
-                // SIMULATE MOVE
+                // MOVE SIMULATION
                 testState.board.placeCard(
                     nextCell.x,
                     nextCell.y,
@@ -205,37 +205,28 @@ runBotTurn()
                     simPlayer.id
                 )
 
-                // Ölüm kontrolü
                 if(result === "OUT_OF_BOARD")
                 {
                     continue
                 }
 
-                // PATH sonrası next cell
-  
-                const nextCellSim = findCurrentPlayerNextCell(
+                const pathCells = tracePlayerPathCells(
                     testState,
                     simPlayer.id
                 )
 
-                if(!nextCellSim)
-                {
-                    continue
-                }
+                const score = pathCells.length
 
-                // sadece cell boş mu kontrol et
-                if(!testState.board.isCellEmpty(nextCellSim.x, nextCellSim.y))
+                if(score > bestScore)
                 {
-                    continue
+                    bestScore = score
+                    bestMove = move
                 }
-
-                safeMoves.push(move)
             }
 
-            if(safeMoves.length > 0)
+            if(bestMove)
             {
-                selectedMove =
-                    safeMoves[Math.floor(Math.random() * safeMoves.length)]
+                selectedMove = bestMove
             }
             else
             {
