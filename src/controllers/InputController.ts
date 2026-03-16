@@ -11,8 +11,12 @@
  */
 
 import Phaser from "phaser"
-import { getValidMovesForPlayer } from "../core/RuleEngine"
-import { findCurrentPlayerNextCell } from "../core/PathEngine"
+import { canPlace, getValidMovesForPlayer } from "../core/RuleEngine"
+import {
+    findCurrentPlayerNextCell,
+    tracePlayerPathCells
+} from "../core/PathEngine"
+
 
 export default class InputController
 {
@@ -30,11 +34,14 @@ export default class InputController
         private getRotation:()=>number,
         private setRotation:(r:number)=>void,
         private getGhost:()=>Phaser.GameObjects.Image | undefined,
-        private setGhost:(g:Phaser.GameObjects.Image)=>void,
+        private setGhost:(g:Phaser.GameObjects.Image | undefined)=>void,
         private getHighlight:()=>Phaser.GameObjects.Rectangle | undefined,
         private setHighlight:(h:Phaser.GameObjects.Rectangle)=>void,
         private getPathPreview:()=>Phaser.GameObjects.Graphics | undefined,
-        private setPathPreview:(p:Phaser.GameObjects.Graphics | undefined)=>void
+        private setPathPreview:(p:Phaser.GameObjects.Graphics | undefined)=>void,
+        private isDragging:()=>boolean,
+        private focusBoardCell:(x:number,y:number,animate?:boolean)=>void,
+        private checkBotTurn:()=>void
     )
     {
         this.scene = scene
@@ -65,8 +72,6 @@ export default class InputController
             toggleMapMode()
         })
 
-        //this.scene.input.on("pointermove", this.handleMove, this)
-
         this.scene.input.on(
             "pointerdown",
             handleClick,
@@ -74,176 +79,146 @@ export default class InputController
         )
     }
 
-
-handleMove(pointer: Phaser.Input.Pointer)
+handleClick(pointer: Phaser.Input.Pointer)
 {
+    if(this.isDragging()) return
+
     const cell = this.getBoardCellFromPointer(pointer)
-
-    if(!cell)
-    {
-        this.boardView.clearGhostOverlays()
-
-        const ghost = this.getGhost()
-        if(ghost)
-        {
-            ghost.setVisible(false)
-        }
-
-        const highlight = this.getHighlight()
-        if(highlight)
-        {
-            highlight.setVisible(false)
-        }
-
-        return
-    }
-
-    const selectedCard = this.handView.getSelectedCard()
-
-    if(!selectedCard)
-    {
-        this.boardView.clearGhostOverlays()
-
-        const ghost = this.getGhost()
-        if(ghost)
-        {
-            ghost.setVisible(false)
-        }
-
-        const highlight = this.getHighlight()
-        if(highlight)
-        {
-            highlight.setVisible(false)
-        }
-
-        return
-    }
-
-    const center = this.getCellCenter(cell.x, cell.y)
-
-    let highlight = this.getHighlight()
-
-    if(!highlight)
-    {
-        highlight = this.scene.add.rectangle(
-            center.x,
-            center.y,
-            this.getCellSize() - 6,
-            this.getCellSize() - 6
-        )
-
-        highlight.setStrokeStyle(4, 0xffffff, 0.9)
-        highlight.setFillStyle(0x000000, 0)
-        highlight.setDepth(150)
-        highlight.setVisible(false)
-
-        this.boardLayer.add(highlight)
-
-        this.setHighlight(highlight)
-    }
-    else
-    {
-        highlight.setPosition(center.x, center.y)
-    }
-
-    let ghost = this.getGhost()
-
-    if(!ghost)
-    {
-        ghost = this.scene.add.image(center.x, center.y, selectedCard)
-
-        ghost.setDisplaySize(
-            this.getCellSize() - 4,
-            this.getCellSize() - 4
-        )
-
-        ghost.setDepth(200)
-
-        this.boardLayer.add(ghost)
-
-        this.setGhost(ghost)
-    }
-    else
-    {
-        ghost.setTexture(selectedCard)
-        ghost.setPosition(center.x, center.y)
-        ghost.setVisible(true)
-    }
-
-    ghost.setRotation(this.getRotation() * Math.PI / 2)
-
-    ghost.clearTint()
+    if(!cell) return
 
     const state = this.gameEngine.getState()
     if(!state) return
 
-    const player = state.players[state.currentPlayer]
+    const actingPlayer = state.players[state.currentPlayer]
+
+    const selectedCard = this.handView.getSelectedCard()
+    if(!selectedCard) return
 
     const validMoves = getValidMovesForPlayer(
         state,
         state.currentPlayer
     )
 
+    console.log("VALID MOVES:", validMoves)
+    console.log("SELECTED CARD:", selectedCard)
+    console.log("ROTATION:", this.getRotation())
+
+    if(validMoves.length === 0)
+    {
+        console.log("NO VALID CARDS")
+        return
+    }
+
+    // 1) önce kart + rotasyon doğru mu?
     const isAllowedCard = validMoves.some(v =>
         v.cardId === selectedCard &&
         v.rotation === this.getRotation()
     )
 
-    const nextCell = findCurrentPlayerNextCell(state, player.id)
-
-    const pathPreview = this.getPathPreview()
-
-    if(pathPreview)
+    if(!isAllowedCard)
     {
-        pathPreview.destroy()
-        this.setPathPreview(undefined)
+        console.log("CARD DOES NOT MATCH PATH")
+        return
     }
 
-    if(
-        nextCell &&
-        nextCell.x === cell.x &&
-        nextCell.y === cell.y &&
-        state.board.board[cell.y][cell.x].cardId === null
-    )
+    // 2) sonra doğru next cell mi?
+    const nextCell = findCurrentPlayerNextCell(state, actingPlayer.id)
+
+    if(!nextCell)
     {
-        this.boardView.renderGhostPath(
+        console.log("NO NEXT CELL")
+        return
+    }
+
+    const isCorrectCell =
+        cell.x === nextCell.x &&
+        cell.y === nextCell.y
+
+    if(!isCorrectCell)
+    {
+        console.log("NOT NEXT CELL")
+        return
+    }
+
+    // 3) hücre boş mu?
+    if(!canPlace(state.board.board, cell.x, cell.y))
+    {
+        console.log("INVALID MOVE")
+        return
+    }
+
+    try
+    {
+        this.gameEngine.playCard(
             selectedCard,
-            this.getRotation(),
             cell.x,
-            cell.y
+            cell.y,
+            this.getRotation()
         )
-    }
-    else
-    {
-        this.boardView.clearGhostOverlays()
-    }
 
-    if(
-        nextCell &&
-        nextCell.x === cell.x &&
-        nextCell.y === cell.y &&
-        state.board.board[cell.y][cell.x].cardId === null
-    )
-    {
-        highlight.setVisible(true)
-        ghost.setAlpha(1)
+        const newState = this.gameEngine.getState()
 
-        if(isAllowedCard)
+        let focusX = cell.x
+        let focusY = cell.y
+
+        if(newState)
         {
-            highlight.setStrokeStyle(20, 0x22c55e, 0.5)
-            highlight.setFillStyle(0x22c55e, 0.5)
+            const nextCellAfterMove = findCurrentPlayerNextCell(
+                newState,
+                newState.players[newState.currentPlayer].id
+            )
+
+            if(nextCellAfterMove)
+            {
+                focusX = nextCellAfterMove.x
+                focusY = nextCellAfterMove.y
+            }
+
+            const nextCellForRender = nextCellAfterMove
+                ? { x: nextCellAfterMove.x, y: nextCellAfterMove.y }
+                : undefined
+
+            this.boardView.render(nextCellForRender)
+
+            const validMoves = getValidMovesForPlayer(
+                newState,
+                newState.currentPlayer
+            )
+
+            const validCardIds = new Set(
+                validMoves.map(v => v.cardId)
+            )
+
+            this.handView.render(validCardIds)
         }
-        else
+
+        const ghost = this.getGhost()
+        if(ghost)
         {
-            highlight.setStrokeStyle(20, 0xef4444, 0.5)
-            highlight.setFillStyle(0xef4444, 0.5)
+            ghost.destroy()
+            this.setGhost(undefined)
+        }
+
+        this.focusBoardCell(focusX, focusY, true)
+
+        this.checkBotTurn()
+
+        if(newState)
+        {
+            const flows = tracePlayerPathCells(
+                newState,
+                actingPlayer.id
+            )
+
+            console.log("===== TRACE AFTER MOVE =====")
+            console.table(flows)
         }
     }
-    else
+    catch(error)
     {
-        highlight.setVisible(false)
-        ghost.setAlpha(0.5)
+        console.log("Invalid move", error)
     }
 }
+
 
 }

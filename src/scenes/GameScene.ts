@@ -141,6 +141,12 @@ export default class GameScene extends Phaser.Scene
     {
 
         this.initGame()
+        this.setupLayoutValues()
+        this.setupLayers()
+        this.createBackground() 
+        this.setupCameras()
+        this.setupViews()
+
 
         this.botController = new BotController(
             this,
@@ -149,28 +155,38 @@ export default class GameScene extends Phaser.Scene
 
         this.inputController = new InputController(
             this,
+
             this.boardView,
             this.handView,
             this.gameEngine,
+
             this.boardLayer,
-            this.getBoardCellFromPointer.bind(this),
-            this.getCellCenter.bind(this),
-            () => this.cellSize,
-            () => this.currentRotation,
-            (r:number)=>this.currentRotation=r,
-            () => this.ghostCard,
-            (g)=>this.ghostCard=g,
-            () => this.highlightCell,
-            (h)=>this.highlightCell=h,
-            () => this.pathPreview,
-            (p)=>this.pathPreview=p
+
+            (pointer)=>this.getBoardCellFromPointer(pointer),
+            (x,y)=>this.getCellCenter(x,y),
+
+            ()=>this.cellSize,
+
+            ()=>this.currentRotation,
+            (r)=>this.currentRotation = r,
+
+            ()=>this.ghostCard,
+            (g)=>this.ghostCard = g,
+
+            ()=>this.highlightCell,
+            (h)=>this.highlightCell = h,
+
+            ()=>this.pathPreview,
+            (p)=>this.pathPreview = p,
+
+            ()=>this.isDragging,
+            (x,y,animate)=>this.focusBoardCell(x,y,animate),
+            ()=>this.checkBotTurn()
         )
 
-        this.setupLayoutValues()
-        this.setupLayers()
-        this.createBackground() 
-        this.setupCameras()
-        this.setupViews()
+ 
+
+
         this.setupInput()
         this.renderStaticUi()
         this.focusInitialPlayer()
@@ -406,7 +422,7 @@ if(state)
     setupInput()
     {
         this.inputController.setupInput(
-            this.handleClick.bind(this),
+            this.inputController.handleClick.bind(this.inputController),
             this.toggleMapMode.bind(this),
             () => this.currentRotation,
             (rotation:number) => this.currentRotation = rotation,
@@ -472,175 +488,9 @@ if(state)
     }
 
 
-handleClick(pointer: Phaser.Input.Pointer)
-{
-    if(this.isDragging) return
-
-    const cell = this.getBoardCellFromPointer(pointer)
-    if(!cell) return
-
-    const state = this.gameEngine.getState()
-    if(!state) return
-
-    const actingPlayer = state.players[state.currentPlayer]
-
-    const selectedCard = this.handView.getSelectedCard()
-    if(!selectedCard) return
-
-    const validMoves = getValidMovesForPlayer(
-        state,
-        state.currentPlayer
-    )
-
-    console.log("VALID MOVES:", validMoves)
-    console.log("SELECTED CARD:", selectedCard)
-    console.log("ROTATION:", this.currentRotation)
-
-    if(validMoves.length === 0)
-    {
-        console.log("NO VALID CARDS")
-        return
-    }
-
-    // 1) önce kart + rotasyon doğru mu?
-    const isAllowedCard = validMoves.some(v =>
-        v.cardId === selectedCard &&
-        v.rotation === this.currentRotation
-    )
-
-    if(!isAllowedCard)
-    {
-        console.log("CARD DOES NOT MATCH PATH")
-        return
-    }
-
-    // 2) sonra doğru next cell mi?
-    const nextCell = findCurrentPlayerNextCell(state, actingPlayer.id)
-
-    if(!nextCell)
-    {
-        console.log("NO NEXT CELL")
-        return
-    }
-
-    const isCorrectCell =
-        cell.x === nextCell.x &&
-        cell.y === nextCell.y
-
-    if(!isCorrectCell)
-    {
-        console.log("NOT NEXT CELL")
-        return
-    }
-
-    // 3) hücre boş mu?
-    if(!canPlace(state.board.board, cell.x, cell.y))
-    {
-        console.log("INVALID MOVE")
-        return
-    }
-
-    try
-    {
-        this.gameEngine.playCard(
-            selectedCard,
-            cell.x,
-            cell.y,
-            this.currentRotation
-        )
-
-        //this.boardView.render()
-        //this.handView.render()
-
-        const newState = this.gameEngine.getState()
-
-        let focusX = cell.x
-        let focusY = cell.y
-
-        if(newState)
-        {
-            const nextCellAfterMove = findCurrentPlayerNextCell(
-                newState,
-                newState.players[newState.currentPlayer].id
-            )
-
-            if(nextCellAfterMove)
-            {
-                focusX = nextCellAfterMove.x
-                focusY = nextCellAfterMove.y
-            }
-
-            const nextCellForRender = nextCellAfterMove
-                ? { x: nextCellAfterMove.x, y: nextCellAfterMove.y }
-                : undefined
 
 
-            this.boardView.render(nextCellForRender)
-
-            const validMoves = getValidMovesForPlayer(
-                newState,
-                newState.currentPlayer
-            )
-
-            const validCardIds = new Set(
-                validMoves.map(v => v.cardId)
-            )
-
-            this.handView.render(validCardIds)
-        }
-
-        if(this.ghostCard)
-        {
-            this.ghostCard.destroy()
-            this.ghostCard = undefined
-        }
-
-        this.focusBoardCell(focusX, focusY, true)
-
-
-        this.checkBotTurn()
-
-
-        if(newState)
-        {
-            const flows = tracePlayerPathCells(
-                newState,
-                actingPlayer.id
-            )
-
-            console.log("===== TRACE AFTER MOVE =====")
-            console.table(flows)
-        }
-
-
-
-    }
-    catch(error)
-    {
-        console.log("Invalid move", error)
-    }
-}
-
-drawFlowDebug(flows:any[])
-{
-    for(const f of flows)
-    {
-        const center = this.getCellCenter(f.x,f.y)
-
-        const r = this.add.rectangle(
-            center.x,
-            center.y,
-            this.cellSize - 6,
-            this.cellSize - 6
-        )
-
-        r.setStrokeStyle(3,0xffff00)
-        r.setDepth(300)
-
-        this.boardLayer.add(r)
-    }
-}
-
+    
 
 toggleMapMode()
 {
