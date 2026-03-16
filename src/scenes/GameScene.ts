@@ -33,6 +33,7 @@ import {
 import { GameConfig } from "../config/GameConfig"
 
 import BotController from "../controllers/BotController"
+import InputController from "../controllers/InputController"
 
 export default class GameScene extends Phaser.Scene
 {
@@ -42,6 +43,7 @@ export default class GameScene extends Phaser.Scene
     handView!: HandView
 
     botController!: BotController
+    inputController!: InputController
 
     uiCamera!: Phaser.Cameras.Scene2D.Camera
     boardCamera!: Phaser.Cameras.Scene2D.Camera
@@ -138,14 +140,13 @@ export default class GameScene extends Phaser.Scene
     create()
     {
 
-
-
         this.initGame()
 
         this.botController = new BotController(
             this,
             this.gameEngine
         )
+        this.inputController = new InputController(this)
 
         this.setupLayoutValues()
         this.setupLayers()
@@ -386,21 +387,13 @@ if(state)
 
     setupInput()
     {
-        this.input.keyboard?.on("keydown-R", () => {
-            this.currentRotation = (this.currentRotation + 1) % 4
-
-            if(this.ghostCard)
-            {
-                this.ghostCard.setRotation(this.currentRotation * Math.PI / 2)
-            }
-        })
-
-        this.input.keyboard?.on("keydown-M", () => {
-            this.toggleMapMode()
-        })
-
-        //this.input.on("pointermove", this.handleMove, this)
-        this.input.on("pointerdown", this.handleClick, this)
+        this.inputController.setupInput(
+            this.handleClick.bind(this),
+            this.toggleMapMode.bind(this),
+            () => this.currentRotation,
+            (rotation:number) => this.currentRotation = rotation,
+            () => this.ghostCard
+        )
     }
 
     focusInitialPlayer()
