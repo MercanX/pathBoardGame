@@ -30,6 +30,8 @@ import {
     tracePlayerPathCells
 } from "../core/PathEngine"
 
+import { GameConfig } from "../config/GameConfig"
+
 export default class GameScene extends Phaser.Scene
 {
     gameEngine!: GameEngine
@@ -175,6 +177,7 @@ export default class GameScene extends Phaser.Scene
                 hand: [],
                 isAlive: true,
                 isBot: true,
+                 botLevel: "normal",//"easy" | "normal" | "hard"
                 startX: this.boardSize-1,
                 startY: 0,
                 entryPort: 2
@@ -729,6 +732,9 @@ handleClick(pointer: Phaser.Input.Pointer)
         this.focusBoardCell(focusX, focusY, true)
 
 
+        this.checkBotTurn()
+
+
         if(newState)
         {
             const flows = tracePlayerPathCells(
@@ -929,7 +935,119 @@ focusBoardCell(x: number, y: number, animate = true)
     }
 }
 
+checkBotTurn()
+{
+    const state = this.gameEngine.getState()
+    if(!state) return
 
+    const nextPlayer = state.players[state.currentPlayer]
+
+    if(!nextPlayer.isBot) return
+
+    const botThinkingText = this.add.text(
+        this.scale.width / 2,
+        120,
+        "Player THINKING...",
+        {
+            fontSize: "22px",
+            color: "#ffffff",
+            fontStyle: "bold"
+        }
+    )
+
+    botThinkingText.setOrigin(0.5)
+    botThinkingText.setDepth(500)
+    this.uiLayer.add(botThinkingText)
+
+    const thinkDelay =
+        Phaser.Math.Between(
+            GameConfig.BOT_THINK_MIN,
+            GameConfig.BOT_THINK_MAX
+        )
+
+    setTimeout(() => {
+
+        const botMove = this.gameEngine.runBotTurn()
+
+        if(!botMove) return
+
+        const center = this.getCellCenter(botMove.x, botMove.y)
+
+        const botGhost = this.add.image(
+            center.x,
+            center.y,
+            botMove.cardId
+        )
+
+        botGhost.setDisplaySize(
+            this.cellSize - 4,
+            this.cellSize - 4
+        )
+
+        botGhost.setRotation(botMove.rotation * Math.PI / 2)
+        botGhost.setAlpha(0.6)
+        botGhost.setTint(0x88ccff)
+        botGhost.setDepth(210)
+
+        this.boardLayer.add(botGhost)
+
+        setTimeout(() => {
+
+            botGhost.destroy()
+            botThinkingText.destroy()
+
+            this.gameEngine.playCard(
+                botMove.cardId,
+                botMove.x,
+                botMove.y,
+                botMove.rotation
+            )
+
+            const newState = this.gameEngine.getState()
+
+            if(newState)
+            {
+                const nextCell = findCurrentPlayerNextCell(
+                    newState,
+                    newState.players[newState.currentPlayer].id
+                )
+
+                const nextCellForRender = nextCell
+                    ? { x: nextCell.x, y: nextCell.y }
+                    : undefined
+
+                this.boardView.render(nextCellForRender)
+
+                const validMoves = getValidMovesForPlayer(
+                    newState,
+                    newState.currentPlayer
+                )
+
+                const validCardIds = new Set(
+                    validMoves.map(v => v.cardId)
+                )
+
+                this.handView.render(validCardIds)
+
+                const focus = findCurrentPlayerNextCell(
+                    newState,
+                    newState.players[newState.currentPlayer].id
+                )
+
+                if(focus)
+                {
+                    setTimeout(() => {
+
+                        this.focusBoardCell(focus.x, focus.y, true)
+
+                    }, GameConfig.BOT_AFTER_MOVE_DELAY)
+                }
+            }
+
+        }, GameConfig.BOT_GHOST_DELAY)
+
+    }, thinkDelay)
+}
 
 
 setupZoom()

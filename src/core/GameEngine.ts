@@ -10,6 +10,9 @@ import { buildDeck, giveCardToPlayer } from "./DeckEngine"
 import { tracePlayerPath } from "./PathEngine"
 import { eliminatePlayer, nextPlayer } from "./TurnEngine"
 
+import { findCurrentPlayerNextCell } from "./PathEngine"
+import { getValidMovesForPlayer } from "./RuleEngine"
+
 export default class GameEngine
 {
     state:GameState | null = null
@@ -95,7 +98,7 @@ playCard(
     }
 
     // sırayı değiştir
-    //nextPlayer(this.state)
+    nextPlayer(this.state)
 }
 
     /**
@@ -105,5 +108,141 @@ playCard(
     {
         return this.state
     }
-    
+
+
+runBotTurn()
+{
+    if(!this.state) return
+
+    const currentPlayer = this.state.players[this.state.currentPlayer]
+
+    if(!currentPlayer.isBot) return
+
+    const botLevel = currentPlayer.botLevel || "normal"
+
+    console.log("BOT TURN")
+
+    const validMoves = getValidMovesForPlayer(
+        this.state,
+        this.state.currentPlayer
+    )
+
+    if(validMoves.length === 0)
+    {
+        console.log("BOT NO MOVES")
+        return
+    }
+
+    let selectedMove
+
+    if(botLevel === "easy")
+    {
+        selectedMove =
+            validMoves[Math.floor(Math.random() * validMoves.length)]
+    }
+
+    else if(botLevel === "normal")
+    {
+        const safeMoves = []
+
+        const nextCell = findCurrentPlayerNextCell(
+            this.state,
+            currentPlayer.id
+        )
+
+        if(!nextCell)
+        {
+            selectedMove =
+                validMoves[Math.floor(Math.random() * validMoves.length)]
+        }
+        else
+        {
+            for(const move of validMoves)
+            {
+                const testState: GameState =
+                {
+                    board: new BoardEngine(this.state.board.size),
+                    players: JSON.parse(JSON.stringify(this.state.players)),
+                    deck: [...this.state.deck],
+                    discard: [...this.state.discard],
+                    currentPlayer: this.state.currentPlayer
+                }
+
+                // Board kopyala
+                for(let y = 0; y < this.state.board.size; y++)
+                {
+                    for(let x = 0; x < this.state.board.size; x++)
+                    {
+                        const cell = this.state.board.getCell(x,y)
+
+                        if(cell && cell.cardId !== null && cell.owner !== null)
+                        {
+                            testState.board.placeCard(
+                                x,
+                                y,
+                                cell.cardId,
+                                cell.rotation,
+                                cell.owner
+                            )
+                        }
+                    }
+                }
+
+                const simPlayer =
+                    testState.players[testState.currentPlayer]
+
+                // BOT move simulate
+                testState.board.placeCard(
+                    nextCell.x,
+                    nextCell.y,
+                    move.cardId,
+                    move.rotation,
+                    simPlayer.id
+                )
+
+                const result = tracePlayerPath(
+                    testState,
+                    simPlayer.id
+                )
+
+                if(result !== "OUT_OF_BOARD")
+                {
+                    safeMoves.push(move)
+                }
+            }
+
+            if(safeMoves.length > 0)
+            {
+                selectedMove =
+                    safeMoves[Math.floor(Math.random() * safeMoves.length)]
+            }
+            else
+            {
+                selectedMove =
+                    validMoves[Math.floor(Math.random() * validMoves.length)]
+            }
+        }
+    }
+
+    else
+    {
+        selectedMove =
+            validMoves[Math.floor(Math.random() * validMoves.length)]
+    }
+
+    const nextCell = findCurrentPlayerNextCell(
+        this.state,
+        currentPlayer.id
+    )
+
+    if(!nextCell) return
+
+    return {
+        cardId: selectedMove.cardId,
+        rotation: selectedMove.rotation,
+        x: nextCell.x,
+        y: nextCell.y
+    }
+}
+
 }
