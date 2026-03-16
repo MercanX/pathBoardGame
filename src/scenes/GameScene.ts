@@ -16,12 +16,10 @@ import Phaser from "phaser"
 
 import GameEngine from "../core/GameEngine"
 import { PlayerState } from "../core/GameState"
-//import { tracePlayerPath } from "../core/PathEngine"
-import { canPlace,getValidMovesForPlayer  } from "../core/RuleEngine"
 
 import BoardView from "../ui/BoardView"
 import HandView from "../ui/HandView"
-
+import { getValidMovesForPlayer } from "../core/RuleEngine"
 import { CardDefinitions } from "../data/CardDefinitions"
 
 import { 
@@ -29,8 +27,6 @@ import {
     tracePlayerPath,
     tracePlayerPathCells
 } from "../core/PathEngine"
-
-import { GameConfig } from "../config/GameConfig"
 
 import BotController from "../controllers/BotController"
 import InputController from "../controllers/InputController"
@@ -116,8 +112,6 @@ export default class GameScene extends Phaser.Scene
 
     currentRotation = 0
 
-    dragStartX = 0
-    dragStartY = 0
     isDragging = false
 
     bottomUI!: Phaser.GameObjects.Container
@@ -126,9 +120,6 @@ export default class GameScene extends Phaser.Scene
     btnRotate!: Phaser.GameObjects.Image
     btnMap!: Phaser.GameObjects.Image
 
-
-    savedScrollX = 0
-    savedScrollY = 0
     savedCenterX = 0
     savedCenterY = 0
 
@@ -383,44 +374,45 @@ export default class GameScene extends Phaser.Scene
             this.uiLayer,
             this.gameEngine,
             handX,
-            this.boardViewportY + this.boardViewportHeight + 50, // board altından 50px
+            this.boardViewportY + this.boardViewportHeight + 50,
             handWidth,
             this.bottomUiHeight - 40
         )
 
-        //this.handView.render()
+        const state = this.gameEngine.getState()
 
-        this.boardView.render()
+        let nextCellForRender
 
-const state = this.gameEngine.getState()
+        if(state)
+        {
+            const nextCell = findCurrentPlayerNextCell(
+                state,
+                state.players[state.currentPlayer].id
+            )
 
-if(state)
-{
-    const nextCell = findCurrentPlayerNextCell(
-        state,
-        state.players[state.currentPlayer].id
-    )
+            nextCellForRender = nextCell
+                ? { x: nextCell.x, y: nextCell.y }
+                : undefined
+        }
 
-    const nextCellForRender = nextCell
-        ? { x: nextCell.x, y: nextCell.y }
-        : undefined
+        // board render
+        this.boardView.render(nextCellForRender)
 
-    this.boardView.render(nextCellForRender)
+        // hand render
+        if(state)
+        {
+            const validMoves = getValidMovesForPlayer(
+                state,
+                state.currentPlayer
+            )
 
-    const validMoves = getValidMovesForPlayer(
-        state,
-        state.currentPlayer
-    )
+            const validCardIds = new Set(
+                validMoves.map(v => v.cardId)
+            )
 
-    const validCardIds = new Set(
-        validMoves.map(v => v.cardId)
-    )
-
-    this.handView.render(validCardIds)
-}
-
+            this.handView.render(validCardIds)
+        }
     }
-
     renderStaticUi()
     {
         const title = this.add.text(
