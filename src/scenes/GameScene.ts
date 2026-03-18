@@ -136,6 +136,7 @@ export default class GameScene extends Phaser.Scene
     {
         this.load.image("game_bg", "/assets/bg/bg01.png")
         this.load.image("board", "/assets/board/board.png")
+      
         for(let i = 1; i <= 20; i++)
         {
             const num = i.toString().padStart(2, "0")
@@ -169,7 +170,7 @@ export default class GameScene extends Phaser.Scene
 
     create()
     {
-        
+
         this.isGameOver = false
         this.isBotRunning = false
         this.isMapMode = false

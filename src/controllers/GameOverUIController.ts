@@ -75,7 +75,10 @@ export default class GameOverUIController
         btn.setScale(0)
 
         btn.on("pointerdown", () => {
-            this.scene.scene.restart()
+
+            this.scene.scene.stop("GameScene")
+            this.scene.scene.start("MainMenuScene")
+
         })
 
         // LAYER
