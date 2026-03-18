@@ -78,6 +78,8 @@ export default class HandView
 
 render(validCards?: Set<string>)
 {
+    const scene = this.scene as any
+    if(scene.isGameOver) return
 
     this.validCards = validCards
     const state = this.gameEngine.getState()
@@ -264,4 +266,20 @@ highlight()
         const player = state.players[state.currentPlayer]
         return player.hand[this.selectedIndex] || null
     }
+
+    setVisible(value: boolean)
+    {
+        if(this.panel) this.panel.setVisible(value)
+
+        for(const slot of this.slotRects)
+        {
+            slot.setVisible(value)
+        }
+
+        for(const card of this.cards)
+        {
+            card.setVisible(value)
+        }
+    }
+
 }

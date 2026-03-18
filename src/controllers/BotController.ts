@@ -47,6 +47,13 @@ export default class BotController
         focusBoardCell:(x:number,y:number,animate?:boolean)=>void
     )
     {
+
+        if(this.scene.isGameOver)
+        {
+            this.scene.isBotRunning = false
+            return
+        }
+
         const state = this.gameEngine.getState()
         if(!state) return
 
@@ -77,15 +84,19 @@ export default class BotController
 
         setTimeout(() => {
 
-            this.scene.checkGameOver()
             if(this.scene.isGameOver)
             {
+                this.scene.isBotRunning = false
                 return
             }
 
             const botMove = this.gameEngine.runBotTurn()
 
-            if(!botMove) return
+            if(!botMove)
+            {
+                this.scene.checkGameOver() // 👈 EKLE
+                return
+            }
 
             const center = getCellCenter(botMove.x, botMove.y)
 
@@ -109,7 +120,11 @@ export default class BotController
 
             setTimeout(() => {
 
-
+                if(this.scene.isGameOver)
+                {
+                    this.scene.isBotRunning = false
+                    return
+                }
                 
                 botGhost.destroy()
                 botThinkingText.destroy()
@@ -176,6 +191,8 @@ export default class BotController
                         }, GameConfig.BOT_AFTER_MOVE_DELAY)
                     }
                 }
+
+                this.scene.isBotRunning = false
 
             }, GameConfig.BOT_GHOST_DELAY)
 

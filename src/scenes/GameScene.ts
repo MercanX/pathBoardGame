@@ -32,6 +32,7 @@ import BotController from "../controllers/BotController"
 import InputController from "../controllers/InputController"
 import GhostController from "../controllers/GhostController"
 import GameOverController from "../controllers/GameOverController"
+import GameOverUIController from "../controllers/GameOverUIController"
 
 export default class GameScene extends Phaser.Scene
 {
@@ -44,6 +45,7 @@ export default class GameScene extends Phaser.Scene
     inputController!: InputController
     ghostController!: GhostController
     gameOverController!: GameOverController
+    gameOverUIController!: GameOverUIController
 
     uiCamera!: Phaser.Cameras.Scene2D.Camera
     boardCamera!: Phaser.Cameras.Scene2D.Camera
@@ -123,6 +125,7 @@ export default class GameScene extends Phaser.Scene
     savedCenterY = 0
 
     isGameOver = false
+    isBotRunning = false
 
     constructor()
     {
@@ -166,6 +169,10 @@ export default class GameScene extends Phaser.Scene
 
     create()
     {
+        
+        this.isGameOver = false
+        this.isBotRunning = false
+        this.isMapMode = false
 
         this.initGame()
         this.setupLayoutValues()
@@ -213,10 +220,9 @@ export default class GameScene extends Phaser.Scene
             ()=>this.checkBotTurn()
         )
 
-        this.gameOverController = new GameOverController(
-            this.gameEngine
-        )
+        this.gameOverController = new GameOverController(this.gameEngine)
 
+        this.gameOverUIController = new GameOverUIController(this)
 
         this.setupInput()
         this.renderStaticUi()
@@ -591,6 +597,10 @@ export default class GameScene extends Phaser.Scene
 
     checkBotTurn()
     {
+        if(this.isGameOver) return
+
+        // 👇 BOT LOCK
+        if(this.isBotRunning) return
 
         this.checkGameOver()
 
@@ -599,10 +609,8 @@ export default class GameScene extends Phaser.Scene
             console.log("BOT BLOCKED - GAME OVER")
             return
         }
-        console.log("Bot Start")
 
-    
-
+        this.isBotRunning = true // 👈 LOCK
 
         this.botController.checkBotTurn(
             this.boardLayer,
@@ -704,11 +712,26 @@ export default class GameScene extends Phaser.Scene
     {
         const result = this.gameOverController.checkGameOver()
 
+        console.log("GAME OVER RESULT:", result)
+
         if(!result) return null
 
-        this.isGameOver = true
+        // 👇 ZATEN GAME OVER İSE TEKRAR ÇALIŞMA
+        if(this.isGameOver) return result
 
-        console.log("GAME OVER:", result)
+        this.isGameOver = true
+        this.bottomUI.setVisible(false)
+        this.handView.setVisible(false)
+        this.clearGhostObjects()
+
+        if(!this.isMapMode)
+        {
+            this.toggleMapMode()
+        }
+
+        console.log("SHOW UI TRIGGERED")
+
+        this.gameOverUIController.show(result)
 
         return result
     }
