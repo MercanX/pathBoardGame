@@ -17,17 +17,19 @@ import GameEngine from "../core/GameEngine"
 import { GameConfig } from "../config/GameConfig"
 import { findCurrentPlayerNextCell } from "../core/PathEngine"
 import { getValidMovesForPlayer } from "../core/RuleEngine"
+import GameScene from "../scenes/GameScene"
 
 import BoardView from "../ui/BoardView"
 import HandView from "../ui/HandView"
 
+
 export default class BotController
 {
-    scene: Phaser.Scene
+    scene: GameScene
     gameEngine: GameEngine
 
     constructor(
-        scene: Phaser.Scene,
+        scene: GameScene,
         gameEngine: GameEngine
     )
     {
@@ -104,12 +106,27 @@ export default class BotController
                 botGhost.destroy()
                 botThinkingText.destroy()
 
+                const state = this.gameEngine.getState()
+                if(!state) return
+
+                const targetCell = state.board.board[botMove.y][botMove.x]
+
+                if(targetCell.cardId !== null)
+                {
+                    //console.log("BOT ERROR: CELL FULL", botMove)
+                    return
+                }
+
+
+
                 this.gameEngine.playCard(
                     botMove.cardId,
                     botMove.x,
                     botMove.y,
                     botMove.rotation
                 )
+
+                this.scene.checkGameOver()
 
                 const newState = this.gameEngine.getState()
 

@@ -10,7 +10,7 @@
 import Phaser from "phaser"
 import { Port } from "../data/CardData"
 import { rotatePort } from "../core/CardEngine"
-
+import { GameConfig } from "../config/GameConfig"
 
 export default class CellView
 {
@@ -128,13 +128,15 @@ setPathOverlay(
 )
 {
     const key = this.getPathOverlayKey(cardId, a, b, rotation)
-
-    console.log("OVERLAY DEBUG", {
-        cardId,
-        entryExit: `${a}-${b}`,
-        rotation,
-        key
-    })
+    if(GameConfig.DEBUG)
+    {
+        console.log("OVERLAY DEBUG", {
+            cardId,
+            entryExit: `${a}-${b}`,
+            rotation,
+            key
+        })
+    }
 
     const overlay = this.scene.add.image(
         this.px + this.size / 2,

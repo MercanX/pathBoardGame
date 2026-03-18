@@ -18,6 +18,7 @@ import {
 } from "../core/PathEngine"
 
 import GameScene from "../scenes/GameScene"
+import { GameConfig } from "../config/GameConfig"
 
 export default class InputController
 {
@@ -100,9 +101,13 @@ handleClick(pointer: Phaser.Input.Pointer)
         state.currentPlayer
     )
 
+    if(GameConfig.DEBUG)
+    {
+
     console.log("VALID MOVES:", validMoves)
     console.log("SELECTED CARD:", selectedCard)
     console.log("ROTATION:", this.getRotation())
+    }
 
     if(validMoves.length === 0)
     {
@@ -157,6 +162,11 @@ handleClick(pointer: Phaser.Input.Pointer)
             this.getRotation()
         )
 
+        if(!this.scene.isGameOver)
+        {
+            this.checkBotTurn()
+        }
+
         const newState = this.gameEngine.getState()
 
         let focusX = cell.x
@@ -209,9 +219,13 @@ handleClick(pointer: Phaser.Input.Pointer)
                 newState,
                 actingPlayer.id
             )
-
-            console.log("===== TRACE AFTER MOVE =====")
-            console.table(flows)
+            
+            if(GameConfig.DEBUG)
+            {
+                console.log("===== TRACE AFTER MOVE =====")
+                console.table(flows)
+            }
+            
         }
     }
     catch(error)

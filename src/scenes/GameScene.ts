@@ -31,6 +31,7 @@ import {
 import BotController from "../controllers/BotController"
 import InputController from "../controllers/InputController"
 import GhostController from "../controllers/GhostController"
+import GameOverController from "../controllers/GameOverController"
 
 export default class GameScene extends Phaser.Scene
 {
@@ -42,11 +43,11 @@ export default class GameScene extends Phaser.Scene
     botController!: BotController
     inputController!: InputController
     ghostController!: GhostController
+    gameOverController!: GameOverController
 
     uiCamera!: Phaser.Cameras.Scene2D.Camera
     boardCamera!: Phaser.Cameras.Scene2D.Camera
    
-
     boardLayer!: Phaser.GameObjects.Container
     uiLayer!: Phaser.GameObjects.Container
 
@@ -87,8 +88,6 @@ export default class GameScene extends Phaser.Scene
         this.ghost.preview = value
     }
 
-
-
     boardSize = 8
 
     cellSize = 0
@@ -123,12 +122,12 @@ export default class GameScene extends Phaser.Scene
     savedCenterX = 0
     savedCenterY = 0
 
+    isGameOver = false
+
     constructor()
     {
         super("GameScene")
     }
-
-    
 
     preload()
     {
@@ -214,7 +213,9 @@ export default class GameScene extends Phaser.Scene
             ()=>this.checkBotTurn()
         )
 
- 
+        this.gameOverController = new GameOverController(
+            this.gameEngine
+        )
 
 
         this.setupInput()
@@ -413,6 +414,7 @@ export default class GameScene extends Phaser.Scene
             this.handView.render(validCardIds)
         }
     }
+
     renderStaticUi()
     {
         const title = this.add.text(
@@ -518,178 +520,242 @@ export default class GameScene extends Phaser.Scene
         }
     }
 
-
-
-
-    
-
-toggleMapMode()
-{
-    this.isMapMode = !this.isMapMode
-
-    const gridWidth = this.boardSize * this.cellSize
-    const gridHeight = this.boardSize * this.cellSize
-
-    const boardCenterX =
-        this.boardWorldX +
-        this.boardMargin +
-        (gridWidth / 2)
-
-    const boardCenterY =
-        this.boardWorldY +
-        this.boardMargin +
-        (gridHeight / 2)
-
-    if(this.isMapMode)
+    toggleMapMode()
     {
-        this.savedCenterX = this.boardCamera.midPoint.x
-        this.savedCenterY = this.boardCamera.midPoint.y
+        this.isMapMode = !this.isMapMode
 
-        this.boardCamera.setZoom(this.mapZoom)
-        this.boardCamera.pan(boardCenterX, boardCenterY, 250, "Sine.easeInOut")
+        const gridWidth = this.boardSize * this.cellSize
+        const gridHeight = this.boardSize * this.cellSize
 
-        return
+        const boardCenterX =
+            this.boardWorldX +
+            this.boardMargin +
+            (gridWidth / 2)
+
+        const boardCenterY =
+            this.boardWorldY +
+            this.boardMargin +
+            (gridHeight / 2)
+
+        if(this.isMapMode)
+        {
+            this.savedCenterX = this.boardCamera.midPoint.x
+            this.savedCenterY = this.boardCamera.midPoint.y
+
+            this.boardCamera.setZoom(this.mapZoom)
+            this.boardCamera.pan(boardCenterX, boardCenterY, 250, "Sine.easeInOut")
+
+            return
+        }
+
+        this.boardCamera.setZoom(this.playZoom)
+        this.boardCamera.centerOn(this.savedCenterX, this.savedCenterY)
     }
 
-    this.boardCamera.setZoom(this.playZoom)
-    this.boardCamera.centerOn(this.savedCenterX, this.savedCenterY)
-}
-
-focusBoardCell(x: number, y: number, animate = true)
-{
-    const center = this.getCellCenter(x, y)
-
-    if(animate)
+    focusBoardCell(x: number, y: number, animate = true)
     {
-        this.boardCamera.pan(center.x, center.y, 300, "Sine.easeInOut")
-    }
-    else
-    {
-        this.boardCamera.centerOn(center.x, center.y)
-    }
-}
+        const center = this.getCellCenter(x, y)
 
-clearGhostObjects()
-{
-    if(this.ghost.card)
-    {
-        this.ghost.card.destroy()
-        this.ghost.card = undefined
+        if(animate)
+        {
+            this.boardCamera.pan(center.x, center.y, 300, "Sine.easeInOut")
+        }
+        else
+        {
+            this.boardCamera.centerOn(center.x, center.y)
+        }
     }
 
-    if(this.ghost.highlight)
+    clearGhostObjects()
     {
-        this.ghost.highlight.destroy()
-        this.ghost.highlight = undefined
+        if(this.ghost.card)
+        {
+            this.ghost.card.destroy()
+            this.ghost.card = undefined
+        }
+
+        if(this.ghost.highlight)
+        {
+            this.ghost.highlight.destroy()
+            this.ghost.highlight = undefined
+        }
+
+        if(this.ghost.preview)
+        {
+            this.ghost.preview.destroy()
+            this.ghost.preview = undefined
+        }
+
+        this.boardView.clearGhostOverlays()
     }
 
-    if(this.ghost.preview)
+    checkBotTurn()
     {
-        this.ghost.preview.destroy()
-        this.ghost.preview = undefined
+        this.botController.checkBotTurn(
+            this.boardLayer,
+            this.uiLayer,
+            this.boardView,
+            this.handView,
+            this.cellSize,
+            this.getCellCenter.bind(this),
+            this.focusBoardCell.bind(this)
+        )
     }
 
-    this.boardView.clearGhostOverlays()
-}
+    setupZoom()
+    {
+        this.input.on(
+            "wheel",
+            (
+                _pointer: Phaser.Input.Pointer,
+                _gameObjects: Phaser.GameObjects.GameObject[],
+                _deltaX: number,
+                deltaY: number
+            ) => {
 
-checkBotTurn()
-{
-    this.botController.checkBotTurn(
-        this.boardLayer,
-        this.uiLayer,
-        this.boardView,
-        this.handView,
-        this.cellSize,
-        this.getCellCenter.bind(this),
-        this.focusBoardCell.bind(this)
-    )
-}
+                const newZoom = Phaser.Math.Clamp(
+                    this.boardCamera.zoom - deltaY * 0.001,
+                    0.7,
+                    3
+                )
 
+                this.boardCamera.setZoom(newZoom)
 
-setupZoom()
-{
-    this.input.on(
-        "wheel",
-        (
-            _pointer: Phaser.Input.Pointer,
-            _gameObjects: Phaser.GameObjects.GameObject[],
-            _deltaX: number,
-            deltaY: number
-        ) => {
+                this.clampCamera()
+            }
+        )
+    }
 
-            const newZoom = Phaser.Math.Clamp(
-                this.boardCamera.zoom - deltaY * 0.001,
-                0.7,
-                3
+    clampCamera()
+    {
+        const cam = this.boardCamera
+
+        const maxX = this.boardSize * this.cellSize - cam.width / cam.zoom
+        const maxY = this.boardSize * this.cellSize - cam.height / cam.zoom
+
+        cam.scrollX = Phaser.Math.Clamp(cam.scrollX, 0, maxX)
+        cam.scrollY = Phaser.Math.Clamp(cam.scrollY, 0, maxY)
+    }
+
+    createBottomUI()
+    {
+        const width = this.scale.width
+        const height = this.scale.height
+
+        const y = height - 160
+
+        this.bottomUI = this.add.container(0,0)
+        this.uiLayer.add(this.bottomUI)
+
+        this.btnRestart = this.add.image(width * 0.20, y, "ui_restart")
+        this.btnRotate  = this.add.image(width * 0.50, y, "ui_rotate")
+        this.btnMap     = this.add.image(width * 0.80, y, "ui_map")
+
+        this.btnRestart.setScale(0.45)
+        this.btnRotate.setScale(0.45)
+        this.btnMap.setScale(0.45)
+
+        this.bottomUI.add([
+            this.btnRestart,
+            this.btnRotate,
+            this.btnMap
+        ])
+
+        // BUTTON INTERACTION
+
+        this.btnRestart.setInteractive({ useHandCursor: true })
+        this.btnRotate.setInteractive({ useHandCursor: true })
+        this.btnMap.setInteractive({ useHandCursor: true })
+
+        // RESTART BUTTON
+        this.btnRestart.on("pointerdown", () => {
+            this.scene.restart()
+        })
+
+        // ROTATE BUTTON
+        this.btnRotate.on("pointerdown", () => {
+
+            this.currentRotation = (this.currentRotation + 1) % 4
+
+            this.ghostController.updateGhostForSelectedCard()
+
+        })
+
+        // MAP BUTTON
+        this.btnMap.on("pointerdown", () => {
+            this.toggleMapMode()
+        })
+    }
+
+    checkGameOver()
+    {
+        const state = this.gameEngine.getState()
+        if(!state) return null
+
+        const players = state.players
+
+        // Tüm oyuncular için nextCell kontrolü
+        const results = players.map(player => {
+
+            if(!player.isAlive)
+            {
+                return {
+                    playerId: player.id,
+                    hasNext: false,
+                    alreadyDead: true
+                }
+            }
+
+            const nextCell = findCurrentPlayerNextCell(
+                state,
+                player.id
             )
 
-            this.boardCamera.setZoom(newZoom)
+            const hasNext = !!nextCell
 
-            this.clampCamera()
+            return {
+                playerId: player.id,
+                hasNext,
+                alreadyDead: false
+            }
+        })
+
+        const alivePlayers = results.filter(r => !r.alreadyDead)
+
+        // --- CASE 1: hepsi nextCell yok → DRAW
+        const allNoNext = alivePlayers.every(r => !r.hasNext)
+
+        if(allNoNext)
+        {
+            // hepsini öldür
+            alivePlayers.forEach(r => {
+                const p = players.find(p => p.id === r.playerId)
+                if(p) p.isAlive = false
+            })
+
+            return { type: "DRAW" }
         }
-    )
-}
 
-clampCamera()
-{
-    const cam = this.boardCamera
+        // --- CASE 2: biri nextCell yok → o ölür, diğeri kazanır
+        const losers = alivePlayers.filter(r => !r.hasNext)
+        const winners = alivePlayers.filter(r => r.hasNext)
 
-    const maxX = this.boardSize * this.cellSize - cam.width / cam.zoom
-    const maxY = this.boardSize * this.cellSize - cam.height / cam.zoom
+        if(losers.length > 0 && winners.length > 0)
+        {
+            // loser'ları öldür
+            losers.forEach(r => {
+                const p = players.find(p => p.id === r.playerId)
+                if(p) p.isAlive = false
+            })
 
-    cam.scrollX = Phaser.Math.Clamp(cam.scrollX, 0, maxX)
-    cam.scrollY = Phaser.Math.Clamp(cam.scrollY, 0, maxY)
-}
+            return {
+                type: "WIN",
+                winner: winners[0].playerId
+            }
+        }
 
-
-createBottomUI()
-{
-    const width = this.scale.width
-    const height = this.scale.height
-
-    const y = height - 160
-
-    this.bottomUI = this.add.container(0,0)
-    this.uiLayer.add(this.bottomUI)
-
-    this.btnRestart = this.add.image(width * 0.20, y, "ui_restart")
-    this.btnRotate  = this.add.image(width * 0.50, y, "ui_rotate")
-    this.btnMap     = this.add.image(width * 0.80, y, "ui_map")
-
-    this.btnRestart.setScale(0.45)
-    this.btnRotate.setScale(0.45)
-    this.btnMap.setScale(0.45)
-
-    this.bottomUI.add([
-        this.btnRestart,
-        this.btnRotate,
-        this.btnMap
-    ])
-
-    // BUTTON INTERACTION
-
-    this.btnRestart.setInteractive({ useHandCursor: true })
-    this.btnRotate.setInteractive({ useHandCursor: true })
-    this.btnMap.setInteractive({ useHandCursor: true })
-
-    // RESTART BUTTON
-    this.btnRestart.on("pointerdown", () => {
-        this.scene.restart()
-    })
-
-    // ROTATE BUTTON
-    this.btnRotate.on("pointerdown", () => {
-
-        this.currentRotation = (this.currentRotation + 1) % 4
-
-        this.ghostController.updateGhostForSelectedCard()
-
-    })
-
-    // MAP BUTTON
-    this.btnMap.on("pointerdown", () => {
-        this.toggleMapMode()
-    })
-}
+        // --- oyun devam
+        return null
+    }
 
 }

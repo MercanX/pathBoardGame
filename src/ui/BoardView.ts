@@ -20,7 +20,6 @@ import { rotatePort } from "../core/CardEngine"
 
 import { GameConfig } from "../config/GameConfig"
 
-
 export default class BoardView
 {
     scene: Phaser.Scene
@@ -143,8 +142,11 @@ render(nextCell?: {x:number,y:number})
 
     const board = state.board.board
 
-    console.log("===== BOARDVIEW STATE =====")
-    console.log(state)
+    if(GameConfig.DEBUG)
+    {
+        console.log("===== BOARDVIEW STATE =====")
+        console.log(state)
+    }
 
     // 1️⃣ Önce kart sprite'larını çiz
     for(let y = 0; y < this.boardSize; y++)
@@ -168,9 +170,10 @@ render(nextCell?: {x:number,y:number})
             state,
             player.id
         )
-
-        console.log("RENDER PATH PLAYER:", player.id, path)
-
+        if(GameConfig.DEBUG)
+        {
+            console.log("RENDER PATH PLAYER:", player.id, path)
+        }
         for(const step of path)
         {
             const x = step.x

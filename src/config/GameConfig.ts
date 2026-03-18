@@ -13,4 +13,6 @@ export const GameConfig =
     HUMAN_PATH_COLOR: 0x3399ff,
     BOT_PATH_COLOR: 0xff0000,
 
+     DEBUG: false,
+
 }

@@ -7,6 +7,7 @@ import { Connection, Port } from "../data/CardData"
 import { GameState } from "./GameState"
 import { CardDefinitions } from "../data/CardDefinitions"
 import { rotateConnections } from "./CardEngine"
+import { GameConfig } from "../config/GameConfig"
 
 /**
  * Giriş portuna göre çıkış portunu bul
@@ -83,20 +84,30 @@ export function tracePlayerPath(
     let y = player.startY
     let entry = player.entryPort as Port
 
-    console.log("PLAYER START")
-    console.log("start cell:", x, y)
-    console.log("entry port:", entry)
+    if(GameConfig.DEBUG)
+    {
+        console.log("PLAYER START")
+
+        console.log("start cell:", x, y)
+        console.log("entry port:", entry)
+    }
 
     while(true)
     {
         const cell = state.board.board[y][x]
 
-        console.log("CURRENT CELL:", x, y)
-        console.log("CARD:", cell.cardId, "ROT:", cell.rotation)
-
+        if(GameConfig.DEBUG)
+        {
+            console.log("CURRENT CELL:", x, y)
+            console.log("CARD:", cell.cardId, "ROT:", cell.rotation)
+        }
         if(!cell.cardId)
         {
-            console.log("OPEN PATH")
+            if(GameConfig.DEBUG)
+            {
+                console.log("OPEN PATH")
+            }
+            
             return "OPEN_PATH"
         }
 
@@ -107,12 +118,17 @@ export function tracePlayerPath(
             def.connections,
             cell.rotation
         )
-
-        console.log("ROTATED CONNECTIONS:", connections)
-
+        if(GameConfig.DEBUG)
+        {
+            console.log("ROTATED CONNECTIONS:", connections)
+        }
         const exit = findExit(entry, connections)
 
-        console.log("ENTRY:", entry, "EXIT:", exit)
+
+        if(GameConfig.DEBUG)
+        {
+            console.log("ENTRY:", entry, "EXIT:", exit)
+        }
 
         if(!exit)
         {
@@ -121,13 +137,17 @@ export function tracePlayerPath(
         }
 
         const offset = getNextCellOffset(exit)
-
-        console.log("OFFSET:", offset)
+        if(GameConfig.DEBUG)
+        {
+            console.log("OFFSET:", offset)
+        }
 
         x += offset.x
         y += offset.y
-
-        console.log("NEXT CELL:", x, y)
+        if(GameConfig.DEBUG)
+        {
+            console.log("NEXT CELL:", x, y)
+        }
 
         if(
             x < 0 ||
@@ -136,13 +156,18 @@ export function tracePlayerPath(
             y >= state.board.size
         )
         {
-            console.log("OUT OF BOARD")
+            if(GameConfig.DEBUG)
+            {
+                console.log("OUT OF BOARD")
+            }
             return "OUT_OF_BOARD"
         }
 
         entry = getOppositePort(exit)
-
-        console.log("NEXT ENTRY:", entry)
+        if(GameConfig.DEBUG)
+        {
+            console.log("NEXT ENTRY:", entry)
+        }
     }
 }
 
