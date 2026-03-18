@@ -45,58 +45,63 @@ export default class GameOverController
         this.gameEngine = gameEngine
     }
 
-    checkGameOver():GameOverResult | null
+    checkGameOver(): GameOverResult | null
     {
         const state = this.gameEngine.getState()
-
         if(!state) return null
 
-        const alivePlayers =
-            state.players.filter(p => p.isAlive)
+        const players = state.players
 
-        if(alivePlayers.length === 0)
-        {
-            return { type:"DRAW" }
-        }
+        const results = players.map(player => {
 
-        const results =
-            alivePlayers.map(player => {
-
-                const nextCell =
-                    findCurrentPlayerNextCell(
-                        state,
-                        player.id
-                    )
-
-                return {
-                    playerId:player.id,
-                    nextCell
-                }
-            })
-
-        const noPathPlayers =
-            results.filter(r => r.nextCell === null)
-
-        // DRAW
-        if(noPathPlayers.length === results.length)
-        {
-            return { type:"DRAW" }
-        }
-
-        // WIN
-        if(noPathPlayers.length === 1)
-        {
-            const loser = noPathPlayers[0].playerId
-
-            const winner =
-                results.find(r => r.playerId !== loser)
-
-            if(winner)
+            if(!player.isAlive)
             {
                 return {
-                    type:"WIN",
-                    winner:winner.playerId
+                    player,
+                    hasNext: false,
+                    alreadyDead: true
                 }
+            }
+
+            const nextCell = findCurrentPlayerNextCell(
+                state,
+                player.id
+            )
+
+            return {
+                player,
+                hasNext: !!nextCell,
+                alreadyDead: false
+            }
+        })
+
+        const aliveResults = results.filter(r => !r.alreadyDead)
+
+        // 🟣 DRAW → herkes stuck
+        const allNoNext = aliveResults.every(r => !r.hasNext)
+
+        if(allNoNext)
+        {
+            aliveResults.forEach(r => {
+                r.player.isAlive = false
+            })
+
+            return { type: "DRAW" }
+        }
+
+        // 🔴 LOSER / 🟢 WINNER
+        const losers = aliveResults.filter(r => !r.hasNext)
+        const winners = aliveResults.filter(r => r.hasNext)
+
+        if(losers.length > 0 && winners.length > 0)
+        {
+            losers.forEach(r => {
+                r.player.isAlive = false
+            })
+
+            return {
+                type: "WIN",
+                winner: winners[0].player.id
             }
         }
 

@@ -591,6 +591,19 @@ export default class GameScene extends Phaser.Scene
 
     checkBotTurn()
     {
+
+        this.checkGameOver()
+
+        if(this.isGameOver)
+        {
+            console.log("BOT BLOCKED - GAME OVER")
+            return
+        }
+        console.log("Bot Start")
+
+    
+
+
         this.botController.checkBotTurn(
             this.boardLayer,
             this.uiLayer,
@@ -689,73 +702,15 @@ export default class GameScene extends Phaser.Scene
 
     checkGameOver()
     {
-        const state = this.gameEngine.getState()
-        if(!state) return null
+        const result = this.gameOverController.checkGameOver()
 
-        const players = state.players
+        if(!result) return null
 
-        // Tüm oyuncular için nextCell kontrolü
-        const results = players.map(player => {
+        this.isGameOver = true
 
-            if(!player.isAlive)
-            {
-                return {
-                    playerId: player.id,
-                    hasNext: false,
-                    alreadyDead: true
-                }
-            }
+        console.log("GAME OVER:", result)
 
-            const nextCell = findCurrentPlayerNextCell(
-                state,
-                player.id
-            )
-
-            const hasNext = !!nextCell
-
-            return {
-                playerId: player.id,
-                hasNext,
-                alreadyDead: false
-            }
-        })
-
-        const alivePlayers = results.filter(r => !r.alreadyDead)
-
-        // --- CASE 1: hepsi nextCell yok → DRAW
-        const allNoNext = alivePlayers.every(r => !r.hasNext)
-
-        if(allNoNext)
-        {
-            // hepsini öldür
-            alivePlayers.forEach(r => {
-                const p = players.find(p => p.id === r.playerId)
-                if(p) p.isAlive = false
-            })
-
-            return { type: "DRAW" }
-        }
-
-        // --- CASE 2: biri nextCell yok → o ölür, diğeri kazanır
-        const losers = alivePlayers.filter(r => !r.hasNext)
-        const winners = alivePlayers.filter(r => r.hasNext)
-
-        if(losers.length > 0 && winners.length > 0)
-        {
-            // loser'ları öldür
-            losers.forEach(r => {
-                const p = players.find(p => p.id === r.playerId)
-                if(p) p.isAlive = false
-            })
-
-            return {
-                type: "WIN",
-                winner: winners[0].playerId
-            }
-        }
-
-        // --- oyun devam
-        return null
+        return result
     }
 
 }

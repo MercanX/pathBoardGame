@@ -77,6 +77,12 @@ export default class BotController
 
         setTimeout(() => {
 
+            this.scene.checkGameOver()
+            if(this.scene.isGameOver)
+            {
+                return
+            }
+
             const botMove = this.gameEngine.runBotTurn()
 
             if(!botMove) return
@@ -103,6 +109,8 @@ export default class BotController
 
             setTimeout(() => {
 
+
+                
                 botGhost.destroy()
                 botThinkingText.destroy()
 
@@ -126,7 +134,7 @@ export default class BotController
                     botMove.rotation
                 )
 
-                this.scene.checkGameOver()
+
 
                 const newState = this.gameEngine.getState()
 

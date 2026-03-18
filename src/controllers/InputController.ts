@@ -83,6 +83,8 @@ export default class InputController
 
 handleClick(pointer: Phaser.Input.Pointer)
 {
+    if(this.scene.isGameOver) return
+
     if(this.isDragging()) return
 
     const cell = this.getBoardCellFromPointer(pointer)
@@ -210,8 +212,6 @@ handleClick(pointer: Phaser.Input.Pointer)
         }
 
         this.focusBoardCell(focusX, focusY, true)
-
-        this.checkBotTurn()
 
         if(newState)
         {

@@ -80,22 +80,6 @@ playCard(
     // yeni kart çek
     giveCardToPlayer(this.state,this.state.currentPlayer)
 
-    // PATH hesapla
-    const result = tracePlayerPath(
-        this.state,
-        player.id
-    )
-
-    if(result === "OUT_OF_BOARD")
-    {
-        console.log("PLAYER LOST:",player.id)
-
-        eliminatePlayer(
-            this.state,
-            player.id
-        )
-    }
-
     // sırayı değiştir
     nextPlayer(this.state)
 }
@@ -119,8 +103,7 @@ runBotTurn()
 
     const botLevel = currentPlayer.botLevel || "normal"
 
-    console.log("BOT TURN")
-
+    
     const validMoves = getValidMovesForPlayer(
         this.state,
         this.state.currentPlayer
