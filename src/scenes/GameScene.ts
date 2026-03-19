@@ -103,7 +103,7 @@ export default class GameScene extends Phaser.Scene
     boardViewportWidth = 0
     boardViewportHeight = 0
 
-    topUiHeight = 300
+    topUiHeight = 175
     bottomUiHeight = 260
     sidePadding = 24
 
@@ -134,8 +134,10 @@ export default class GameScene extends Phaser.Scene
 
     preload()
     {
-        this.load.image("game_bg", "/assets/bg/bg01.png")
-        this.load.image("board", "/assets/board/board.png")
+        this.load.image("game_bg", "/assets/bg/bg03.png")
+        this.load.image("board", "/assets/board/board02.jpg")
+        this.load.image("menu_bg", "assets/bg/bg03.png")
+        this.load.image("title", "assets/ui/logo01.png")
       
         for(let i = 1; i <= 20; i++)
         {
@@ -170,6 +172,7 @@ export default class GameScene extends Phaser.Scene
 
     create()
     {
+
 
         this.isGameOver = false
         this.isBotRunning = false
@@ -382,9 +385,9 @@ export default class GameScene extends Phaser.Scene
             this.uiLayer,
             this.gameEngine,
             handX,
-            this.boardViewportY + this.boardViewportHeight + 50,
+            this.boardViewportY + this.boardViewportHeight - 20,
             handWidth,
-            this.bottomUiHeight - 40
+            this.bottomUiHeight - 10
         )
 
         const state = this.gameEngine.getState()
@@ -424,26 +427,13 @@ export default class GameScene extends Phaser.Scene
 
     renderStaticUi()
     {
-        const title = this.add.text(
-            24,
-            24,
-            "PATH BOARD GAME",
-            {
-                fontSize: "28px",
-                color: "#ffffff",
-                fontStyle: "bold"
-            }
-        )
 
-        const help = this.add.text(
-            24,
-            72,
-            "R = Rotate | M = Map Mode",
-            {
-                fontSize: "18px",
-                color: "#9ca3af"
-            }
-        )
+        const { width, height } = this.scale
+        const title = this.add.image(width/2, 90, "title")
+        title.setScale(0.6)
+
+   
+
 
         const boardFrame = this.add.rectangle(
             this.boardViewportX + this.boardViewportWidth / 2,
@@ -456,7 +446,7 @@ export default class GameScene extends Phaser.Scene
         boardFrame.setStrokeStyle(2, 0x3a4654)
         boardFrame.setFillStyle(0x111827, 0.15)
 
-        this.uiLayer.add([title, help, boardFrame])
+        this.uiLayer.add([title, boardFrame])
     }
 
     setupInput()
@@ -664,7 +654,7 @@ export default class GameScene extends Phaser.Scene
         const width = this.scale.width
         const height = this.scale.height
 
-        const y = height - 160
+        const y =  this.boardViewportY + this.boardViewportHeight + 270
 
         this.bottomUI = this.add.container(0,0)
         this.uiLayer.add(this.bottomUI)
