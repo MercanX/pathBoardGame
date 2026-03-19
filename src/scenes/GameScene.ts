@@ -117,7 +117,7 @@ export default class GameScene extends Phaser.Scene
 
     bottomUI!: Phaser.GameObjects.Container
 
-    btnRestart!: Phaser.GameObjects.Image
+    btnExit!: Phaser.GameObjects.Image
     btnRotate!: Phaser.GameObjects.Image
     btnMap!: Phaser.GameObjects.Image
 
@@ -164,9 +164,9 @@ export default class GameScene extends Phaser.Scene
             }
         }
 
-        this.load.image("ui_restart", "assets/ui/restart.png")
-        this.load.image("ui_rotate", "assets/ui/rotate.png")
-        this.load.image("ui_map", "assets/ui/map.png")
+        this.load.image("btn_exit", "assets/ui/btn_exit.png")
+        this.load.image("btn_rotate", "assets/ui/btn_rotate.png")
+        this.load.image("btn_map", "assets/ui/btn_map.png")
 
     }
 
@@ -654,33 +654,132 @@ export default class GameScene extends Phaser.Scene
         const width = this.scale.width
         const height = this.scale.height
 
-        const y =  this.boardViewportY + this.boardViewportHeight + 270
+        const y =  this.boardViewportY + this.boardViewportHeight + 300
 
         this.bottomUI = this.add.container(0,0)
         this.uiLayer.add(this.bottomUI)
 
-        this.btnRestart = this.add.image(width * 0.20, y, "ui_restart")
-        this.btnRotate  = this.add.image(width * 0.50, y, "ui_rotate")
-        this.btnMap     = this.add.image(width * 0.80, y, "ui_map")
+        this.btnExit = this.add.image(width * 0.20, y, "btn_exit")
+        this.btnRotate  = this.add.image(width * 0.50, y, "btn_rotate")
+        this.btnMap     = this.add.image(width * 0.80, y, "btn_map")
 
-        this.btnRestart.setScale(0.45)
+        const buttons = [this.btnExit,this.btnRotate,this.btnMap]
+
+        this.btnExit.setScale(0.45)
         this.btnRotate.setScale(0.45)
         this.btnMap.setScale(0.45)
 
         this.bottomUI.add([
-            this.btnRestart,
+            this.btnExit,
             this.btnRotate,
             this.btnMap
         ])
 
+        // ======================
+        // BUTTON EFFECTS (BOTTOM GROUP)
+        // ======================
+
+        this.tweens.add({
+            targets: buttons,
+            y: "+=5",
+            duration: 1200,
+            yoyo: true,
+            repeat: -1,
+            ease: "Sine.easeInOut"
+        })
+
+
+
+        buttons.forEach((btn) => {
+
+            btn.setInteractive({ useHandCursor: true })
+
+            const baseScale = 0.45
+            const pressScale = 0.38
+            const releaseScale = 0.55
+
+            // ======================
+            // TAP DOWN
+            // ======================
+            btn.on("pointerdown", () => {
+
+                this.tweens.killTweensOf(btn)
+
+                this.tweens.add({
+                    targets: btn,
+                    scale: 0.38,
+                    duration: 80,
+                    ease: "Power2"
+                })
+
+                btn.setTint(0xdddddd)
+
+                // ✅ DOĞRU PULSE
+                const pulse = this.add.circle(btn.x, btn.y, 10, 0xffffff, 0.4)
+
+                this.uiLayer.add(pulse)
+
+                pulse.setDepth(btn.depth - 1) // butonun altında glow gibi görünür
+
+                this.tweens.add({
+                    targets: pulse,
+                    scale: 3,
+                    alpha: 0,
+                    duration: 300,
+                    ease: "Cubic.easeOut",
+                    onComplete: () => pulse.destroy()
+                })
+            })
+
+            // ======================
+            // TAP UP
+            // ======================
+            btn.on("pointerup", () => {
+
+                this.tweens.killTweensOf(btn)
+
+                this.tweens.add({
+                    targets: btn,
+                    scale: releaseScale,
+                    duration: 220,
+                    ease: "Back.easeOut"
+                })
+
+                btn.clearTint()
+
+                // küçük settle
+                this.tweens.add({
+                    targets: btn,
+                    scale: baseScale,
+                    duration: 120,
+                    delay: 120
+                })
+            })
+
+            // ======================
+            // CANCEL
+            // ======================
+            btn.on("pointerout", () => {
+
+                this.tweens.killTweensOf(btn)
+
+                this.tweens.add({
+                    targets: btn,
+                    scale: baseScale,
+                    duration: 120
+                })
+
+                btn.clearTint()
+            })
+        })
         // BUTTON INTERACTION
 
-        this.btnRestart.setInteractive({ useHandCursor: true })
+        this.btnExit.setInteractive({ useHandCursor: true })
         this.btnRotate.setInteractive({ useHandCursor: true })
         this.btnMap.setInteractive({ useHandCursor: true })
 
         // RESTART BUTTON
-        this.btnRestart.on("pointerdown", () => {
+        this.btnExit.on("pointerdown", () => {
             this.scene.restart()
         })
 

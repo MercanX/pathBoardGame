@@ -83,66 +83,66 @@ export default class MainMenuScene extends Phaser.Scene
 
 
         // ======================
-// SECONDARY BUTTON EFFECTS (BOTTOM GROUP)
-// ======================
+        // SECONDARY BUTTON EFFECTS (BOTTOM GROUP)
+        // ======================
 
-buttons02.forEach((btn, index) => {
+        buttons02.forEach((btn, index) => {
 
-    // Hover scale (mobilde pointerover çalışmayabilir ama desktop için iyi)
-    btn.on("pointerover", () => {
-        this.tweens.add({
-            targets: btn,
-            scale: 0.6,
-            duration: 150,
-            ease: "Back.easeOut"
+            // Hover scale (mobilde pointerover çalışmayabilir ama desktop için iyi)
+            btn.on("pointerover", () => {
+                this.tweens.add({
+                    targets: btn,
+                    scale: 0.6,
+                    duration: 150,
+                    ease: "Back.easeOut"
+                })
+            })
+
+            btn.on("pointerout", () => {
+                this.tweens.add({
+                    targets: btn,
+                    scale: 0.5,
+                    duration: 150
+                })
+            })
+
+            // Click feedback (çok önemli hissiyat)
+            btn.on("pointerdown", () => {
+
+                this.tweens.add({
+                    targets: btn,
+                    scale: 0.45,
+                    duration: 80,
+                    yoyo: true
+                })
+
+                // küçük shake efekti
+                this.cameras.main.shake(100, 0.003)
+
+                // mini sparkle (confetti mini)
+                this.addConfettiExplosion(btn.x, btn.y)
+            })
+
+
+            // Idle breathing (çok hafif)
+            this.tweens.add({
+                targets: btn,
+                scale: { from: 0.5, to: 0.52 },
+                duration: 2000 + index * 300,
+                yoyo: true,
+                repeat: -1,
+                ease: "Sine.easeInOut"
+            })
+
+            // Glow pulse (alpha)
+            this.tweens.add({
+                targets: btn,
+                alpha: { from: 1, to: 0.8 },
+                duration: 1800 + index * 200,
+                yoyo: true,
+                repeat: -1
+            })
         })
-    })
-
-    btn.on("pointerout", () => {
-        this.tweens.add({
-            targets: btn,
-            scale: 0.5,
-            duration: 150
-        })
-    })
-
-    // Click feedback (çok önemli hissiyat)
-    btn.on("pointerdown", () => {
-
-        this.tweens.add({
-            targets: btn,
-            scale: 0.45,
-            duration: 80,
-            yoyo: true
-        })
-
-        // küçük shake efekti
-        this.cameras.main.shake(100, 0.003)
-
-        // mini sparkle (confetti mini)
-        this.addConfettiExplosion(btn.x, btn.y)
-    })
-
-
-    // Idle breathing (çok hafif)
-    this.tweens.add({
-        targets: btn,
-        scale: { from: 0.5, to: 0.52 },
-        duration: 2000 + index * 300,
-        yoyo: true,
-        repeat: -1,
-        ease: "Sine.easeInOut"
-    })
-
-    // Glow pulse (alpha)
-    this.tweens.add({
-        targets: btn,
-        alpha: { from: 1, to: 0.8 },
-        duration: 1800 + index * 200,
-        yoyo: true,
-        repeat: -1
-    })
-})
 
         const animateTitle = () => {
 
