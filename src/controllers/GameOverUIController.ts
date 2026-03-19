@@ -1,3 +1,8 @@
+/**
+ * File: src/ui/GameOverUIController.ts
+ * Purpose: FULL IMAGE BASED GAME OVER UI
+ */
+
 import Phaser from "phaser"
 import GameScene from "../scenes/GameScene"
 
@@ -10,114 +15,123 @@ export default class GameOverUIController
         this.scene = scene
     }
 
-    show(result:any)
+    show(result: any)
     {
-
         const width = this.scene.scale.width
         const height = this.scene.scale.height
 
-        // BACKGROUND
+        // =========================
+        // OVERLAY
+        // =========================
         const overlay = this.scene.add.rectangle(
             width / 2,
             height / 2,
-            width+200,
-            height+200,
+            width,
+            height,
             0x000000,
-            0.6
+            0.7
         )
 
-        overlay.setDepth(99990)
+        overlay
+            .setScrollFactor(0)
+            .setDepth(99990)
 
-        // TEXT
-        let text = "GAME OVER"
-        console.log(text)
+        // =========================
+        // RESULT IMAGE
+        // =========================
+
+        const myPlayerId = 1 // 🔥 SEN = PLAYER 1
+
+        let key = "ui_lost"
 
         if(result.type === "WIN")
         {
-            text = `PLAYER ${result.winner} WINS`
+            if(result.winner === myPlayerId)
+            {
+                key = "ui_win"
+            }
+            else
+            {
+                key = "ui_lost"
+            }
         }
         else if(result.type === "DRAW")
         {
-            text = "DRAW"
+            key = "ui_draw"
         }
 
-        const label = this.scene.add.text(
+        const img = this.scene.add.image(
             width / 2,
-            height / 2 - 40,
-            text,
-            {
-                fontSize: "42px",
-                color: "#ffffff",
-                fontStyle: "bold"
-            }
+            height / 2 - 500,
+            key
         )
 
-        label.setOrigin(0.5)
-        label.setDepth(99991)
-        label.setScale(0)
+        img
+            .setOrigin(0.5)
+            .setScrollFactor(0)
+            .setDepth(99999)
+            .setScale(1)
+            .setAlpha(0.8)
 
-        // BUTTON
-        const btn = this.scene.add.text(
+        // =========================
+        // MENU BUTTON
+        // =========================
+        const menuBtn = this.scene.add.image(
             width / 2,
-            height / 2 + 50,
-            "RESTART",
-            {
-                fontSize: "28px",
-                color: "#00ffcc",
-                backgroundColor: "#111",
-                padding: { x: 16, y: 8 }
-            }
+            height / 2 - 100,
+            "btn_home"
         )
 
-        btn.setOrigin(0.5)
-        btn.setDepth(99991)
-        btn.setInteractive({ useHandCursor: true })
-        btn.setScale(0)
+        menuBtn
+            .setDepth(99999)
+            .setScale(0.5)
+            .setInteractive({ useHandCursor: true })
 
-        btn.on("pointerdown", () => {
-
+        menuBtn.on("pointerdown", () => {
             this.scene.scene.stop("GameScene")
             this.scene.scene.start("MainMenuScene")
-
         })
 
-        // LAYER
-        this.scene.add.existing(overlay)
-        this.scene.add.existing(label)
-        this.scene.add.existing(btn)
+        // =========================
+        // ANIMATIONS
+        // =========================
 
-        overlay.setScrollFactor(0)
-        label.setScrollFactor(0)
-        btn.setScrollFactor(0)
-
-        // 🎬 ANIMATIONS
-
-        // overlay fade
         this.scene.tweens.add({
             targets: overlay,
             alpha: 0.7,
-            duration: 300,
-            ease: "Power2"
+            duration: 300
         })
 
-        // label pop-in
+        // 🎯 sağa sola sallanma
         this.scene.tweens.add({
-            targets: label,
-            scale: 1,
-            duration: 400,
-            ease: "Back.Out"
+            targets: img,
+            angle: { from: -3, to: 3 },
+            duration: 2000,
+            yoyo: true,
+            repeat: -1,
+            ease: "Sine.easeInOut"
         })
 
-        // button pop-in (delay ile)
+        // ❤️ HEART BEAT BUTTON
         this.scene.tweens.add({
-            targets: btn,
-            scale: 1,
-            duration: 400,
-            delay: 150,
-            ease: "Back.Out"
+            targets: menuBtn,
+            scale: { from: 0.45, to: 0.55 },
+            duration: 800,
+            yoyo: true,
+            repeat: -1,
+            ease: "Sine.easeInOut"
         })
 
-         console.log(text)
+        // =========================
+        // EFFECT
+        // =========================
+        if(result.type === "WIN" && result.winner === myPlayerId)
+        {
+            this.scene.effectController.addConfettiExplosion(width / 2, 0)
+        }
+        else
+        {
+            this.scene.effectController.shake()
+        }
     }
-
 }

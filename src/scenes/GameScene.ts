@@ -33,6 +33,7 @@ import InputController from "../controllers/InputController"
 import GhostController from "../controllers/GhostController"
 import GameOverController from "../controllers/GameOverController"
 import GameOverUIController from "../controllers/GameOverUIController"
+import EffectController from "../controllers/EffectController"
 
 export default class GameScene extends Phaser.Scene
 {
@@ -46,6 +47,7 @@ export default class GameScene extends Phaser.Scene
     ghostController!: GhostController
     gameOverController!: GameOverController
     gameOverUIController!: GameOverUIController
+    effectController!: EffectController
 
     uiCamera!: Phaser.Cameras.Scene2D.Camera
     boardCamera!: Phaser.Cameras.Scene2D.Camera
@@ -167,6 +169,11 @@ export default class GameScene extends Phaser.Scene
         this.load.image("btn_exit", "assets/ui/btn_exit.png")
         this.load.image("btn_rotate", "assets/ui/btn_rotate.png")
         this.load.image("btn_map", "assets/ui/btn_map.png")
+        this.load.image("btn_home", "assets/ui/btn_home.png")
+
+        this.load.image("ui_win", "assets/ui/win.png")
+        this.load.image("ui_draw", "assets/ui/draw.png")
+        this.load.image("ui_lost", "assets/ui/lost.png")
 
     }
 
@@ -227,6 +234,11 @@ export default class GameScene extends Phaser.Scene
         this.gameOverController = new GameOverController(this.gameEngine)
 
         this.gameOverUIController = new GameOverUIController(this)
+
+        this.effectController = new EffectController(
+            this,
+            this.uiLayer
+        )
 
         this.setupInput()
         this.renderStaticUi()
