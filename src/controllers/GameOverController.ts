@@ -2,7 +2,7 @@
  * File: src/controllers/GameOverController.ts
  * File Name: GameOverController.ts
  * Purpose:
- * Oyun bitiş durumlarını kontrol eden controller.
+ * Oyun bitiş durumlarını kontrol eder + DEBUG içerir
  *
  * Kurallar:
  *
@@ -38,9 +38,7 @@ export default class GameOverController
 {
     gameEngine:GameEngine
 
-    constructor(
-        gameEngine:GameEngine
-    )
+    constructor(gameEngine:GameEngine)
     {
         this.gameEngine = gameEngine
     }
@@ -48,14 +46,26 @@ export default class GameOverController
     checkGameOver(): GameOverResult | null
     {
         const state = this.gameEngine.getState()
-        if(!state) return null
+        if(!state)
+        {
+            console.log("GAME OVER: state yok")
+            return null
+        }
 
         const players = state.players
+
+        console.log("========== GAME OVER CHECK ==========")
 
         const results = players.map(player => {
 
             if(!player.isAlive)
             {
+                console.log(
+                    "PLAYER",
+                    player.id,
+                    "| DEAD (skip)"
+                )
+
                 return {
                     player,
                     hasNext: false,
@@ -68,6 +78,13 @@ export default class GameOverController
                 player.id
             )
 
+            console.log(
+                "PLAYER CHECK",
+                "id:", player.id,
+                "| isAlive:", player.isAlive,
+                "| nextCell:", nextCell ? "VAR" : "YOK"
+            )
+
             return {
                 player,
                 hasNext: !!nextCell,
@@ -77,11 +94,23 @@ export default class GameOverController
 
         const aliveResults = results.filter(r => !r.alreadyDead)
 
+        console.log("---- ALIVE PLAYERS ----")
+
+        aliveResults.forEach(r => {
+            console.log(
+                "Player",
+                r.player.id,
+                "| hasNext:", r.hasNext
+            )
+        })
+
         // 🟣 DRAW → herkes stuck
         const allNoNext = aliveResults.every(r => !r.hasNext)
 
         if(allNoNext)
         {
+            console.log("RESULT: DRAW (HERKES STUCK)")
+
             aliveResults.forEach(r => {
                 r.player.isAlive = false
             })
@@ -93,17 +122,24 @@ export default class GameOverController
         const losers = aliveResults.filter(r => !r.hasNext)
         const winners = aliveResults.filter(r => r.hasNext)
 
+        console.log("LOSERS:", losers.map(l => l.player.id))
+        console.log("WINNERS:", winners.map(w => w.player.id))
+
         if(losers.length > 0 && winners.length > 0)
         {
             losers.forEach(r => {
                 r.player.isAlive = false
             })
 
+            console.log("RESULT: WIN →", winners[0].player.id)
+
             return {
                 type: "WIN",
                 winner: winners[0].player.id
             }
         }
+
+        console.log("RESULT: CONTINUE (OYUN DEVAM)")
 
         return null
     }
