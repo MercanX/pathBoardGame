@@ -605,14 +605,6 @@ export default class GameScene extends Phaser.Scene
         // 👇 BOT LOCK
         if(this.isBotRunning) return
 
-        this.checkGameOver()
-
-        if(this.isGameOver)
-        {
-            console.log("BOT BLOCKED - GAME OVER")
-            return
-        }
-
         this.isBotRunning = true // 👈 LOCK
 
         this.botController.checkBotTurn(

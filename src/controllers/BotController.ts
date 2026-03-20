@@ -94,7 +94,8 @@ export default class BotController
 
             if(!botMove)
             {
-                this.scene.checkGameOver() // 👈 EKLE
+                this.scene.checkGameOver()
+                this.scene.isBotRunning = false
                 return
             }
 
@@ -149,7 +150,13 @@ export default class BotController
                     botMove.rotation
                 )
 
+                this.scene.checkGameOver()
 
+                if(this.scene.isGameOver)
+                {
+                    this.scene.isBotRunning = false
+                    return
+                }
 
                 const newState = this.gameEngine.getState()
 

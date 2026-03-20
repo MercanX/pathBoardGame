@@ -164,10 +164,15 @@ handleClick(pointer: Phaser.Input.Pointer)
             this.getRotation()
         )
 
-        if(!this.scene.isGameOver)
+        this.scene.checkGameOver()
+
+        if(this.scene.isGameOver)
         {
-            this.checkBotTurn()
+            return
         }
+
+        // sonra bot
+        this.checkBotTurn()
 
         const newState = this.gameEngine.getState()
 
@@ -215,9 +220,12 @@ handleClick(pointer: Phaser.Input.Pointer)
 
         if(newState)
         {
+            const currentPlayerAfterMove =
+                newState.players[newState.currentPlayer]
+
             const flows = tracePlayerPathCells(
                 newState,
-                actingPlayer.id
+                currentPlayerAfterMove.id
             )
             
             if(GameConfig.DEBUG)
@@ -225,7 +233,6 @@ handleClick(pointer: Phaser.Input.Pointer)
                 console.log("===== TRACE AFTER MOVE =====")
                 console.table(flows)
             }
-            
         }
     }
     catch(error)
