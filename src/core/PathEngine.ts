@@ -80,9 +80,13 @@ export function tracePlayerPath(
 
     if(!player) return
 
+   
+
     let x = player.startX
     let y = player.startY
     let entry = player.entryPort as Port
+
+     const visited = new Set<string>()
 
     if(GameConfig.DEBUG)
     {
@@ -94,6 +98,20 @@ export function tracePlayerPath(
 
     while(true)
     {
+        const key = `${x}_${y}_${entry}`
+
+        if(visited.has(key))
+        {
+            if(GameConfig.DEBUG)
+            {
+                console.log("LOOP DETECTED")
+            }
+
+            return "DEAD_END"
+        }
+
+        visited.add(key)
+
         const cell = state.board.board[y][x]
 
         if(GameConfig.DEBUG)
@@ -183,10 +201,21 @@ export function tracePlayerPathCells(
     let y = player.startY
     let entry = player.entryPort as Port
 
+    const visited = new Set<string>()
     const visitedCells:{x:number,y:number}[] = []
 
     while(true)
     {
+
+        const key = `${x}_${y}_${entry}`
+
+        if(visited.has(key))
+        {
+            return visitedCells
+        }
+
+        visited.add(key)
+
         visitedCells.push({ x, y })
 
         const cell = state.board.board[y][x]
@@ -397,8 +426,20 @@ export function findCurrentPlayerNextCell(
     let y = player.startY
     let entry = player.entryPort as Port
 
+    const visited = new Set<string>()
+
     while(true)
     {
+
+        const key = `${x}_${y}_${entry}`
+
+        if(visited.has(key))
+        {
+            return null
+        }
+
+        visited.add(key)
+
         const cell = state.board.board[y][x]
 
         if(!cell.cardId)
