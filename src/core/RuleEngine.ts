@@ -35,9 +35,18 @@ export function getValidMovesForPlayer(
 {
     const player = state.players[playerIndex]
 
-    const nextCell = findCurrentPlayerNextCell(state, player.id)
+    const nextCell = findCurrentPlayerNextCell(
+        state,
+        state.players[playerIndex].id
+    )
 
     if(!nextCell)
+    {
+        return []
+    }
+
+    // ✅ CELL DOLU MU KONTROLÜ
+    if(!canPlace(state.board.board, nextCell.x, nextCell.y))
     {
         return []
     }
@@ -52,15 +61,23 @@ export function getValidMovesForPlayer(
         {
             const connections = getRotatedConnections(cardId, rot)
 
+            let isValid = false
+
             for(const conn of connections)
             {
                 if(conn[0] === entryPort || conn[1] === entryPort)
                 {
-                    validMoves.push({
-                        cardId: cardId,
-                        rotation: rot
-                    })
+                    isValid = true
+                    break
                 }
+            }
+
+            if(isValid)
+            {
+                validMoves.push({
+                    cardId: cardId,
+                    rotation: rot
+                })
             }
         }
     }
