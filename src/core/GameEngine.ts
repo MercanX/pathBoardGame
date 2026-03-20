@@ -573,6 +573,26 @@ runBotTurn()
         {
             for(const move of validMoves)
             {
+
+                // STRATEGY STATE ANALYSIS
+                const currentResult = tracePlayerPath(
+                    this.state,
+                    currentPlayer.id
+                )
+
+                const isInDanger = currentResult === "DEAD_END"
+
+                let strategy = "balanced"
+
+                if(isInDanger)
+                {
+                    strategy = "defensive"
+                }
+                else if(enemies.length > 0)
+                {
+                    strategy = "aggressive"
+                }
+
                 const testState: GameState =
                 {
                     board: new BoardEngine(this.state.board.size),
@@ -583,24 +603,7 @@ runBotTurn()
                 }
 
                 // BOARD COPY
-                for(let y = 0; y < this.state.board.size; y++)
-                {
-                    for(let x = 0; x < this.state.board.size; x++)
-                    {
-                        const cell = this.state.board.getCell(x,y)
-
-                        if(cell && cell.cardId !== null && cell.owner !== null)
-                        {
-                            testState.board.placeCard(
-                                x,
-                                y,
-                                cell.cardId,
-                                cell.rotation,
-                                cell.owner
-                            )
-                        }
-                    }
-                }
+                this.cloneBoardToState(this.state, testState)
 
                 const simPlayer =
                     testState.players[testState.currentPlayer]
@@ -614,11 +617,15 @@ runBotTurn()
                     simPlayer.id
                 )
 
+    
+
+
                 const result = tracePlayerPath(
                     testState,
                     simPlayer.id
                 )
 
+                // ❌ Ölüm move'u ise direkt ele
                 if(result === "OUT_OF_BOARD")
                 {
                     continue
@@ -631,13 +638,24 @@ runBotTurn()
 
                 let score = pathCells.length * 10
 
+                // ⚠️ Dead end ise ağır ceza
+                if(result === "DEAD_END")
+                {
+                    score -= 1000
+                }
+
                 // FUTURE MOVE ANALYSIS
                 const nextCell2 = findCurrentPlayerNextCell(
                     testState,
                     simPlayer.id
                 )
 
-                if(nextCell2)
+                if(!nextCell2)
+                {
+                    // ❌ tamamen tıkandı → ağır ceza
+                    score -= 500
+                }
+                else
                 {
                     const validMoves2 = getValidMovesForPlayer(
                         testState,
@@ -650,6 +668,7 @@ runBotTurn()
                 // EDGE RISK
                 const lastCell = pathCells[pathCells.length - 1]
 
+                // STRATEGY ADJUSTMENT
                 if(lastCell)
                 {
                     const distToEdge =
@@ -660,25 +679,132 @@ runBotTurn()
                             this.state.board.size - 1 - lastCell.y
                         )
 
-                    score += distToEdge * 3
+                    if(strategy === "defensive")
+                    {
+                        score += distToEdge * 5
+                        score += (nextCell2 ? 20 : -200)
+                    }
+                    else if(strategy === "aggressive")
+                    {
+                        score += enemies.length * 20
+                    }
                 }
 
                 // ENEMY BLOCK
                 for(const enemy of enemies)
                 {
-                    const enemyPath = tracePlayerPathCells(
+                    const enemyNextCell = findCurrentPlayerNextCell(
                         testState,
                         enemy.id
                     )
 
-                    for(const cell of enemyPath)
+                    // ❌ Rakip tamamen öldüyse → büyük bonus
+                    if(!enemyNextCell)
                     {
-                        if(cell.x === nextCell.x && cell.y === nextCell.y)
+                        score += 200
+                        continue
+                    }
+
+                    const enemyMoves = getValidMovesForPlayer(
+                        testState,
+                        testState.players.findIndex(p => p.id === enemy.id)
+                    )
+
+                    // ❌ Rakip stuck → bonus
+                    if(enemyMoves.length === 0)
+                    {
+                        score += 150
+                    }
+                }
+
+                // ============================
+                // MINI MINIMAX (ENEMY RESPONSE)
+                // ============================
+
+                const enemyIndex = (testState.currentPlayer + 1) % testState.players.length
+
+                if(enemyIndex !== -1)
+                {
+                    const enemyMoves = getValidMovesForPlayer(
+                        testState,
+                        enemyIndex
+                    )
+
+                    if(enemyMoves.length === 0)
+                    {
+                        // rakip stuck → iyi
+                        //score += 200
+                    }
+                    else
+                    {
+                        let worstCase = 999999
+
+
+
+                        for(const emove of enemyMoves)
                         {
-                            score += 50
+                            const sim2: GameState =
+                            {
+                                board: new BoardEngine(testState.board.size),
+                                players: JSON.parse(JSON.stringify(testState.players)),
+                                deck: [...testState.deck],
+                                discard: [...testState.discard],
+                                currentPlayer: enemyIndex
+                            }
+
+                            this.cloneBoardToState(testState, sim2)
+
+                            const enemyPlayer = sim2.players[enemyIndex]
+
+                            const enemyNext = findCurrentPlayerNextCell(
+                                sim2,
+                                enemyPlayer.id
+                            )
+
+                            if(!enemyNext)
+                            {
+                                continue
+                            }
+
+                            sim2.board.placeCard(
+                                enemyNext.x,
+                                enemyNext.y,
+                                emove.cardId,
+                                emove.rotation,
+                                enemyPlayer.id
+                            )
+
+                            const enemyResult = tracePlayerPath(
+                                sim2,
+                                enemyPlayer.id
+                            )
+
+                            if(enemyResult === "OUT_OF_BOARD")
+                            {
+                                worstCase = Math.min(worstCase, -200)
+                                continue
+                            }
+
+                            const enemyPath = tracePlayerPathCells(
+                                sim2,
+                                enemyPlayer.id
+                            )
+
+                            const enemyScore = enemyPath.length * 10
+
+                            worstCase = Math.min(worstCase, enemyScore)
+                        }
+
+                        // rakibin güçlü cevabı varsa bizim skoru düş
+                        if(worstCase !== 999999)
+                        {
+                            score -= worstCase * 0.5
                         }
                     }
                 }
+
+
+
 
                 if(score > bestScore)
                 {
@@ -698,6 +824,8 @@ runBotTurn()
             }
         }
     }
+
+
     else
     {
         selectedMove =
@@ -716,6 +844,28 @@ runBotTurn()
         rotation: selectedMove.rotation,
         x: nextCell.x,
         y: nextCell.y
+    }
+}
+
+private cloneBoardToState(sourceState: GameState, targetState: GameState)
+{
+    for(let y = 0; y < sourceState.board.size; y++)
+    {
+        for(let x = 0; x < sourceState.board.size; x++)
+        {
+            const cell = sourceState.board.getCell(x, y)
+
+            if(cell && cell.cardId !== null && cell.owner !== null)
+            {
+                targetState.board.placeCard(
+                    x,
+                    y,
+                    cell.cardId,
+                    cell.rotation,
+                    cell.owner
+                )
+            }
+        }
     }
 }
 
