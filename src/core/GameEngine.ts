@@ -561,7 +561,7 @@ runBotTurn()
         )
 
         const enemies = this.state.players.filter(
-            p => p.id !== currentPlayer.id && p.isAlive!== false
+            p => p.id !== currentPlayer.id && p.isAlive !== false
         )
 
         if(!nextCell)
@@ -573,7 +573,6 @@ runBotTurn()
         {
             for(const move of validMoves)
             {
-
                 // STRATEGY STATE ANALYSIS
                 const currentResult = tracePlayerPath(
                     this.state,
@@ -616,9 +615,6 @@ runBotTurn()
                     move.rotation,
                     simPlayer.id
                 )
-
-    
-
 
                 const result = tracePlayerPath(
                     testState,
@@ -665,10 +661,9 @@ runBotTurn()
                     score += validMoves2.length * 5
                 }
 
-                // EDGE RISK
+                // EDGE RISK + STRATEGY ADJUSTMENT
                 const lastCell = pathCells[pathCells.length - 1]
 
-                // STRATEGY ADJUSTMENT
                 if(lastCell)
                 {
                     const distToEdge =
@@ -678,6 +673,9 @@ runBotTurn()
                             this.state.board.size - 1 - lastCell.x,
                             this.state.board.size - 1 - lastCell.y
                         )
+
+                    // base edge bonus
+                    score += distToEdge * 3
 
                     if(strategy === "defensive")
                     {
@@ -721,25 +719,21 @@ runBotTurn()
                 // MINI MINIMAX (ENEMY RESPONSE)
                 // ============================
 
-                const enemyIndex = (testState.currentPlayer + 1) % testState.players.length
+                const enemyIndex =
+                    (testState.currentPlayer + 1) % testState.players.length
 
-                if(enemyIndex !== -1)
+                const enemyPlayer = testState.players[enemyIndex]
+
+                if(enemyPlayer && enemyPlayer.isAlive !== false)
                 {
                     const enemyMoves = getValidMovesForPlayer(
                         testState,
                         enemyIndex
                     )
 
-                    if(enemyMoves.length === 0)
-                    {
-                        // rakip stuck → iyi
-                        //score += 200
-                    }
-                    else
+                    if(enemyMoves.length > 0)
                     {
                         let worstCase = 999999
-
-
 
                         for(const emove of enemyMoves)
                         {
@@ -754,11 +748,11 @@ runBotTurn()
 
                             this.cloneBoardToState(testState, sim2)
 
-                            const enemyPlayer = sim2.players[enemyIndex]
+                            const simEnemyPlayer = sim2.players[enemyIndex]
 
                             const enemyNext = findCurrentPlayerNextCell(
                                 sim2,
-                                enemyPlayer.id
+                                simEnemyPlayer.id
                             )
 
                             if(!enemyNext)
@@ -771,23 +765,24 @@ runBotTurn()
                                 enemyNext.y,
                                 emove.cardId,
                                 emove.rotation,
-                                enemyPlayer.id
+                                simEnemyPlayer.id
                             )
 
                             const enemyResult = tracePlayerPath(
                                 sim2,
-                                enemyPlayer.id
+                                simEnemyPlayer.id
                             )
 
                             if(enemyResult === "OUT_OF_BOARD")
                             {
+                                // rakip intihar ediyorsa bize iyi
                                 worstCase = Math.min(worstCase, -200)
                                 continue
                             }
 
                             const enemyPath = tracePlayerPathCells(
                                 sim2,
-                                enemyPlayer.id
+                                simEnemyPlayer.id
                             )
 
                             const enemyScore = enemyPath.length * 10
@@ -802,9 +797,6 @@ runBotTurn()
                         }
                     }
                 }
-
-
-
 
                 if(score > bestScore)
                 {
@@ -824,7 +816,6 @@ runBotTurn()
             }
         }
     }
-
 
     else
     {
