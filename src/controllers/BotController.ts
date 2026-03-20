@@ -15,8 +15,9 @@ import Phaser from "phaser"
 
 import GameEngine from "../core/GameEngine"
 import { GameConfig } from "../config/GameConfig"
-import { findCurrentPlayerNextCell } from "../core/PathEngine"
+import { findCurrentPlayerNextCell,tracePlayerPath } from "../core/PathEngine"
 import { getValidMovesForPlayer } from "../core/RuleEngine"
+
 import GameScene from "../scenes/GameScene"
 
 import BoardView from "../ui/BoardView"
@@ -76,11 +77,42 @@ export default class BotController
         botThinkingText.setDepth(500)
         uiLayer.add(botThinkingText)
 
-        const thinkDelay =
-            Phaser.Math.Between(
-                GameConfig.BOT_THINK_MIN,
-                GameConfig.BOT_THINK_MAX
+        // ==========================
+        // DYNAMIC THINK TIME
+        // ==========================
+
+
+        let thinkDelay = GameConfig.BOT_THINK_MIN
+
+        if(state)
+        {
+            const validMoves = getValidMovesForPlayer(
+                state,
+                state.currentPlayer
             )
+
+            const currentPlayer = state.players[state.currentPlayer]
+
+            const result = tracePlayerPath(
+                state,
+                currentPlayer.id
+            )
+
+            const isInDanger = result === "DEAD_END"
+
+            const isHard =
+                validMoves.length > 6 ||
+                isInDanger
+
+            if(isHard)
+            {
+                thinkDelay = Phaser.Math.Between(GameConfig.BOT_THINK_MID, GameConfig.BOT_THINK_MAX)
+            }
+            else
+            {
+                thinkDelay = Phaser.Math.Between(GameConfig.BOT_THINK_MIN, GameConfig.BOT_THINK_MID)
+            }
+        }
 
         setTimeout(() => {
 
