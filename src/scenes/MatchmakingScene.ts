@@ -52,6 +52,12 @@ export default class MatchmakingScene extends Phaser.Scene
 
         // Match found ekranı için
         this.load.image("ui_match_found_panel", "assets/ui/btn_rotate.png")
+
+
+        this.load.image("avatar_player", "assets/ui/avatar_player.png")
+        this.load.image("avatar_enemy", "assets/ui/avatar_enemy.png")
+        this.load.image("ui_vs", "assets/ui/vs.png")
+        
     }
 
     create()
@@ -234,8 +240,8 @@ export default class MatchmakingScene extends Phaser.Scene
         // =========================
         // START GAME AFTER DELAY
         // =========================
-        this.startGameEvent = this.time.delayedCall(1800, () => {
-            this.scene.start("GameScene")
+        this.time.delayedCall(1200, () => {
+            this.showVSIntro()
         })
     }
 
@@ -269,4 +275,99 @@ export default class MatchmakingScene extends Phaser.Scene
     {
         this.shutdownCleanup()
     }
+
+
+showVSIntro()
+{
+    const width = this.scale.width
+    const height = this.scale.height
+
+    // temizle
+    this.children.removeAll()
+
+    // =========================
+    // BG
+    // =========================
+    const overlay = this.add.rectangle(
+        width/2,
+        height/2,
+        width,
+        height,
+        0x000000,
+        0.7
+    ).setDepth(200)
+
+    // =========================
+    // AVATARS
+    // =========================
+    const player = this.add.image(
+        width/2 - 250,
+        height/2,
+        "avatar_player" // 🔥 EKLEYECEKSİN
+    ).setDepth(210).setScale(0.6)
+
+    const enemy = this.add.image(
+        width/2 + 250,
+        height/2,
+        "avatar_enemy" // 🔥 EKLEYECEKSİN
+    ).setDepth(210).setScale(0.6)
+
+    // =========================
+    // VS IMAGE
+    // =========================
+    const vs = this.add.image(
+        width/2,
+        height/2,
+        "ui_vs" // 🔥 EKLEYECEKSİN
+    ).setDepth(220).setScale(0.3).setAlpha(0)
+
+    // =========================
+    // ENTRY ANIMATION
+    // =========================
+
+    // player soldan girer
+    player.x -= 400
+    this.tweens.add({
+        targets: player,
+        x: width/2 - 250,
+        duration: 400,
+        ease: "Back.easeOut"
+    })
+
+    // enemy sağdan girer
+    enemy.x += 400
+    this.tweens.add({
+        targets: enemy,
+        x: width/2 + 250,
+        duration: 400,
+        ease: "Back.easeOut"
+    })
+
+    // VS pop
+    this.tweens.add({
+        targets: vs,
+        alpha: 1,
+        scale: { from: 0.2, to: 0.6 },
+        duration: 300,
+        delay: 300,
+        ease: "Back.easeOut"
+    })
+
+    // pulse
+    this.tweens.add({
+        targets: vs,
+        scale: { from: 0.6, to: 0.7 },
+        duration: 600,
+        yoyo: true,
+        repeat: -1
+    })
+
+    // =========================
+    // GAME START
+    // =========================
+    this.time.delayedCall(2000, () => {
+        this.scene.start("GameScene")
+    })
+}
+
 }
