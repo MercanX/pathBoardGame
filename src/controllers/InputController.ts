@@ -198,6 +198,7 @@ handleClick(pointer: Phaser.Input.Pointer)
 
             this.boardView.render(nextCellForRender)
 
+            /*
             const validMoves = getValidMovesForPlayer(
                 newState,
                 newState.currentPlayer
@@ -208,6 +209,7 @@ handleClick(pointer: Phaser.Input.Pointer)
             )
 
             this.handView.render(validCardIds)
+            */
         }
 
         const ghost = this.getGhost()
