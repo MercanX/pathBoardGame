@@ -823,14 +823,20 @@ openHomeConfirmPopup()
     const width = this.scale.width
     const height = this.scale.height
 
+    if(!this.isMapMode)
+    {
+        this.toggleMapMode()
+    }
+
+
     // =========================
     // OVERLAY
     // =========================
     const overlay = this.add.rectangle(
         width / 2,
         height / 2,
-        width,
-        height,
+        width+100,
+        height+100,
         0x000000,
         0.6
     )
