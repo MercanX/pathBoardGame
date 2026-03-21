@@ -16,6 +16,7 @@
  */
 
 import Phaser from "phaser"
+import { PlayerService } from "../core/PlayerService"
 
 export default class MatchmakingScene extends Phaser.Scene
 {
@@ -57,7 +58,7 @@ export default class MatchmakingScene extends Phaser.Scene
         this.load.image("avatar_player", "assets/ui/avatar_player.png")
         this.load.image("avatar_enemy", "assets/ui/avatar_enemy.png")
         this.load.image("ui_vs", "assets/ui/vs.png")
-        
+
     }
 
     create()
@@ -285,6 +286,8 @@ showVSIntro()
     // temizle
     this.children.removeAll()
 
+    const playerData = PlayerService.get()
+
     // =========================
     // BG
     // =========================
@@ -303,7 +306,7 @@ showVSIntro()
     const player = this.add.image(
         width/2 - 250,
         height/2,
-        "avatar_player" // 🔥 EKLEYECEKSİN
+        playerData.avatar
     ).setDepth(210).setScale(0.6)
 
     const enemy = this.add.image(
@@ -311,6 +314,24 @@ showVSIntro()
         height/2,
         "avatar_enemy" // 🔥 EKLEYECEKSİN
     ).setDepth(210).setScale(0.6)
+
+    this.add.text(
+        width/2 - 250,
+        height/2 + 120,
+        playerData.name,
+        { fontSize: "28px" }
+    )
+    .setOrigin(0.5)
+    .setDepth(230)
+
+    this.add.text(
+        width/2 - 250,
+        height/2 + 160,
+        "Rating: " + playerData.rating,
+        { fontSize: "20px" }
+    )
+    .setOrigin(0.5)
+    .setDepth(230)
 
     // =========================
     // VS IMAGE
