@@ -175,6 +175,18 @@ export default class GameScene extends Phaser.Scene
         this.load.image("ui_draw", "assets/ui/draw.png")
         this.load.image("ui_lost", "assets/ui/lost.png")
 
+        this.load.image("ui_confirm_bg", "assets/ui/logo01.png")
+        this.load.image("btn_yes", "assets/ui/btn_home.png")
+        this.load.image("btn_no", "assets/ui/btn_exit.png")
+
+
+        /*
+        this.load.image("ui_confirm_bg", "assets/ui/confirm_bg.png")
+        this.load.image("btn_yes", "assets/ui/btn_yes.png")
+        this.load.image("btn_no", "assets/ui/btn_no.png")
+        */
+
+
     }
 
     create()
@@ -788,7 +800,7 @@ export default class GameScene extends Phaser.Scene
 
         // RESTART BUTTON
         this.btnExit.on("pointerdown", () => {
-            this.scene.restart()
+            this.openHomeConfirmPopup()
         })
 
         // ROTATE BUTTON
@@ -805,6 +817,97 @@ export default class GameScene extends Phaser.Scene
             this.toggleMapMode()
         })
     }
+
+openHomeConfirmPopup()
+{
+    const width = this.scale.width
+    const height = this.scale.height
+
+    // =========================
+    // OVERLAY
+    // =========================
+    const overlay = this.add.rectangle(
+        width / 2,
+        height / 2,
+        width,
+        height,
+        0x000000,
+        0.6
+    )
+
+    overlay
+        .setScrollFactor(0)
+        .setDepth(99990)
+        .setInteractive()
+
+    // =========================
+    // POPUP IMAGE (ARKA PLAN)
+    // =========================
+    const popup = this.add.image(
+        width / 2,
+        height / 2,
+        "ui_confirm_bg" // 🔥 SEN EKLEYECEKSİN
+    )
+
+    popup
+        .setDepth(99995)
+        .setScale(0.7)
+        .setScrollFactor(0)
+
+    // =========================
+    // YES BUTTON
+    // =========================
+    const yesBtn = this.add.image(
+        width / 2 - 120,
+        height / 2 + 80,
+        "btn_yes" // 🔥 SEN EKLEYECEKSİN
+    )
+
+    yesBtn
+        .setDepth(99999)
+        .setScale(0.5)
+        .setInteractive({ useHandCursor: true })
+
+    // =========================
+    // NO BUTTON
+    // =========================
+    const noBtn = this.add.image(
+        width / 2 + 120,
+        height / 2 + 80,
+        "btn_no" // 🔥 SEN EKLEYECEKSİN
+    )
+
+    noBtn
+        .setDepth(99999)
+        .setScale(0.5)
+        .setInteractive({ useHandCursor: true })
+
+    // =========================
+    // ACTIONS
+    // =========================
+
+    yesBtn.on("pointerdown", () => {
+        this.scene.stop("GameScene")
+        this.scene.start("MainMenuScene")
+    })
+
+    noBtn.on("pointerdown", () => {
+        overlay.destroy()
+        popup.destroy()
+        yesBtn.destroy()
+        noBtn.destroy()
+    })
+
+    // =========================
+    // ANIM (OPTIONAL)
+    // =========================
+    this.tweens.add({
+        targets: popup,
+        scale: { from: 0.5, to: 0.7 },
+        duration: 250,
+        ease: "Back.easeOut"
+    })
+}
 
     checkGameOver()
     {
