@@ -85,7 +85,8 @@ render(validCards?: Set<string>)
     const state = this.gameEngine.getState()
     if(!state) return
 
-    const player = state.players[state.currentPlayer]
+    const player = state.players.find(p => !p.isBot)
+    if(!player) return
     const handCount = player.hand.length
 
     for(const c of this.cards) c.destroy()
@@ -223,7 +224,8 @@ highlight()
     const state = this.gameEngine.getState()
     if(!state) return
 
-    const player = state.players[state.currentPlayer]
+    const player = state.players.find(p => !p.isBot)
+    if(!player) return
 
     for(let i = 0; i < this.cards.length; i++)
     {
@@ -263,7 +265,9 @@ highlight()
         const state = this.gameEngine.getState()
         if(!state) return null
 
-        const player = state.players[state.currentPlayer]
+        const player = state.players.find(p => !p.isBot)
+        if(!player) return null
+        
         return player.hand[this.selectedIndex] || null
     }
 

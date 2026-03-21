@@ -196,7 +196,10 @@ export default class BotController
                     botMove.rotation
                 )
 
+
                 this.scene.checkGameOver()
+
+                this.scene.refreshHandView()
 
                 if(this.scene.isGameOver)
                 {
@@ -219,16 +222,20 @@ export default class BotController
 
                     boardView.render(nextCellForRender)
 
+                    const humanPlayerIndex = newState.players.findIndex(p => !p.isBot)
+
                     const validMoves = getValidMovesForPlayer(
                         newState,
-                        newState.currentPlayer
+                        humanPlayerIndex
                     )
 
                     const validCardIds = new Set(
                         validMoves.map(v => v.cardId)
                     )
 
-                    handView.render(validCardIds)
+                    //handView.render(validCardIds)
+
+
 
                     const focus = findCurrentPlayerNextCell(
                         newState,

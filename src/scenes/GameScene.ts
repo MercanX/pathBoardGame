@@ -424,9 +424,12 @@ export default class GameScene extends Phaser.Scene
         // hand render
         if(state)
         {
+
+            const humanPlayerIndex = state.players.findIndex(p => !p.isBot)
+
             const validMoves = getValidMovesForPlayer(
                 state,
-                state.currentPlayer
+                humanPlayerIndex
             )
 
             const validCardIds = new Set(
@@ -434,6 +437,7 @@ export default class GameScene extends Phaser.Scene
             )
 
             this.handView.render(validCardIds)
+
         }
     }
 
@@ -828,6 +832,25 @@ export default class GameScene extends Phaser.Scene
         this.gameOverUIController.show(result)
 
         return result
+    }
+
+    refreshHandView()
+    {
+        const state = this.gameEngine.getState()
+        if(!state) return
+
+        const humanPlayerIndex = state.players.findIndex(p => !p.isBot)
+
+        const validMoves = getValidMovesForPlayer(
+            state,
+            humanPlayerIndex
+        )
+
+        const validCardIds = new Set(
+            validMoves.map(v => v.cardId)
+        )
+
+        this.handView.render(validCardIds)
     }
 
 }
