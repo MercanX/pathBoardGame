@@ -56,11 +56,20 @@ export default class BotController
         }
 
         const state = this.gameEngine.getState()
-        if(!state) return
+        if(!state)
+        {
+            this.scene.isBotRunning = false
+            return
+        }
+
 
         const nextPlayer = state.players[state.currentPlayer]
 
-        if(!nextPlayer.isBot) return
+        if(!nextPlayer.isBot)
+        {
+            this.scene.isBotRunning = false
+            return
+        }
 
         const botThinkingText = this.scene.add.text(
             this.scene.scale.width / 2,
@@ -163,15 +172,20 @@ export default class BotController
                 botThinkingText.destroy()
 
                 const state = this.gameEngine.getState()
-                if(!state) return
+                if(!state)
+                {
+                    this.scene.isBotRunning = false
+                    return
+                }
+
 
                 const targetCell = state.board.board[botMove.y][botMove.x]
 
                 if(targetCell.cardId !== null)
                 {
-                    //console.log("BOT ERROR: CELL FULL", botMove)
+                    this.scene.isBotRunning = false
                     return
-                }
+                }                
 
 
 
