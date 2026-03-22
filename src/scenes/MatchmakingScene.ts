@@ -17,6 +17,7 @@
 
 import Phaser from "phaser"
 import { PlayerService } from "../core/PlayerService"
+import { generateBot } from "../core/BotGenerator"
 
 export default class MatchmakingScene extends Phaser.Scene
 {
@@ -30,6 +31,8 @@ export default class MatchmakingScene extends Phaser.Scene
     searchingLoopEvent?: Phaser.Time.TimerEvent
     matchDelayEvent?: Phaser.Time.TimerEvent
     startGameEvent?: Phaser.Time.TimerEvent
+
+    selectedBot: any
 
     constructor()
     {
@@ -48,16 +51,23 @@ export default class MatchmakingScene extends Phaser.Scene
         this.load.image("menu_bg", "assets/bg/bg03.png")
 
         // Searching ekranı için
-        this.load.image("ui_searching_panel", "assets/ui/btn_map.png")
-        this.load.image("ui_searching_spinner", "assets/ui/btn_map.png")
+        this.load.image("ui_searching_panel", "assets/ui/searching_panel.png")
+        this.load.image("ui_searching_spinner", "assets/ui/btn_rotate.png")
 
         // Match found ekranı için
-        this.load.image("ui_match_found_panel", "assets/ui/btn_rotate.png")
+        this.load.image("ui_match_found_panel", "assets/ui/match_found_panel.png")
 
 
         this.load.image("avatar_player", "assets/ui/avatar_player.png")
         this.load.image("avatar_enemy", "assets/ui/avatar_enemy.png")
         this.load.image("ui_vs", "assets/ui/vs.png")
+
+        for(let i = 1; i <= 5; i++)
+        {
+            this.load.image(`avatar_${i}`, `assets/cards/avatar_${i}.png`)
+        }
+
+
 
     }
 
@@ -160,11 +170,14 @@ export default class MatchmakingScene extends Phaser.Scene
         // =========================
         // Online oyuncu aranıyormuş hissi için random süre
         // İstersen bunu sonra 2-6 sn, 3-7 sn vb. değiştiririz
-        const randomWaitMs = Phaser.Math.Between(2500, 5500)
+        const randomWaitMs = Phaser.Math.Between(5000, 10000)
 
         this.matchDelayEvent = this.time.delayedCall(randomWaitMs, () => {
             this.showMatchFound()
         })
+
+        this.selectedBot = generateBot()
+
     }
 
     showMatchFound()
@@ -288,6 +301,7 @@ showVSIntro()
 
     const playerData = PlayerService.get()
 
+    
     // =========================
     // BG
     // =========================
@@ -312,7 +326,7 @@ showVSIntro()
     const enemy = this.add.image(
         width/2 + 250,
         height/2,
-        "avatar_enemy" // 🔥 EKLEYECEKSİN
+        this.selectedBot.avatar
     ).setDepth(210).setScale(0.6)
 
     this.add.text(
@@ -332,6 +346,44 @@ showVSIntro()
     )
     .setOrigin(0.5)
     .setDepth(230)
+
+    this.add.text(
+        width/2 - 250,
+        height/2 + 200,
+        `${playerData.wins}W - ${playerData.losses}L`,
+        { fontSize: "20px" }
+    )
+    .setOrigin(0.5)
+    .setDepth(230)
+
+    this.add.text(
+        width/2 + 250,
+        height/2 + 120,
+        this.selectedBot.name,
+        { fontSize: "28px" }
+    )
+    .setOrigin(0.5)
+    .setDepth(230)
+
+    this.add.text(
+        width/2 + 250,
+        height/2 + 160,
+        "Rating: " + this.selectedBot.rating,
+        { fontSize: "20px" }
+    )
+    .setOrigin(0.5)
+    .setDepth(230)
+
+    this.add.text(
+        width/2 + 250,
+        height/2 + 200,
+        `${this.selectedBot.wins}W - ${this.selectedBot.losses}L`,
+        { fontSize: "20px" }
+    )
+    .setOrigin(0.5)
+    .setDepth(230)
+
+
 
     // =========================
     // VS IMAGE
