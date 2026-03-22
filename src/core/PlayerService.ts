@@ -37,8 +37,8 @@ class PlayerServiceClass
             else
             {
                 this.player = {
-                    name: "YOU",
-                    avatar: "avatar_player",
+                    name: "YOU 01",
+                    avatar: "avatar_1",
                     rating: 1200,
                     wins: 0,
                     losses: 0
@@ -52,8 +52,8 @@ class PlayerServiceClass
             console.error("PlayerService init error", e)
 
             this.player = {
-                name: "YOU",
-                avatar: "avatar_player",
+                name: "YOU 03",
+                avatar: "avatar_2",
                 rating: 1200,
                 wins: 0,
                 losses: 0

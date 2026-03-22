@@ -64,7 +64,7 @@ export default class MatchmakingScene extends Phaser.Scene
 
         for(let i = 1; i <= 5; i++)
         {
-            this.load.image(`avatar_${i}`, `assets/cards/avatar_${i}.png`)
+            this.load.image(`avatar_${i}`, `assets/ui/avatar_${i}.png`)
         }
 
 
@@ -115,7 +115,6 @@ export default class MatchmakingScene extends Phaser.Scene
         this.searchingPanel
             .setDepth(110)
             .setScrollFactor(0)
-            .setScale(0.7)
 
         // =========================
         // SEARCHING SPINNER
@@ -145,12 +144,12 @@ export default class MatchmakingScene extends Phaser.Scene
 
         // panel giriş animasyonu
         this.searchingPanel.setAlpha(0)
-        this.searchingPanel.setScale(0.55)
+        this.searchingPanel.setScale(0.45)
 
         this.tweens.add({
             targets: this.searchingPanel,
             alpha: 1,
-            scale: 0.7,
+            scale: 0.5,
             duration: 300,
             ease: "Back.easeOut"
         })
@@ -230,13 +229,13 @@ export default class MatchmakingScene extends Phaser.Scene
         this.matchFoundPanel
             .setDepth(121)
             .setScrollFactor(0)
-            .setScale(0.55)
+            .setScale(0.4)
             .setAlpha(0)
 
         this.tweens.add({
             targets: this.matchFoundPanel,
             alpha: 1,
-            scale: 0.72,
+            scale: 0.5,
             duration: 350,
             ease: "Back.easeOut"
         })
@@ -244,7 +243,7 @@ export default class MatchmakingScene extends Phaser.Scene
         // hafif pulse
         this.tweens.add({
             targets: this.matchFoundPanel,
-            scale: { from: 0.72, to: 0.76 },
+            scale: { from: 0.52, to: 0.56 },
             duration: 700,
             yoyo: true,
             repeat: -1,
@@ -321,13 +320,13 @@ showVSIntro()
         width/2 - 250,
         height/2,
         playerData.avatar
-    ).setDepth(210).setScale(0.6)
+    ).setDepth(210).setScale(0.5)
 
     const enemy = this.add.image(
         width/2 + 250,
         height/2,
         this.selectedBot.avatar
-    ).setDepth(210).setScale(0.6)
+    ).setDepth(210).setScale(0.5)
 
     this.add.text(
         width/2 - 250,
@@ -390,9 +389,9 @@ showVSIntro()
     // =========================
     const vs = this.add.image(
         width/2,
-        height/2,
+        height/2 - 400,
         "ui_vs" // 🔥 EKLEYECEKSİN
-    ).setDepth(220).setScale(0.3).setAlpha(0)
+    ).setDepth(220).setScale(0.2).setAlpha(0)
 
     // =========================
     // ENTRY ANIMATION
@@ -402,7 +401,7 @@ showVSIntro()
     player.x -= 400
     this.tweens.add({
         targets: player,
-        x: width/2 - 250,
+        x: width/2 - 200,
         duration: 400,
         ease: "Back.easeOut"
     })
@@ -411,7 +410,7 @@ showVSIntro()
     enemy.x += 400
     this.tweens.add({
         targets: enemy,
-        x: width/2 + 250,
+        x: width/2 + 200,
         duration: 400,
         ease: "Back.easeOut"
     })
@@ -420,7 +419,7 @@ showVSIntro()
     this.tweens.add({
         targets: vs,
         alpha: 1,
-        scale: { from: 0.2, to: 0.6 },
+        scale: { from: 0.2, to: 0.5 },
         duration: 300,
         delay: 300,
         ease: "Back.easeOut"

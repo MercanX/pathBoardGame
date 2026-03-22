@@ -76,7 +76,7 @@ export function generateBot(): GeneratedBot
         rating,
         wins,
         losses,
-        avatar: "avatar_enemy",
+        avatar: "avatar_2",
         difficulty
     }
 }

@@ -175,7 +175,7 @@ export default class GameScene extends Phaser.Scene
         this.load.image("ui_draw", "assets/ui/draw.png")
         this.load.image("ui_lost", "assets/ui/lost.png")
 
-        this.load.image("ui_confirm_bg", "assets/ui/logo01.png")
+        this.load.image("ui_confirm_bg", "assets/ui/quit.png")
         this.load.image("btn_yes", "assets/ui/btn_home.png")
         this.load.image("btn_no", "assets/ui/btn_exit.png")
 
@@ -851,7 +851,7 @@ openHomeConfirmPopup()
     // =========================
     const popup = this.add.image(
         width / 2,
-        height / 2,
+        height / 2 - 200,
         "ui_confirm_bg" // 🔥 SEN EKLEYECEKSİN
     )
 
