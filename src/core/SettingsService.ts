@@ -8,6 +8,9 @@ export type GameSettings =
 {
     sound: boolean
     music: boolean
+    masterVolume: number
+    sfxVolume: number
+    musicVolume: number
 }
 
 const STORAGE_KEY = "game_settings"
@@ -27,13 +30,25 @@ class SettingsServiceClass
 
             if(saved)
             {
-                this.settings = JSON.parse(saved)
+                const parsed = JSON.parse(saved)
+
+                // eski data ile uyum
+                this.settings = {
+                    sound: parsed.sound ?? true,
+                    music: parsed.music ?? true,
+                    masterVolume: parsed.masterVolume ?? 1,
+                    sfxVolume: parsed.sfxVolume ?? 1,
+                    musicVolume: parsed.musicVolume ?? 0.5
+                }
             }
             else
             {
                 this.settings = {
                     sound: true,
-                    music: true
+                    music: true,
+                    masterVolume: 1,
+                    sfxVolume: 1,
+                    musicVolume: 0.5
                 }
 
                 this.save()
@@ -45,7 +60,10 @@ class SettingsServiceClass
 
             this.settings = {
                 sound: true,
-                music: true
+                music: true,
+                masterVolume: 1,
+                sfxVolume: 1,
+                musicVolume: 0.5
             }
         }
     }
