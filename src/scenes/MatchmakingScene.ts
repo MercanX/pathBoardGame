@@ -18,6 +18,7 @@
 import Phaser from "phaser"
 import { PlayerService } from "../core/PlayerService"
 import { generateBot } from "../core/BotGenerator"
+import { SoundService } from "../core/SoundService"
 
 export default class MatchmakingScene extends Phaser.Scene
 {
@@ -68,6 +69,10 @@ export default class MatchmakingScene extends Phaser.Scene
         }
 
 
+        this.load.audio("click", "assets/sounds/click.mp3")
+        this.load.audio("vs_impact", "assets/sounds/vs_impact1.mp3")
+
+
 
     }
 
@@ -86,6 +91,8 @@ export default class MatchmakingScene extends Phaser.Scene
         )
 
         bg.setDisplaySize(width, height)
+
+        SoundService.init(this)
 
         // =========================
         // SEARCHING OVERLAY
@@ -326,7 +333,9 @@ showVSIntro()
     ).setDepth(200)
 
 
-
+    this.time.delayedCall(300, () => {
+        SoundService.play("vs_impact")
+    })
 
     // =========================
     // AVATARS

@@ -7,6 +7,7 @@ import Phaser from "phaser"
 
 import { PlayerService } from "../core/PlayerService"
 import { SettingsService } from "../core/SettingsService"
+import { SoundService } from "../core/SoundService"
 
 export default class MainMenuScene extends Phaser.Scene
 {
@@ -31,6 +32,11 @@ export default class MainMenuScene extends Phaser.Scene
 
         // ICONS
         this.load.image("confetti", "assets/ui/confetti.png")
+
+        this.load.audio("click", "assets/sounds/click.mp3")
+        this.load.audio("vs_impact", "assets/sounds/vs_impact1.mp3")
+
+
     }
 
     create()
@@ -38,6 +44,7 @@ export default class MainMenuScene extends Phaser.Scene
 
         PlayerService.init()
         SettingsService.init()
+        SoundService.init(this)
         
         const { width, height } = this.scale
         const iconW = 250
@@ -205,6 +212,7 @@ export default class MainMenuScene extends Phaser.Scene
 
         // 🔥 DEĞİŞTİRDİĞİM YER
         btnMultiplayer.on("pointerdown", () => {
+            SoundService.play("click")
 
             this.addConfettiExplosion(this.scale.width/2, 600)
 
@@ -214,6 +222,7 @@ export default class MainMenuScene extends Phaser.Scene
         })
 
         btnSettings.on("pointerdown", () => {
+            SoundService.play("click")
             this.scene.start("SettingsScene")
         })
 
