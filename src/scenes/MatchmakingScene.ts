@@ -294,13 +294,13 @@ showVSIntro()
 {
     const width = this.scale.width
     const height = this.scale.height
+    const impactTime = 350
 
     // temizle
     this.children.removeAll()
 
     const playerData = PlayerService.get()
 
-    
     // =========================
     // BACKGROUND IMAGE (VS BG)
     // =========================
@@ -310,44 +310,48 @@ showVSIntro()
         "menu_bg"
     )
 
-    bg.setDisplaySize(width, height)
-
+    bg
+        .setDisplaySize(width, height)
+        .setDepth(190)
 
     // =========================
-    // BG
+    // DARK OVERLAY
     // =========================
     const overlay = this.add.rectangle(
-        width/2,
-        height/2,
+        width / 2,
+        height / 2,
         width,
         height,
         0x000000,
         0.7
-    ).setDepth(200)
-
-
-    this.time.delayedCall(300, () => {
-        SoundService.play("vs_impact")
-    })
+    )
+    .setDepth(200)
 
     // =========================
     // AVATARS
     // =========================
     const player = this.add.image(
-        width/2 - 250,
-        height/2,
+        width / 2 - 250,
+        height / 2,
         playerData.avatar
-    ).setDepth(210).setScale(0.5)
+    )
+    .setDepth(210)
+    .setScale(0.5)
 
     const enemy = this.add.image(
-        width/2 + 250,
-        height/2,
+        width / 2 + 250,
+        height / 2,
         this.selectedBot.avatar
-    ).setDepth(210).setScale(0.5)
+    )
+    .setDepth(210)
+    .setScale(0.5)
 
+    // =========================
+    // PLAYER INFO
+    // =========================
     this.add.text(
-        width/2 - 250,
-        height/2 + 120,
+        width / 2 - 250,
+        height / 2 + 120,
         playerData.name,
         { fontSize: "28px" }
     )
@@ -355,8 +359,8 @@ showVSIntro()
     .setDepth(230)
 
     this.add.text(
-        width/2 - 250,
-        height/2 + 160,
+        width / 2 - 250,
+        height / 2 + 160,
         "Rating: " + playerData.rating,
         { fontSize: "20px" }
     )
@@ -364,17 +368,20 @@ showVSIntro()
     .setDepth(230)
 
     this.add.text(
-        width/2 - 250,
-        height/2 + 200,
+        width / 2 - 250,
+        height / 2 + 200,
         `${playerData.wins}W - ${playerData.losses}L`,
         { fontSize: "20px" }
     )
     .setOrigin(0.5)
     .setDepth(230)
 
+    // =========================
+    // BOT INFO
+    // =========================
     this.add.text(
-        width/2 + 250,
-        height/2 + 120,
+        width / 2 + 250,
+        height / 2 + 120,
         this.selectedBot.name,
         { fontSize: "28px" }
     )
@@ -382,8 +389,8 @@ showVSIntro()
     .setDepth(230)
 
     this.add.text(
-        width/2 + 250,
-        height/2 + 160,
+        width / 2 + 250,
+        height / 2 + 160,
         "Rating: " + this.selectedBot.rating,
         { fontSize: "20px" }
     )
@@ -391,32 +398,32 @@ showVSIntro()
     .setDepth(230)
 
     this.add.text(
-        width/2 + 250,
-        height/2 + 200,
+        width / 2 + 250,
+        height / 2 + 200,
         `${this.selectedBot.wins}W - ${this.selectedBot.losses}L`,
         { fontSize: "20px" }
     )
     .setOrigin(0.5)
     .setDepth(230)
 
-
-
     // =========================
     // VS IMAGE
     // =========================
     const vs = this.add.image(
-        width/2,
-        height/2 - 400,
-        "ui_vs" // 🔥 EKLEYECEKSİN
-    ).setDepth(220).setScale(0.15).setAlpha(0)
-
+        width / 2,
+        height / 2 - 400,
+        "ui_vs"
+    )
+    .setDepth(220)
+    .setScale(0.15)
+    .setAlpha(0)
 
     // =========================
     // FLASH EFFECT
     // =========================
     const flash = this.add.rectangle(
-        width/2,
-        height/2,
+        width / 2,
+        height / 2,
         width,
         height,
         0xffffff,
@@ -425,40 +432,41 @@ showVSIntro()
     .setDepth(300)
     .setAlpha(0)
 
-    // flash patlama
     this.tweens.add({
         targets: flash,
         alpha: { from: 0.8, to: 0 },
         duration: 250,
-        delay: 300,
+        delay: impactTime,
         ease: "Cubic.easeOut"
     })
 
     // =========================
-    // CAMERA SHAKE
+    // SOUND + CAMERA IMPACT
     // =========================
-    this.time.delayedCall(300, () => {
+    this.time.delayedCall(impactTime, () => {
+        SoundService.play("vs_impact")
         this.cameras.main.shake(250, 0.01)
+        this.cameras.main.flash(150, 255, 255, 255)
     })
 
     // =========================
     // ENTRY ANIMATION
     // =========================
 
-    // player soldan girer
-    player.x = width/2 - 600
+    // player soldan gelir
+    player.x = width / 2 - 600
     this.tweens.add({
         targets: player,
-        x: width/2 - 200,
+        x: width / 2 - 250,
         duration: 400,
         ease: "Back.easeOut"
     })
 
-    // enemy sağdan girer
-    player.x = width/2 + 600
+    // enemy sağdan gelir
+    enemy.x = width / 2 + 600
     this.tweens.add({
         targets: enemy,
-        x: width/2 + 200,
+        x: width / 2 + 250,
         duration: 400,
         ease: "Back.easeOut"
     })
@@ -469,11 +477,11 @@ showVSIntro()
         alpha: 1,
         scale: { from: 0.1, to: 0.4 },
         duration: 300,
-        delay: 300,
+        delay: impactTime,
         ease: "Back.easeOut"
     })
 
-    // pulse
+    // VS pulse
     this.tweens.add({
         targets: vs,
         scale: { from: 0.4, to: 0.55 },
@@ -482,17 +490,20 @@ showVSIntro()
         repeat: -1
     })
 
+    // Overlay pulse
     this.tweens.add({
         targets: overlay,
         alpha: { from: 0.7, to: 0.85 },
         duration: 200,
         yoyo: true
     })
+    
 
     // =========================
     // GAME START
     // =========================
     this.time.delayedCall(20000, () => {
+        SoundService.stopSFX()
         this.scene.start("GameScene")
     })
 }

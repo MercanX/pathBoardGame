@@ -11,6 +11,7 @@ class SoundServiceClass
 {
     private scene!: Phaser.Scene
     private music?: Phaser.Sound.BaseSound
+    private currentSfx?: Phaser.Sound.BaseSound
 
     // =========================
     // INIT
@@ -29,7 +30,8 @@ class SoundServiceClass
 
         if(!settings.sound) return
 
-        this.scene.sound.play(key)
+        this.currentSfx = this.scene.sound.add(key)
+        this.currentSfx.play()
     }
 
     // =========================
@@ -60,6 +62,16 @@ class SoundServiceClass
             this.music = undefined
         }
     }
+
+    stopSFX()
+    {
+        if(this.currentSfx)
+        {
+            this.currentSfx.stop()
+            this.currentSfx = undefined
+        }
+    }
+
 
 }
 
