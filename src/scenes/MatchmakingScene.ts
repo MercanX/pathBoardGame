@@ -49,8 +49,6 @@ export default class MatchmakingScene extends Phaser.Scene
          * 2) ya da geçici olarak mevcut assetlerinle değiştir
          */
 
-        this.load.image("menu_bg", "assets/bg/bg03.png")
-
         // Searching ekranı için
         this.load.image("ui_searching_panel", "assets/ui/searching_panel.png")
         this.load.image("ui_searching_spinner", "assets/ui/btn_rotate.png")
@@ -67,11 +65,6 @@ export default class MatchmakingScene extends Phaser.Scene
         {
             this.load.image(`avatar_${i}`, `assets/ui/avatar_${i}.png`)
         }
-
-
-        this.load.audio("click", "assets/sounds/click.mp3")
-        this.load.audio("vs_impact", "assets/sounds/vs_impact1.mp3")
-
 
 
     }

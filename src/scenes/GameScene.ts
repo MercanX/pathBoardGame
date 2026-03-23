@@ -136,10 +136,7 @@ export default class GameScene extends Phaser.Scene
 
     preload()
     {
-        this.load.image("game_bg", "/assets/bg/bg03.png")
-        this.load.image("board", "/assets/board/board02.jpg")
-        this.load.image("menu_bg", "assets/bg/bg03.png")
-        this.load.image("title", "assets/ui/logo01.png")
+
       
         for(let i = 1; i <= 20; i++)
         {
@@ -166,10 +163,7 @@ export default class GameScene extends Phaser.Scene
             }
         }
 
-        this.load.image("btn_exit", "assets/ui/btn_exit.png")
-        this.load.image("btn_rotate", "assets/ui/btn_rotate.png")
-        this.load.image("btn_map", "assets/ui/btn_map.png")
-        this.load.image("btn_home", "assets/ui/btn_home.png")
+
 
         this.load.image("ui_win", "assets/ui/win.png")
         this.load.image("ui_draw", "assets/ui/draw.png")

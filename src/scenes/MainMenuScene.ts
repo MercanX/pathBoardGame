@@ -19,23 +19,14 @@ export default class MainMenuScene extends Phaser.Scene
     preload()
     {
         // BACKGROUND
-        this.load.image("menu_bg", "assets/bg/bg03.png")
-        this.load.image("title", "assets/ui/logo01.png")
+
 
         // BUTTONS
-        this.load.image("btn_multiplayer", "assets/ui/multiplayerbtn.png")
-        this.load.image("btn_playfriend", "assets/ui/playfriendbtn.png")
-        this.load.image("btn_settings", "assets/ui/btn_settings.png")
-        this.load.image("btn_help", "assets/ui/btn_help.png")
-        this.load.image("btn_shop", "assets/ui/btn_shop.png")
-        this.load.image("btn_sound", "assets/ui/btn_sound.png")
+
+
 
         // ICONS
-        this.load.image("confetti", "assets/ui/confetti.png")
-
-        this.load.audio("click", "assets/sounds/click.mp3")
-        this.load.audio("vs_impact", "assets/sounds/vs_impact1.mp3")
-
+        
 
     }
 

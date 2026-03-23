@@ -17,9 +17,6 @@ export default class SettingsScene extends Phaser.Scene
 
     preload()
     {
-        this.load.image("menu_bg", "assets/bg/bg03.png")
-
-        this.load.image("btn_back", "assets/ui/btn_exit.png")
         this.load.image("btn_toggle_on", "assets/ui/btn_sound.png")
         this.load.image("btn_toggle_off", "assets/ui/btn_sound.png")
     }
