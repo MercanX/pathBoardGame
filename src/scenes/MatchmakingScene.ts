@@ -302,6 +302,18 @@ showVSIntro()
 
     
     // =========================
+    // BACKGROUND IMAGE (VS BG)
+    // =========================
+    const bg = this.add.image(
+        width / 2,
+        height / 2,
+        "menu_bg"
+    )
+
+    bg.setDisplaySize(width, height)
+
+
+    // =========================
     // BG
     // =========================
     const overlay = this.add.rectangle(
@@ -312,6 +324,9 @@ showVSIntro()
         0x000000,
         0.7
     ).setDepth(200)
+
+
+
 
     // =========================
     // AVATARS
@@ -391,14 +406,45 @@ showVSIntro()
         width/2,
         height/2 - 400,
         "ui_vs" // 🔥 EKLEYECEKSİN
-    ).setDepth(220).setScale(0.2).setAlpha(0)
+    ).setDepth(220).setScale(0.15).setAlpha(0)
+
+
+    // =========================
+    // FLASH EFFECT
+    // =========================
+    const flash = this.add.rectangle(
+        width/2,
+        height/2,
+        width,
+        height,
+        0xffffff,
+        1
+    )
+    .setDepth(300)
+    .setAlpha(0)
+
+    // flash patlama
+    this.tweens.add({
+        targets: flash,
+        alpha: { from: 0.8, to: 0 },
+        duration: 250,
+        delay: 300,
+        ease: "Cubic.easeOut"
+    })
+
+    // =========================
+    // CAMERA SHAKE
+    // =========================
+    this.time.delayedCall(300, () => {
+        this.cameras.main.shake(250, 0.01)
+    })
 
     // =========================
     // ENTRY ANIMATION
     // =========================
 
     // player soldan girer
-    player.x -= 400
+    player.x = width/2 - 600
     this.tweens.add({
         targets: player,
         x: width/2 - 200,
@@ -407,7 +453,7 @@ showVSIntro()
     })
 
     // enemy sağdan girer
-    enemy.x += 400
+    player.x = width/2 + 600
     this.tweens.add({
         targets: enemy,
         x: width/2 + 200,
@@ -419,7 +465,7 @@ showVSIntro()
     this.tweens.add({
         targets: vs,
         alpha: 1,
-        scale: { from: 0.2, to: 0.5 },
+        scale: { from: 0.1, to: 0.4 },
         duration: 300,
         delay: 300,
         ease: "Back.easeOut"
@@ -428,16 +474,23 @@ showVSIntro()
     // pulse
     this.tweens.add({
         targets: vs,
-        scale: { from: 0.6, to: 0.7 },
+        scale: { from: 0.4, to: 0.55 },
         duration: 600,
         yoyo: true,
         repeat: -1
     })
 
+    this.tweens.add({
+        targets: overlay,
+        alpha: { from: 0.7, to: 0.85 },
+        duration: 200,
+        yoyo: true
+    })
+
     // =========================
     // GAME START
     // =========================
-    this.time.delayedCall(2000, () => {
+    this.time.delayedCall(20000, () => {
         this.scene.start("GameScene")
     })
 }
