@@ -212,7 +212,7 @@ export default class MainMenuScene extends Phaser.Scene
         })
 
         btnSettings.on("pointerdown", () => {
-            console.log("OPEN SETTINGS")
+            this.scene.start("SettingsScene")
         })
 
         btnPlayfriend.on("pointerdown", () => {

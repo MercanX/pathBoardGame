@@ -4,6 +4,7 @@ import BootScene from "./scenes/BootScene"
 import MainMenuScene from "./scenes/MainMenuScene"
 import MatchmakingScene from "./scenes/MatchmakingScene"
 import GameScene from "./scenes/GameScene"
+import SettingsScene from "./scenes/SettingsScene"
 
 const config: Phaser.Types.Core.GameConfig = {
 
@@ -27,7 +28,8 @@ const config: Phaser.Types.Core.GameConfig = {
         BootScene,
         MainMenuScene,
         MatchmakingScene,
-        GameScene
+        GameScene,
+        SettingsScene
     ]
 
 }
