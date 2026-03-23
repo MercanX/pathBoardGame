@@ -7,6 +7,7 @@
 import Phaser from "phaser"
 
 import { SettingsService } from "../core/SettingsService"
+import { SoundService } from "../core/SoundService"
 
 export default class SettingsScene extends Phaser.Scene
 {
@@ -88,5 +89,52 @@ export default class SettingsScene extends Phaser.Scene
         backBtn.on("pointerdown", () => {
             this.scene.start("MainMenuScene")
         })
+
+        let musicOn = settings.music
+
+        const musicBtn = this.add.image(
+            width/2 + 150,
+            500,
+            "btn_toggle_on"
+        )
+        .setScale(0.5)
+        .setInteractive()
+
+        musicBtn.setAlpha(musicOn ? 1 : 0.4)
+
+        this.add.text(
+            width/2 - 100,
+            500,
+            "MUSIC",
+            { fontSize: "28px" }
+        ).setOrigin(0.5)
+
+
+        musicBtn.on("pointerdown", () => {
+
+            musicOn = !musicOn
+
+            SettingsService.update({
+                music: musicOn
+            })
+
+            musicBtn.setAlpha(musicOn ? 1 : 0.4)
+
+            if(musicOn)
+            {
+                SoundService.playMusic("bg_music")
+            }
+            else
+            {
+                SoundService.stopMusic()
+            }
+        })
+
+        if(musicOn)
+        {
+            SoundService.playMusic("bg_music")
+        }
+
+
     }
 }

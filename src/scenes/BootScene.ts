@@ -6,6 +6,8 @@
  */
 
 import Phaser from "phaser"
+import { SoundService } from "../core/SoundService"
+import { SettingsService } from "../core/SettingsService"
 
 export default class BootScene extends Phaser.Scene
 {
@@ -21,8 +23,8 @@ export default class BootScene extends Phaser.Scene
         // =========================
         this.load.image("menu_bg", "assets/bg/bg03.png")
         this.load.image("title", "assets/ui/logo01.png")
-        this.load.image("game_bg", "/assets/bg/bg03.png")
-        this.load.image("board", "/assets/board/board02.jpg")
+        this.load.image("game_bg", "assets/bg/bg03.png")
+        this.load.image("board", "assets/board/board02.jpg")
         this.load.image("confetti", "assets/ui/confetti.png")
 
 
@@ -55,6 +57,8 @@ export default class BootScene extends Phaser.Scene
         this.load.audio("click", "assets/sounds/click.mp3")
         this.load.audio("vs_impact", "assets/sounds/vs.mp3")
 
+        this.load.audio("bg_music", "assets/sounds/bg01.mp3")
+
 
 
         // =========================
@@ -65,6 +69,12 @@ export default class BootScene extends Phaser.Scene
 
     create()
     {
+        // 🔥 ORDER ÇOK KRİTİK
+        SettingsService.init()
+        SoundService.init(this)
+
+        SoundService.playMusic("bg_music")
+
         this.scene.start("MainMenuScene")
     }
 }

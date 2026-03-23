@@ -10,6 +10,7 @@ import { SettingsService } from "./SettingsService"
 class SoundServiceClass
 {
     private scene!: Phaser.Scene
+    private music?: Phaser.Sound.BaseSound
 
     // =========================
     // INIT
@@ -40,11 +41,26 @@ class SoundServiceClass
 
         if(!settings.music) return
 
-        this.scene.sound.play(key, {
+        // zaten çalıyorsa tekrar başlatma
+        if(this.music && this.music.isPlaying) return
+
+        this.music = this.scene.sound.add(key, {
             loop: true,
             volume: 0.5
         })
+
+        this.music.play()
     }
+
+    stopMusic()
+    {
+        if(this.music)
+        {
+            this.music.stop()
+            this.music = undefined
+        }
+    }
+
 }
 
 export const SoundService = new SoundServiceClass()
