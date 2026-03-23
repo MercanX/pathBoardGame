@@ -6,6 +6,8 @@
 
 import Phaser from "phaser"
 
+import { SettingsService } from "../core/SettingsService"
+
 export default class SettingsScene extends Phaser.Scene
 {
     constructor()
@@ -42,7 +44,8 @@ export default class SettingsScene extends Phaser.Scene
         // =========================
         // SOUND TOGGLE
         // =========================
-        let soundOn = true
+        const settings = SettingsService.get()
+        let soundOn = settings.sound
 
         const soundText = this.add.text(
             width/2 - 100,
@@ -63,10 +66,16 @@ export default class SettingsScene extends Phaser.Scene
 
             soundOn = !soundOn
 
+            SettingsService.update({
+                sound: soundOn
+            })
+
             soundBtn.setAlpha(soundOn ? 1 : 0.4)
 
             console.log("Sound:", soundOn)
         })
+
+        soundBtn.setAlpha(soundOn ? 1 : 0.4)
 
         // =========================
         // BACK BUTTON

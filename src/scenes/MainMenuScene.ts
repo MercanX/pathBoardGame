@@ -6,6 +6,7 @@
 import Phaser from "phaser"
 
 import { PlayerService } from "../core/PlayerService"
+import { SettingsService } from "../core/SettingsService"
 
 export default class MainMenuScene extends Phaser.Scene
 {
@@ -36,6 +37,7 @@ export default class MainMenuScene extends Phaser.Scene
     {
 
         PlayerService.init()
+        SettingsService.init()
         
         const { width, height } = this.scale
         const iconW = 250
