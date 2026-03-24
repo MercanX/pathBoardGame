@@ -21,6 +21,10 @@ export default class SettingsScene extends Phaser.Scene
     {
         this.load.image("btn_toggle_on", "assets/ui/btn_sound.png")
         this.load.image("btn_toggle_off", "assets/ui/btn_sound.png")
+
+        this.load.image("slider_bg", "assets/ui/slider_bg.png")
+        this.load.image("slider_knob", "assets/ui/slider_knob.png")
+        this.load.image("slider_fill", "assets/ui/slider_fill.png")
     }
 
     create()
@@ -137,94 +141,56 @@ export default class SettingsScene extends Phaser.Scene
         {
             SoundService.playMusic("bg_music")
         }
+        
+        // =========================
+        // MASTER SLIDER (FIXED)
+        // =========================
 
+        const barWidth = 450
+        const barHeight = 70
 
-// =========================
-// MASTER VOLUME
-// =========================
-this.add.text(width/2 - 100, 600, "MASTER", { fontSize: "24px" }).setOrigin(0.5)
+        const barX = width/2
+        const barY = 670
 
-const masterBarWidth = 300
-const masterMinX = width/2 - masterBarWidth/2
-const masterMaxX = width/2 + masterBarWidth/2
+        const minX = barX - barWidth/2
+        const maxX = barX + barWidth/2
 
-const masterBar = this.add.rectangle(width/2, 640, masterBarWidth, 8, 0xffffff)
+        // BG
+        const sliderBg = this.add.image(barX, barY, "slider_bg")
+        .setDisplaySize(barWidth, barHeight)
 
-const masterKnob = this.add.circle(width/2, 640, 10, 0xff4444)
-.setInteractive({ draggable: true })
+        // FILL
+        const fill = this.add.image(minX+30, barY, "slider_fill")
+        .setOrigin(0, 0.55)
 
-masterKnob.x = masterMinX + (settings.masterVolume * masterBarWidth)
+        // KNOB
+        const knob = this.add.image(minX, barY, "slider_knob")
+        .setScale(0.4)
+        .setInteractive({ draggable: true })
 
-this.input.setDraggable(masterKnob)
+        // INITIAL
+        const value = settings.masterVolume ?? 1
 
-masterKnob.on("drag", (pointer: any, dragX: number) => {
+        fill.setDisplaySize(barWidth * value, 35)
+        knob.x = minX + (value * barWidth)
 
-    masterKnob.x = Phaser.Math.Clamp(dragX, masterMinX, masterMaxX)
+        this.input.setDraggable(knob)
 
-    const value = (masterKnob.x - masterMinX) / masterBarWidth
+        // DRAG
+        knob.on("drag", (pointer: any, dragX: number) => {
 
-    SettingsService.update({ masterVolume: value })
-    SoundService.updateVolumes()
-})
+            knob.x = Phaser.Math.Clamp(dragX, minX, maxX)
 
+            const value = (knob.x - minX) / barWidth
 
-// =========================
-// SFX VOLUME
-// =========================
-this.add.text(width/2 - 100, 700, "SFX", { fontSize: "24px" }).setOrigin(0.5)
+            fill.setDisplaySize(barWidth * value, 35)
 
-const sfxBarWidth = 300
-const sfxMinX = width/2 - sfxBarWidth/2
-const sfxMaxX = width/2 + sfxBarWidth/2
+            SettingsService.update({
+                masterVolume: value
+            })
 
-const sfxBar = this.add.rectangle(width/2, 740, sfxBarWidth, 8, 0xffffff)
-
-const sfxKnob = this.add.circle(width/2, 740, 10, 0x44ff44)
-.setInteractive({ draggable: true })
-
-sfxKnob.x = sfxMinX + (settings.sfxVolume * sfxBarWidth)
-
-this.input.setDraggable(sfxKnob)
-
-sfxKnob.on("drag", (pointer: any, dragX: number) => {
-
-    sfxKnob.x = Phaser.Math.Clamp(dragX, sfxMinX, sfxMaxX)
-
-    const value = (sfxKnob.x - sfxMinX) / sfxBarWidth
-
-    SettingsService.update({ sfxVolume: value })
-    SoundService.updateVolumes()
-})
-
-
-// =========================
-// MUSIC VOLUME
-// =========================
-this.add.text(width/2 - 100, 800, "MUSIC", { fontSize: "24px" }).setOrigin(0.5)
-
-const musicBarWidth = 300
-const musicMinX = width/2 - musicBarWidth/2
-const musicMaxX = width/2 + musicBarWidth/2
-
-const musicBar = this.add.rectangle(width/2, 840, musicBarWidth, 8, 0xffffff)
-
-const musicKnob = this.add.circle(width/2, 840, 10, 0x4488ff)
-.setInteractive({ draggable: true })
-
-musicKnob.x = musicMinX + (settings.musicVolume * musicBarWidth)
-
-this.input.setDraggable(musicKnob)
-
-musicKnob.on("drag", (pointer: any, dragX: number) => {
-
-    musicKnob.x = Phaser.Math.Clamp(dragX, musicMinX, musicMaxX)
-
-    const value = (musicKnob.x - musicMinX) / musicBarWidth
-
-    SettingsService.update({ musicVolume: value })
-    SoundService.updateVolumes()
-})
-
+            SoundService.updateVolumes()
+        })
 
     }
 }
