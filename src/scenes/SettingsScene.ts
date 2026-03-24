@@ -38,6 +38,8 @@ export default class SettingsScene extends Phaser.Scene
     {
         const { width, height } = this.scale
 
+        SoundService.init(this)
+
         // =========================
         // BACKGROUND
         // =========================
@@ -64,6 +66,7 @@ export default class SettingsScene extends Phaser.Scene
         .setInteractive()
 
         this.addButtonEffects(soundBtn)
+        soundBtn.setAlpha(soundOn ? 1 : 0.4)
 
         soundBtn.on("pointerdown", () => {
 
@@ -96,6 +99,7 @@ export default class SettingsScene extends Phaser.Scene
         .setInteractive()
 
         this.addButtonEffects(musicBtn)
+        musicBtn.setAlpha(musicOn ? 1 : 0.4)
 
         musicBtn.on("pointerdown", () => {
 
