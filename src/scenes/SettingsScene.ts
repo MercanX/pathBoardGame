@@ -19,6 +19,7 @@ export default class SettingsScene extends Phaser.Scene
 
     preload()
     {
+        this.load.image("settings_bg", "assets/ui/settings_bg.png")
         this.load.image("btn_toggle_on", "assets/ui/btn_sound.png")
         this.load.image("btn_toggle_off", "assets/ui/btn_sound.png")
 
@@ -37,32 +38,24 @@ export default class SettingsScene extends Phaser.Scene
         const bg = this.add.image(width/2, height/2, "menu_bg")
         bg.setDisplaySize(width, height)
 
+        const slider_bg = this.add.image(width/2, height/2, "settings_bg")
+        bg.setDisplaySize(width, height)
+
         SettingsService.init()
         const settings = SettingsService.get()
 
-        // =========================
-        // TITLE
-        // =========================
-        this.add.text(width/2, 200, "SETTINGS", {
-            fontSize: "40px"
-        }).setOrigin(0.5)
+
 
         // =========================
         // SOUND TOGGLE
         // =========================
         let soundOn = settings.sound
 
-        const soundText = this.add.text(
-            width/2 - 100,
-            400,
-            "SOUND",
-            { fontSize: "28px" }
-        ).setOrigin(0.5)
 
         const soundBtn = this.add.image(
-            width/2 + 150,
-            400,
-            "btn_toggle_on"
+            width/2 - 150,
+            height/2 - 100,
+            "btn_sound"
         )
         .setScale(0.5)
         .setInteractive()
@@ -87,8 +80,8 @@ export default class SettingsScene extends Phaser.Scene
         // =========================
         const backBtn = this.add.image(
             width/2,
-            height - 200,
-            "btn_back"
+            height/2 + 350,
+            "btn_home"
         )
         .setScale(0.5)
         .setInteractive()
@@ -101,20 +94,13 @@ export default class SettingsScene extends Phaser.Scene
 
         const musicBtn = this.add.image(
             width/2 + 150,
-            500,
-            "btn_toggle_on"
+            height/2 - 100,
+            "btn_music"
         )
         .setScale(0.5)
         .setInteractive()
 
         musicBtn.setAlpha(musicOn ? 1 : 0.4)
-
-        this.add.text(
-            width/2 - 100,
-            500,
-            "MUSIC",
-            { fontSize: "28px" }
-        ).setOrigin(0.5)
 
 
         musicBtn.on("pointerdown", () => {
@@ -149,8 +135,8 @@ export default class SettingsScene extends Phaser.Scene
         const barWidth = 450
         const barHeight = 70
 
-        const barX = width/2
-        const barY = 670
+        const barX = width/2-20
+        const barY = height/2 + 125
 
         const minX = barX - barWidth/2
         const maxX = barX + barWidth/2

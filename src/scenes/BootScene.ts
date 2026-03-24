@@ -40,6 +40,9 @@ export default class BootScene extends Phaser.Scene
         this.load.image("btn_help", "assets/ui/btn_help.png")
         this.load.image("btn_shop", "assets/ui/btn_shop.png")
         this.load.image("btn_sound", "assets/ui/btn_sound.png")
+        this.load.image("btn_sound_off", "assets/ui/btn_sound_off.png")
+        this.load.image("btn_music", "assets/ui/btn_music.png")
+        this.load.image("btn_music_off", "assets/ui/btn_music_off.png")
 
         this.load.image("btn_exit", "assets/ui/btn_exit.png")
         this.load.image("btn_rotate", "assets/ui/btn_rotate.png")
