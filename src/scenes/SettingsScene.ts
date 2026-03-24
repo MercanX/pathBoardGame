@@ -74,6 +74,7 @@ export default class SettingsScene extends Phaser.Scene
             SettingsService.update({ sound: soundOn })
 
             soundBtn.setTexture(soundOn ? "btn_sound_on" : "btn_sound_off")
+            soundBtn.setAlpha(soundOn ? 1 : 0.4)
 
             if(!soundOn)
             {
@@ -105,6 +106,7 @@ export default class SettingsScene extends Phaser.Scene
             SettingsService.update({ music: musicOn })
 
             musicBtn.setTexture(musicOn ? "btn_music_on" : "btn_music_off")
+            musicBtn.setAlpha(musicOn ? 1 : 0.4)
 
             if(musicOn)
             {
