@@ -8,6 +8,7 @@ import Phaser from "phaser"
 
 import { SettingsService } from "../core/SettingsService"
 import { SoundService } from "../core/SoundService"
+import { PlayerService } from "../core/PlayerService"
 
 export default class SettingsScene extends Phaser.Scene
 {
@@ -53,13 +54,33 @@ export default class SettingsScene extends Phaser.Scene
         const settings = SettingsService.get()
 
         // =========================
+        // BACK BUTTON
+        // =========================
+        const backBtn = this.add.image(
+            width/2,
+            250,
+            "btn_home"
+        )
+        .setScale(0.5)
+        .setInteractive()
+
+        this.addButtonEffects(backBtn)
+
+        backBtn.on("pointerdown", () => {
+            SoundService.play("click")
+            this.scene.start("MainMenuScene")
+        })
+
+
+
+        // =========================
         // SOUND BUTTON
         // =========================
         let soundOn = settings.sound
 
         const soundBtn = this.add.image(
             width/2 - 150,
-            height/2 - 100,
+            height/2 - 200,
             soundOn ? "btn_sound_on" : "btn_sound_off"
         )
         .setScale(0.5)
@@ -92,7 +113,7 @@ export default class SettingsScene extends Phaser.Scene
 
         const musicBtn = this.add.image(
             width/2 + 150,
-            height/2 - 100,
+            height/2 - 200,
             musicOn ? "btn_music_on" : "btn_music_off"
         )
         .setScale(0.5)
@@ -122,23 +143,6 @@ export default class SettingsScene extends Phaser.Scene
             }
         })
 
-        // =========================
-        // BACK BUTTON
-        // =========================
-        const backBtn = this.add.image(
-            width/2,
-            height/2 + 350,
-            "btn_home"
-        )
-        .setScale(0.5)
-        .setInteractive()
-
-        this.addButtonEffects(backBtn)
-
-        backBtn.on("pointerdown", () => {
-            SoundService.play("click")
-            this.scene.start("MainMenuScene")
-        })
 
         // =========================
         // MASTER SLIDER
@@ -146,8 +150,8 @@ export default class SettingsScene extends Phaser.Scene
         const barWidth = 450
         const barHeight = 70
 
-        const barX = width/2 - 20
-        const barY = height/2 + 125
+        const barX = width/2 - 10
+        const barY = height/2 - 40
 
         const minX = barX - barWidth/2
         const maxX = barX + barWidth/2
@@ -200,6 +204,89 @@ export default class SettingsScene extends Phaser.Scene
 
             SoundService.updateVolumes()
         })
+
+        // =========================
+        // AVATAR GRID
+        // =========================
+        const avatars = [
+            "avatar_1",
+            "avatar_2",
+            "avatar_3",
+            "avatar_4",
+            "avatar_5",
+            "avatar_6",
+        ]
+
+        const player = PlayerService.get()
+        let selectedAvatar = player.avatar
+
+        const avatarButtons: {
+            img: Phaser.GameObjects.Image,
+            border: Phaser.GameObjects.Arc
+        }[] = []
+
+        const cols = 3
+        const size = 220
+        const gap = 10
+
+        const startX = width/2 - ((cols * size + (cols - 1) * gap) / 2) + 100
+        const startY = height/2 + 125
+
+        avatars.forEach((key, index) => {
+
+            const col = index % cols
+            const row = Math.floor(index / cols)
+
+            const x = startX + col * (size + gap)
+            const y = startY + row * (size + gap)
+
+            const avatarBtn = this.add.image(x, y, key)
+                .setDisplaySize(size, size)
+                .setInteractive()
+
+            this.addButtonEffects(avatarBtn)
+
+            // BORDER
+            const border = this.add.circle(x, y, size/2-10)
+                .setStrokeStyle(6, 0xf9f213)
+                .setAlpha(0)
+
+            // ARRAY PUSH (DOĞRU)
+            avatarButtons.push({
+                img: avatarBtn,
+                border: border
+            })
+
+            // INITIAL STATE
+            if(key === selectedAvatar)
+            {
+                     border.setAlpha(1)
+            }
+ 
+
+            // CLICK
+            avatarBtn.on("pointerdown", () => {
+
+                SoundService.play("click")
+
+                selectedAvatar = key
+
+                // RESET ALL
+                avatarButtons.forEach(item => {
+                     item.border.setAlpha(0)
+                })
+                // APPLY SELECTED
+                border.setAlpha(1)
+
+                // SAVE
+                PlayerService.update({
+                    avatar: key
+                })
+            })
+        })
+
+
+
     }
 
     // =========================
