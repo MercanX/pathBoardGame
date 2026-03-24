@@ -15,6 +15,7 @@ class SoundServiceClass
 
     private music?: Phaser.Sound.WebAudioSound
     private currentSfx?: Phaser.Sound.WebAudioSound
+     private musicFadeInterval?: ReturnType<typeof setInterval>
 
     // =========================
     // INIT
@@ -148,6 +149,12 @@ class SoundServiceClass
     {
         if(!this.music) return
 
+        if(this.musicFadeInterval)
+        {
+            clearInterval(this.musicFadeInterval)
+            this.musicFadeInterval = undefined
+        }
+
         const startVolume = this.music.volume
         const diff = targetVolume - startVolume
 
@@ -156,7 +163,7 @@ class SoundServiceClass
 
         let currentStep = 0
 
-        const interval = setInterval(() => {
+        this.musicFadeInterval = setInterval(() => {
 
             currentStep++
 
@@ -167,11 +174,16 @@ class SoundServiceClass
 
             if(currentStep >= steps)
             {
-                clearInterval(interval)
+                if(this.musicFadeInterval)
+                {
+                    clearInterval(this.musicFadeInterval)
+                    this.musicFadeInterval = undefined
+                }
             }
 
         }, stepTime)
     }
+
     
 }
 
