@@ -6,6 +6,8 @@
  * - Gelecekte Firebase'e kolay geçiş
  */
 
+import { GameConfig } from "../config/GameConfig"
+
 export type PlayerProfile =
 {
     name: string
@@ -13,6 +15,7 @@ export type PlayerProfile =
     rating: number
     wins: number
     losses: number
+    gold: number
 }
 
 const STORAGE_KEY = "game_player_profile"
@@ -32,7 +35,16 @@ class PlayerServiceClass
 
             if(saved)
             {
-                this.player = JSON.parse(saved)
+                const parsed = JSON.parse(saved)
+
+                this.player = {
+                    name: parsed.name ?? "YOU 01",
+                    avatar: parsed.avatar ?? "avatar_1",
+                    rating: parsed.rating ?? 1200,
+                    wins: parsed.wins ?? 0,
+                    losses: parsed.losses ?? 0,
+                    gold: parsed.gold ?? GameConfig.START_GOLD
+                }
             }
             else
             {
@@ -41,10 +53,9 @@ class PlayerServiceClass
                     avatar: "avatar_1",
                     rating: 1200,
                     wins: 0,
-                    losses: 0
+                    losses: 0,
+                    gold: GameConfig.START_GOLD
                 }
-
-                this.save()
             }
         }
         catch(e)
@@ -56,7 +67,8 @@ class PlayerServiceClass
                 avatar: "avatar_2",
                 rating: 1200,
                 wins: 0,
-                losses: 0
+                losses: 0,
+                gold: GameConfig.START_GOLD
             }
         }
     }
