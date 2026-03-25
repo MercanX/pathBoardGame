@@ -16,6 +16,10 @@ export type PlayerProfile =
     wins: number
     losses: number
     gold: number
+
+    ownedItems: string[]        // ✅ sahip olunanlar
+    equippedAvatar: string      // ✅ aktif avatar
+    equippedPath: string        // ✅ aktif path
 }
 
 const STORAGE_KEY = "game_player_profile"
@@ -35,6 +39,7 @@ class PlayerServiceClass
 
             if(saved)
             {
+  
                 const parsed = JSON.parse(saved)
 
                 this.player = {
@@ -43,19 +48,34 @@ class PlayerServiceClass
                     rating: parsed.rating ?? 1200,
                     wins: parsed.wins ?? 0,
                     losses: parsed.losses ?? 0,
-                    gold: parsed.gold ?? GameConfig.START_GOLD
+                    gold: parsed.gold ?? GameConfig.START_GOLD,
+
+                    ownedItems: parsed.ownedItems ?? ["avatar_1"],
+
+                    equippedAvatar: parsed.equippedAvatar ?? parsed.avatar ?? "avatar_1",
+
+                    equippedPath: parsed.equippedPath ?? "path_blue"
                 }
+
+
             }
             else
             {
+
                 this.player = {
                     name: "YOU 01",
                     avatar: "avatar_1",
                     rating: 1200,
                     wins: 0,
                     losses: 0,
-                    gold: GameConfig.START_GOLD
+                    gold: GameConfig.START_GOLD,
+
+                    ownedItems: ["avatar_1"],
+                    equippedAvatar: "avatar_1",
+                    equippedPath: "path_blue"
                 }
+
+
             }
         }
         catch(e)
@@ -63,12 +83,16 @@ class PlayerServiceClass
             console.error("PlayerService init error", e)
 
             this.player = {
-                name: "YOU 03",
-                avatar: "avatar_2",
+                name: "YOU 01",
+                avatar: "avatar_1",
                 rating: 1200,
                 wins: 0,
                 losses: 0,
-                gold: GameConfig.START_GOLD
+                gold: GameConfig.START_GOLD,
+
+                ownedItems: ["avatar_1"],
+                equippedAvatar: "avatar_1",
+                equippedPath: "path_blue"
             }
         }
     }
@@ -122,6 +146,46 @@ class PlayerServiceClass
 
         this.save()
     }
+
+    // =========================
+    // OWNERSHIP CHECK
+    // =========================
+    hasItem(itemId: string): boolean
+    {
+        return this.player.ownedItems.includes(itemId)
+    }
+
+    // =========================
+    // ADD ITEM
+    // =========================
+    addItem(itemId: string)
+    {
+        if(!this.player.ownedItems.includes(itemId))
+        {
+            this.player.ownedItems.push(itemId)
+            this.save()
+        }
+    }
+
+    // =========================
+    // EQUIP AVATAR
+    // =========================
+    equipAvatar(id: string)
+    {
+        this.player.equippedAvatar = id
+        this.player.avatar = id
+        this.save()
+    }
+
+    // =========================
+    // EQUIP PATH
+    // =========================
+    equipPath(id: string)
+    {
+        this.player.equippedPath = id
+        this.save()
+    }
+
 }
 
 export const PlayerService = new PlayerServiceClass()
