@@ -105,6 +105,12 @@ export default class MainMenuScene extends Phaser.Scene
         const btn_sound   = this.add.image(width/2, height - 500, "btn_sound")
         const btn_shop    = this.add.image(width/2 + iconW, height - 500, "btn_shop")
 
+
+
+
+
+
+
         // ======================
         // SCALE
         // ======================
@@ -258,6 +264,11 @@ export default class MainMenuScene extends Phaser.Scene
         btnSettings.on("pointerdown", () => {
             SoundService.play("click")
             this.scene.start("SettingsScene")
+        })
+
+        btn_shop.on("pointerdown", () => {
+            SoundService.play("click")
+            this.scene.start("ShopScene")
         })
 
         btnPlayfriend.on("pointerdown", () => {

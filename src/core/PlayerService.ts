@@ -226,7 +226,26 @@ class PlayerServiceClass
         return true
     }
 
+    // =========================
+    // RESET PROGRESS
+    // =========================
+    resetProgress()
+    {
+        this.player = {
+            name: this.player.name,
+            avatar: "avatar_1",
+            rating: 1200,
+            wins: 0,
+            losses: 0,
+            gold: GameConfig.START_GOLD,
 
+            ownedItems: ["avatar_1"],
+            equippedAvatar: "avatar_1",
+            equippedPath: "path_blue"
+        }
+
+        this.save()
+    }
 
 }
 

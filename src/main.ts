@@ -5,6 +5,7 @@ import MainMenuScene from "./scenes/MainMenuScene"
 import MatchmakingScene from "./scenes/MatchmakingScene"
 import GameScene from "./scenes/GameScene"
 import SettingsScene from "./scenes/SettingsScene"
+import ShopScene from "./scenes/ShopScene"
 
 const config: Phaser.Types.Core.GameConfig = {
 
@@ -29,6 +30,7 @@ const config: Phaser.Types.Core.GameConfig = {
         MainMenuScene,
         MatchmakingScene,
         GameScene,
+        ShopScene,
         SettingsScene
     ]
 
