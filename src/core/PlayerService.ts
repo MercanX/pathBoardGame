@@ -186,6 +186,48 @@ class PlayerServiceClass
         this.save()
     }
 
+    // =========================
+    // BUY ITEM
+    // =========================
+    buyItem(item: { id: string, price: number }): boolean
+    {
+        // zaten sahip mi
+        if(this.hasItem(item.id))
+        {
+            return false
+        }
+
+        // gold yeterli mi
+        if(this.player.gold < item.price)
+        {
+            return false
+        }
+
+        // gold düş
+        this.player.gold -= item.price
+
+        // item ekle
+        this.player.ownedItems.push(item.id)
+
+        // AUTO EQUIP (ilk versiyon)
+        if(item.id.startsWith("avatar"))
+        {
+            this.player.equippedAvatar = item.id
+            this.player.avatar = item.id
+        }
+
+        if(item.id.startsWith("path"))
+        {
+            this.player.equippedPath = item.id
+        }
+
+        this.save()
+
+        return true
+    }
+
+
+
 }
 
 export const PlayerService = new PlayerServiceClass()
