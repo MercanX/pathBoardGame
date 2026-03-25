@@ -18,6 +18,13 @@ export default class BootScene extends Phaser.Scene
 
     preload()
     {
+
+
+        this.load.script(
+            "webfont",
+            "https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"
+        )
+
         // =========================
         // GLOBAL IMAGES
         // =========================
@@ -86,12 +93,21 @@ export default class BootScene extends Phaser.Scene
 
     create()
     {
-        // 🔥 ORDER ÇOK KRİTİK
-        SettingsService.init()
-        SoundService.init(this)
+        // @ts-ignore
+        WebFont.load({
+            custom: {
+                families: ["Cinzel", "Orbitron"]
+            },
+            active: () => {
 
-        SoundService.playMusic("bg_music")
+                SettingsService.init()
+                SoundService.init(this)
 
-        this.scene.start("MainMenuScene")
+                SoundService.playMusic("bg_music")
+
+                this.scene.start("MainMenuScene")
+
+            }
+        })
     }
 }

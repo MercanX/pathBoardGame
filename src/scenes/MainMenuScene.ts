@@ -46,10 +46,53 @@ export default class MainMenuScene extends Phaser.Scene
         const bg = this.add.image(width/2, height/2, "menu_bg")
         bg.setDisplaySize(width, height)
 
+
         // ======================
         // TITLE
         // ======================
-        const title = this.add.image(width/2, 300, "title")
+        const title = this.add.image(width/2, 350, "title")
+
+
+        // ======================
+        // PLAYER
+        // ======================
+
+        const player = PlayerService.get()
+
+        const avatar = this.add.image(150, 120, player.avatar)
+            .setDisplaySize(150, 150)
+            .setDepth(10)
+
+
+        this.add.text(230, 100, player.name, {
+            fontFamily: "Orbitron",
+            fontSize: "49px",
+            color: "#ffffff",
+            fontStyle: "bold",
+             stroke: "#000000",
+            strokeThickness: 4
+        })
+        .setDepth(10)
+
+
+        this.add.text(width - 120, 100, `${player.gold}`, {
+            fontFamily: "Orbitron",
+            fontSize: "49px",
+            color: "#FFD700",
+            fontStyle: "bold",
+            stroke: "#000000",
+            strokeThickness: 4
+        })
+
+        .setOrigin(1, 0.5)
+        .setDepth(10)
+
+        this.add.text(width - 120, 140, "GOLD", {
+            fontFamily: "Cinzel",
+            fontSize: "24px",
+            fontStyle: "bold",
+            color: "#ffffff"
+        }).setOrigin(1, 0.5)
 
         // ======================
         // BUTTONS
