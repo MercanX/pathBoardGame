@@ -336,7 +336,7 @@ showVSIntro()
         playerData.avatar
     )
     .setDepth(210)
-    .setScale(0.5)
+    .setScale(0.8)
 
     const enemy = this.add.image(
         width / 2 + 250,
@@ -344,7 +344,7 @@ showVSIntro()
         this.selectedBot.avatar
     )
     .setDepth(210)
-    .setScale(0.5)
+    .setScale(0.8)
 
     // =========================
     // PLAYER INFO
@@ -353,7 +353,7 @@ showVSIntro()
         width / 2 - 250,
         height / 2 + 120,
         playerData.name,
-        { fontSize: "28px" }
+        { fontSize: "52px", fontStyle: "bold", color: "#ffffff", stroke: "#000", strokeThickness: 4 }
     )
     .setOrigin(0.5)
     .setDepth(230)
@@ -362,7 +362,7 @@ showVSIntro()
         width / 2 - 250,
         height / 2 + 160,
         "Rating: " + playerData.rating,
-        { fontSize: "20px" }
+        { fontSize: "48px", fontStyle: "bold", color: "#ffffff", stroke: "#000", strokeThickness: 4 }
     )
     .setOrigin(0.5)
     .setDepth(230)
@@ -371,7 +371,7 @@ showVSIntro()
         width / 2 - 250,
         height / 2 + 200,
         `${playerData.wins}W - ${playerData.losses}L`,
-        { fontSize: "20px" }
+        { fontSize: "48px", fontStyle: "bold", color: "#ffffff", stroke: "#000", strokeThickness: 4 }
     )
     .setOrigin(0.5)
     .setDepth(230)
@@ -383,7 +383,7 @@ showVSIntro()
         width / 2 + 250,
         height / 2 + 120,
         this.selectedBot.name,
-        { fontSize: "28px" }
+        { fontSize: "52px", fontStyle: "bold", color: "#ffffff", stroke: "#000", strokeThickness: 4 }
     )
     .setOrigin(0.5)
     .setDepth(230)
@@ -392,7 +392,7 @@ showVSIntro()
         width / 2 + 250,
         height / 2 + 160,
         "Rating: " + this.selectedBot.rating,
-        { fontSize: "20px" }
+        { fontSize: "48px", fontStyle: "bold", color: "#ffffff", stroke: "#000", strokeThickness: 4 }
     )
     .setOrigin(0.5)
     .setDepth(230)
@@ -401,7 +401,7 @@ showVSIntro()
         width / 2 + 250,
         height / 2 + 200,
         `${this.selectedBot.wins}W - ${this.selectedBot.losses}L`,
-        { fontSize: "20px" }
+        { fontSize: "48px", fontStyle: "bold", color: "#ffffff", stroke: "#000", strokeThickness: 4 }
     )
     .setOrigin(0.5)
     .setDepth(230)
