@@ -8,6 +8,7 @@ import Phaser from "phaser"
 import { PlayerService } from "../core/PlayerService"
 import { SettingsService } from "../core/SettingsService"
 import { SoundService } from "../core/SoundService"
+import AdService from "../services/AdService"
 
 export default class MainMenuScene extends Phaser.Scene
 {
@@ -259,6 +260,10 @@ export default class MainMenuScene extends Phaser.Scene
         // 🔥 DEĞİŞTİRDİĞİM YER
         btnMultiplayer.on("pointerdown", () => {
             SoundService.play("click")
+            
+            // 🔥 ADMOB BAŞLAT
+            AdService.init()
+            AdService.showBanner()
 
             this.addConfettiExplosion(this.scale.width/2, 600)
 
