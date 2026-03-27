@@ -38,19 +38,31 @@ export default class MainMenuScene extends Phaser.Scene
         SoundService.init(this)
         
         const { width, height } = this.scale
+
+        const baseW = 1080
+        const baseH = 1920
+
+        const scaleX = width / baseW
+        const scaleY = height / baseH
+
         const iconW = 250
 
         // ======================
         // BACKGROUND
         // ======================
         const bg = this.add.image(width/2, height/2, "menu_bg")
-        bg.setDisplaySize(width, height)
+        //bg.setDisplaySize(width * 1.2, height * 1.2)
+        const scaleX_bg = width / bg.width
+        const scaleY_bg = height / bg.height
 
+        const scale = Math.max(scaleX_bg, scaleY_bg)
+
+        bg.setScale(scale)
 
         // ======================
         // TITLE
         // ======================
-        const title = this.add.image(width/2, 350, "title")
+        const title = this.add.image(width/2, 350 * scaleY, "title")
 
 
         // ======================
@@ -58,13 +70,13 @@ export default class MainMenuScene extends Phaser.Scene
         // ======================
 
         const player = PlayerService.get()
-
-        const avatar = this.add.image(150, 120, player.avatar)
+  
+        const avatar = this.add.image(150 * scaleX, 120 * scaleY, player.avatar)
             .setDisplaySize(150, 150)
             .setDepth(10)
 
 
-        this.add.text(230, 100, player.name, {
+        this.add.text(230 * scaleX, 100 * scaleY, player.name, {
             fontFamily: "Orbitron",
             fontSize: "49px",
             color: "#ffffff",
@@ -75,7 +87,7 @@ export default class MainMenuScene extends Phaser.Scene
         .setDepth(10)
 
 
-        this.add.text(width - 120, 100, `${player.gold}`, {
+        this.add.text(width - (120 * scaleX), 100 * scaleY, `${player.gold}`, {
             fontFamily: "Orbitron",
             fontSize: "49px",
             color: "#FFD700",
@@ -87,7 +99,7 @@ export default class MainMenuScene extends Phaser.Scene
         .setOrigin(1, 0.5)
         .setDepth(10)
 
-        this.add.text(width - 120, 140, "GOLD", {
+        this.add.text(width - (120 * scaleX), 140 * scaleY, "GOLD", {
             fontFamily: "Cinzel",
             fontSize: "24px",
             fontStyle: "bold",
@@ -98,18 +110,12 @@ export default class MainMenuScene extends Phaser.Scene
         // BUTTONS
         // ======================
 
-        const btnMultiplayer = this.add.image(width/2, 666, "btn_multiplayer")
-        const btnPlayfriend  = this.add.image(width/2, 933, "btn_playfriend")
+        const btnMultiplayer = this.add.image(width/2, 666 * scaleY, "btn_multiplayer")
+        const btnPlayfriend  = this.add.image(width/2, 933* scaleY, "btn_playfriend")
 
-        const btnSettings = this.add.image(width/2 - iconW, height - 500, "btn_settings")
-        const btn_sound   = this.add.image(width/2, height - 500, "btn_sound")
-        const btn_shop    = this.add.image(width/2 + iconW, height - 500, "btn_shop")
-
-
-
-
-
-
+        const btnSettings = this.add.image(width/2 - iconW, height - (500 * scaleY), "btn_settings")
+        const btn_sound   = this.add.image(width/2, height - (500 * scaleY), "btn_sound")
+        const btn_shop    = this.add.image(width/2 + iconW, height - (500 * scaleY), "btn_shop")
 
         // ======================
         // SCALE
