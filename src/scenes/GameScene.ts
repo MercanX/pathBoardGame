@@ -34,6 +34,7 @@ import GhostController from "../controllers/GhostController"
 import GameOverController from "../controllers/GameOverController"
 import GameOverUIController from "../controllers/GameOverUIController"
 import EffectController from "../controllers/EffectController"
+import { PlayerService } from "../core/PlayerService"
 
 export default class GameScene extends Phaser.Scene
 {
@@ -887,6 +888,15 @@ openHomeConfirmPopup()
     // =========================
 
     yesBtn.on("pointerdown", () => {
+
+        // ======================
+        // 🔥 EXIT = LOSS
+        // ======================
+        if(!this.isGameOver)
+        {
+            PlayerService.addLoss()
+        }
+
         this.scene.stop("GameScene")
         this.scene.start("MainMenuScene")
     })
@@ -932,6 +942,40 @@ openHomeConfirmPopup()
 
         console.log("SHOW UI TRIGGERED")
 
+  
+        const state = this.gameEngine.getState()
+
+        if(state && result)
+        {
+            const humanPlayer = state.players.find(p => !p.isBot)
+            const botPlayer   = state.players.find(p => p.isBot)
+
+            if(result.type === "WIN")
+            {
+                const winnerId = result.winner
+
+                if(humanPlayer && botPlayer)
+                {
+                    if(winnerId === humanPlayer.id)
+                    {
+                        PlayerService.addWin()
+                    }
+                    else if(winnerId === botPlayer.id)
+                    {
+                        PlayerService.addLoss()
+                    }
+                }
+            }
+            else if(result.type === "DRAW")
+            {
+                // İstersen burada draw logic ekleriz
+                // örn: küçük rating artışı
+            }
+        }
+
+        // ======================
+        // 🔥 ZATEN VAR OLAN SATIR
+        // ======================
         this.gameOverUIController.show(result)
 
         return result
