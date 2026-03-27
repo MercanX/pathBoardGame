@@ -79,9 +79,53 @@ export default class MainMenuScene extends Phaser.Scene
 
         const player = PlayerService.get()
   
-        const avatar = this.add.image(150 * scaleX, 120 * scaleY, player.avatar)
-            .setDisplaySize(150, 150)
-            .setDepth(10)
+const avatar = this.add.image(150 * scaleX, 120 * scaleY, player.avatar)
+    .setDisplaySize(150, 150)
+    .setDepth(10)
+
+
+// ======================
+// AVATAR EFFECT SYSTEM
+// ======================
+
+let effect: Phaser.GameObjects.Particles.ParticleEmitter | null = null
+
+if (player.avatar === "avatar_fire") {
+
+    effect = this.add.particles(avatar.x, avatar.y, "confetti", {
+
+        scale: { start: 0.2, end: 0 },
+        alpha: { start: 1, end: 0 },
+
+        speed: { min: 20, max: 60 },
+        lifespan: 800,
+
+        tint: [0xff5500, 0xff2200, 0xffaa00],
+        frequency: 80
+    })
+
+}
+
+
+
+    effect = this.add.particles(avatar.x, avatar.y, "ates", {
+
+        scale: { start: 0.15, end: 0 },
+        alpha: { start: 0.8, end: 0 },
+
+        speed: { min: 10, max: 40 },
+        lifespan: 1200,
+
+        tint: [0x66ccff, 0x99e6ff, 0xffffff],
+        frequency: 120
+    })
+
+
+
+if (effect) {
+    effect.startFollow(avatar)
+    effect.setDepth(9)
+}
 
 
         this.add.text(230 * scaleX, 100 * scaleY, player.name, {
