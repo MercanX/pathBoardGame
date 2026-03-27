@@ -177,6 +177,9 @@ export default class MatchmakingScene extends Phaser.Scene
 
         this.selectedBot = generateBot()
 
+        const randomAvatarIndex = Phaser.Math.Between(1, 5)
+        this.selectedBot.avatar = `avatar_${randomAvatarIndex}`
+
     }
 
     showMatchFound()
