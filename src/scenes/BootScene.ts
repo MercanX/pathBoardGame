@@ -66,7 +66,7 @@ export default class BootScene extends Phaser.Scene
         // =========================
         // AVATAR UI
         // =========================
-        this.load.image("avatar_1", "assets/ui/avatar_1.gif")
+        this.load.image("avatar_1", "assets/ui/avatar_1.png")
         this.load.image("avatar_2", "assets/ui/avatar_2.png")
         this.load.image("avatar_3", "assets/ui/avatar_3.png")
         this.load.image("avatar_4", "assets/ui/avatar_4.png")
