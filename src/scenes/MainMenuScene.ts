@@ -8,7 +8,9 @@ import Phaser from "phaser"
 import { PlayerService } from "../core/PlayerService"
 import { SettingsService } from "../core/SettingsService"
 import { SoundService } from "../core/SoundService"
+import RewardService from "../services/RewardService"
 import AdService from "../services/AdService"
+import { GameConfig } from "../config/GameConfig"
 
 export default class MainMenuScene extends Phaser.Scene
 {
@@ -37,6 +39,11 @@ export default class MainMenuScene extends Phaser.Scene
         PlayerService.init()
         SettingsService.init()
         SoundService.init(this)
+        let isAdLoading = false
+
+        // 🔥 ADMOB BAŞLAT
+        AdService.init()
+        AdService.showBanner()
         
         const { width, height } = this.scale
 
@@ -88,7 +95,7 @@ export default class MainMenuScene extends Phaser.Scene
         .setDepth(10)
 
 
-        this.add.text(width - (120 * scaleX), 100 * scaleY, `${player.gold}`, {
+        const goldText = this.add.text(width - (120 * scaleX), 100 * scaleY, `${player.gold}`, {
             fontFamily: "Orbitron",
             fontSize: "49px",
             color: "#FFD700",
@@ -260,10 +267,6 @@ export default class MainMenuScene extends Phaser.Scene
         // 🔥 DEĞİŞTİRDİĞİM YER
         btnMultiplayer.on("pointerdown", () => {
             SoundService.play("click")
-            
-            // 🔥 ADMOB BAŞLAT
-            AdService.init()
-            AdService.showBanner()
 
             this.addConfettiExplosion(this.scale.width/2, 600)
 
@@ -289,6 +292,123 @@ export default class MainMenuScene extends Phaser.Scene
 
             // this.scene.start("GameScene")
         })
+
+
+        // ======================
+        // REWARDED BUTTON
+        // ======================
+
+        const rewardText = this.add.text(width / 2, height - 325, "", {
+            fontFamily: "Orbitron",
+            fontSize: "42px",
+            color: "#00ffcc",
+            stroke: "#000000",
+            strokeThickness: 4
+        })
+        .setOrigin(0.5)
+        .setDepth(20)
+
+        rewardText.setInteractive({ useHandCursor: true })
+
+        const cooldownText = this.add.text(width / 2, height - 275, "", {
+            fontFamily: "Orbitron",
+            fontSize: "28px",
+            color: "#aaaaaa"
+        })
+        .setOrigin(0.5)
+        .setDepth(20)
+
+        const updateRewardText = () => {
+
+            const remaining = RewardService.getRemaining()
+            const max = GameConfig.REWARDED.maxViews
+            const reward = GameConfig.REWARDED.rewardGold
+
+            rewardText.setText(`WATCH AD +${reward} (${remaining}/${max})`)
+
+            if (remaining <= 0) {
+                rewardText.setAlpha(0.4)
+            } else {
+                rewardText.setAlpha(1)
+            }
+        }
+
+        const updateCooldown = () => {
+
+            const state = RewardService.getState()
+            const now = Date.now()
+
+            if (state.timestamps.length === 0) {
+                cooldownText.setText("")
+                return
+            }
+
+            const first = state.timestamps[0]
+            const remainingMs = GameConfig.REWARDED.cooldownMs - (now - first)
+
+            if (remainingMs <= 0) {
+                cooldownText.setText("")
+                return
+            }
+
+            const sec = Math.floor(remainingMs / 1000)
+            const min = Math.floor(sec / 60)
+            const s = sec % 60
+
+            cooldownText.setText(`NEXT IN ${min}:${s.toString().padStart(2, "0")}`)
+        }
+
+
+        rewardText.on("pointerdown", async () => {
+
+            if (isAdLoading) return
+
+            if (!RewardService.canWatch()) {
+                updateRewardText()
+                updateCooldown()
+                return
+            }
+
+            isAdLoading = true
+
+            rewardText.setText("LOADING...")
+            rewardText.disableInteractive()
+
+            const success = await AdService.showRewarded()
+
+            rewardText.setInteractive({ useHandCursor: true })
+            isAdLoading = false
+
+            if (success) {
+
+                RewardService.registerWatch()
+
+                const player = PlayerService.get()
+
+                PlayerService.update({
+                    gold: player.gold + GameConfig.REWARDED.rewardGold
+                })
+
+                const updatedPlayer = PlayerService.get()
+                goldText.setText(`${updatedPlayer.gold}`)
+            }
+
+            updateRewardText()
+            updateCooldown()
+        })
+
+        this.time.addEvent({
+            delay: 1000,
+            loop: true,
+            callback: () => {
+                updateRewardText()
+                updateCooldown()
+            }
+        })
+
+        updateRewardText()
+        updateCooldown()
+
     }
 
     addConfettiRain()
