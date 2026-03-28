@@ -906,6 +906,10 @@ export default class GameScene extends Phaser.Scene
             }
 
             this.openChangePopup()
+
+
+
+
         })
 
         // MAP BUTTON
@@ -934,26 +938,38 @@ export default class GameScene extends Phaser.Scene
             this.changeBadgeCircle.setFillStyle(0x000000)
         }
     }
-updateChangeButtonVisual()
-{
-    const cost = this.getChangeCost()
-    const gold = PlayerService.get().gold
 
-    if (gold < cost)
+    updateChangeButtonVisual()
     {
-        this.btnChange.setTexture("btn_reward")
+        const cost = this.getChangeCost()
+        const gold = PlayerService.get().gold
+
+        if (this.changeUsageCount >= this.maxChangePerGame)
+        {
+            this.btnChange.setTexture("btn_change")
+            this.btnChange.setAlpha(0.4)
+            this.btnChange.disableInteractive()
+            return
+        }
+
+        this.btnChange.setAlpha(1)
+
+        if (gold < cost)
+        {
+            this.btnChange.setTexture("btn_reward")
+        }
+        else
+        {
+            this.btnChange.setTexture("btn_change")
+        }
     }
-    else
-    {
-        this.btnChange.setTexture("btn_change")
-    }
-}
+
     openChangePopup()
     {
         const width = this.scale.width
         const height = this.scale.height
         
-        this.input.enabled = false
+        //this.input.enabled = false
         
 
         if(!this.isMapMode)
@@ -986,6 +1002,11 @@ updateChangeButtonVisual()
             .setScrollFactor(0)
             .setDepth(99990)
             .setInteractive()
+
+
+        overlay.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
+            pointer.event.stopPropagation()
+        })
 
         // =========================
         // GRID
@@ -1097,21 +1118,35 @@ updateChangeButtonVisual()
         .setScale(0.5)
         .setInteractive({ useHandCursor: true })
 
+        const updatePopupState = () => {
+            const cost = this.getChangeCost()
+            const gold = PlayerService.get().gold
 
-        const CHANGE_COST = this.getChangeCost()
-        const profile = PlayerService.get()
+            if (this.changeUsageCount >= this.maxChangePerGame)
+            {
+                confirmBtn.disableInteractive()
+                confirmBtn.setAlpha(0.3)
+                watchAdBtn.setVisible(false)
+                return
+            }
 
-        if (profile.gold < CHANGE_COST)
-        {
-            confirmBtn.setAlpha(0.3)
-            confirmBtn.disableInteractive()
-
-            watchAdBtn.setVisible(true)
+            if (gold < cost)
+            {
+                confirmBtn.disableInteractive()
+                confirmBtn.setAlpha(0.3)
+                watchAdBtn.setVisible(true)
+            }
+            else
+            {
+                confirmBtn.setAlpha(1)
+                confirmBtn.setInteractive({ useHandCursor: true })
+                watchAdBtn.setVisible(false)
+            }
         }
-        else
-        {
-            watchAdBtn.setVisible(false)
-        }
+
+
+
+        updatePopupState()
 
         
         // =========================
@@ -1121,11 +1156,12 @@ updateChangeButtonVisual()
         const destroyPopup = () => {
             this.changePopupElements.forEach(el => el.destroy())
             this.changePopupElements = []
+
+            this.input.enabled = true // 🔥 EKLE
         }
 
         confirmBtn.on("pointerdown", () => {
 
-            // 🔥 LIMIT
             if (this.changeUsageCount >= this.maxChangePerGame)
             {
                 console.log("Change hakkı bitti")
@@ -1134,45 +1170,60 @@ updateChangeButtonVisual()
 
             if (!selectedCardId) return
 
-            const CHANGE_COST = this.getChangeCost()
-            const profile = PlayerService.get()
+            // 🔥 NORMAL CHANGE → GOLD DÜŞECEK
+            this.applyCardChange(selectedCardId, false)
 
-
-            // =========================
-            // 🔥 NORMAL CHANGE
-            // =========================
-            this.applyCardChange(selectedCardId, true)
             destroyPopup()
         })
 
-
-        watchAdBtn.on("pointerdown", () => {
+        watchAdBtn.on("pointerdown", async () => {
 
             console.log("Watch Ad clicked")
 
-            AdService.showRewarded().then((success) => {
+            try {
+                const success = await AdService.showRewarded()
 
                 if (!success)
                 {
-                    console.log("Reklam izlenmedi")
+                    console.log("Reklam başarısız")
                     return
                 }
 
-                console.log("Reklam izlendi → free change")
+                console.log("Reward success")
+                this.selectedHandIndex = this.handView.selectedIndex
 
-                if (selectedCardId)
-                {
-                    this.applyCardChange(selectedCardId)
-                }
+                // 🔥 ALTIN EKLE
+                PlayerService.update({
+                    gold: PlayerService.get().gold +  GameConfig.REWARDED.rewardGold
+                })
 
-                destroyPopup()
-            })
+                this.updateGoldUI()
+
+                updatePopupState()
+
+                console.log("Gold verildi")
+
+                // 🔥 POPUP KAPANMASIN
+                // destroyPopup() ❌ SİL
+
+                // 🔥 UI GÜNCELLE
+                confirmBtn.setAlpha(1)
+                confirmBtn.setInteractive()
+                watchAdBtn.setVisible(false)
+
+
+            } catch (e) {
+                console.log("Ad error:", e)
+            }
         })
 
 
         cancelBtn.on("pointerdown", destroyPopup)
     }
 
+
+
+    
 applyCardChange(selectedCardId: string, isReward = false)
 {
     const state = this.gameEngine.getState()
