@@ -1097,22 +1097,36 @@ export default class GameScene extends Phaser.Scene
         const lastRowY = startY + (rows - 1) * (cellH + gap) + cellH / 2
         const buttonY = lastRowY + cellH / 2 + 50
 
+        const costText = addEl(
+            this.add.text(width / 2, buttonY + 175, "", {
+                fontFamily: "Orbitron",
+                fontSize: "33px",
+                color: "#ffffff",
+                stroke: "#000000",
+                strokeThickness: 4
+            })
+        )
+        .setOrigin(0.5)
+        .setDepth(99999)
+        .setScrollFactor(0)
+
+
         const confirmBtn = addEl(
-            this.add.image(width / 2 - 120, buttonY, "btn_yes")
+            this.add.image(width / 2 - 200, buttonY + 50, "btn_yes")
         )
         .setDepth(99999)
         .setScale(0.5)
         .setInteractive({ useHandCursor: true })
 
         const cancelBtn = addEl(
-            this.add.image(width / 2 + 120, buttonY, "btn_no")
+            this.add.image(width / 2 + 200, buttonY + 50, "btn_no")
         )
         .setDepth(99999)
         .setScale(0.5)
         .setInteractive({ useHandCursor: true })
 
         const watchAdBtn = addEl(
-            this.add.image(width / 2, buttonY + 90, "btn_reward")
+            this.add.image(width / 2, buttonY + 50, "btn_reward")
         )
         .setDepth(99999)
         .setScale(0.5)
@@ -1121,6 +1135,8 @@ export default class GameScene extends Phaser.Scene
         const updatePopupState = () => {
             const cost = this.getChangeCost()
             const gold = PlayerService.get().gold
+
+            costText.setText(`CHANGE COST: ${cost}`)
 
             if (this.changeUsageCount >= this.maxChangePerGame)
             {
