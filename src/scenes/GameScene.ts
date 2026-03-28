@@ -128,6 +128,8 @@ export default class GameScene extends Phaser.Scene
     btnRotate!: Phaser.GameObjects.Image
     btnMap!: Phaser.GameObjects.Image
 
+    btnChange!: Phaser.GameObjects.Image
+
     savedCenterX = 0
     savedCenterY = 0
 
@@ -678,19 +680,22 @@ export default class GameScene extends Phaser.Scene
         this.bottomUI = this.add.container(0,0)
         this.uiLayer.add(this.bottomUI)
 
-        this.btnExit = this.add.image(width * 0.20, y, "btn_exit")
-        this.btnRotate  = this.add.image(width * 0.50, y, "btn_rotate")
-        this.btnMap     = this.add.image(width * 0.80, y, "btn_map")
+        this.btnExit   = this.add.image(width * 0.16, y, "btn_exit")
+        this.btnRotate = this.add.image(width * 0.38, y, "btn_rotate")
+        this.btnChange = this.add.image(width * 0.62, y, "btn_change")
+        this.btnMap    = this.add.image(width * 0.84, y, "btn_map")
 
-        const buttons = [this.btnExit,this.btnRotate,this.btnMap]
+        const buttons = [this.btnExit, this.btnRotate, this.btnChange, this.btnMap]
 
         this.btnExit.setScale(0.45)
         this.btnRotate.setScale(0.45)
+        this.btnChange.setScale(0.45)
         this.btnMap.setScale(0.45)
 
         this.bottomUI.add([
             this.btnExit,
             this.btnRotate,
+            this.btnChange,
             this.btnMap
         ])
 
@@ -795,6 +800,7 @@ export default class GameScene extends Phaser.Scene
 
         this.btnExit.setInteractive({ useHandCursor: true })
         this.btnRotate.setInteractive({ useHandCursor: true })
+        this.btnChange.setInteractive({ useHandCursor: true })
         this.btnMap.setInteractive({ useHandCursor: true })
 
         // RESTART BUTTON
@@ -809,6 +815,11 @@ export default class GameScene extends Phaser.Scene
 
             this.ghostController.updateGhostForSelectedCard()
 
+        })
+
+        // CHANGE BUTTON
+        this.btnChange.on("pointerdown", () => {
+            console.log("CHANGE BUTTON CLICKED")
         })
 
         // MAP BUTTON
