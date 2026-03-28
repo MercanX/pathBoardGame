@@ -71,6 +71,8 @@ export default class BotController
             return
         }
 
+        /*
+
         const botThinkingText = this.scene.add.text(
             this.scene.scale.width / 2,
             120,
@@ -81,10 +83,12 @@ export default class BotController
                 fontStyle: "bold"
             }
         )
+           
 
         botThinkingText.setOrigin(0.5)
         botThinkingText.setDepth(500)
         uiLayer.add(botThinkingText)
+         */
 
         // ==========================
         // DYNAMIC THINK TIME
@@ -169,7 +173,7 @@ export default class BotController
                 }
                 
                 botGhost.destroy()
-                botThinkingText.destroy()
+                //botThinkingText.destroy()
 
                 const state = this.gameEngine.getState()
                 if(!state)
