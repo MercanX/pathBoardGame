@@ -68,6 +68,9 @@ export default class GameScene extends Phaser.Scene
     changePopup?: Phaser.GameObjects.Container
     goldText!: Phaser.GameObjects.Text
 
+    changeBadgeCircle!: Phaser.GameObjects.Arc
+    changeBadgeText!: Phaser.GameObjects.Text
+
     ghost =
     {
         card: undefined as Phaser.GameObjects.Image | undefined,
@@ -277,6 +280,9 @@ export default class GameScene extends Phaser.Scene
         this.renderStaticUi()
         this.focusInitialPlayer()
         this.createBottomUI()
+
+        this.updateChangeBadge()
+
         //this.setupMobileCameraControls()
         //this.setupZoom()
 
@@ -744,6 +750,35 @@ export default class GameScene extends Phaser.Scene
         ])
 
         // ======================
+        // CHANGE COUNT BADGE
+        // ======================
+        this.changeBadgeCircle = this.add.circle(
+            this.btnChange.x + 40,
+            this.btnChange.y - 40,
+            18,
+            0x000000,
+            0.9
+        )
+
+        this.changeBadgeCircle.setStrokeStyle(2, 0xffffff)
+
+        this.changeBadgeText = this.add.text(
+            this.btnChange.x + 40,
+            this.btnChange.y - 40,
+            "3",
+            {
+                fontFamily: "Arial",
+                fontSize: "20px",
+                color: "#ffffff"
+            }
+        ).setOrigin(0.5)
+
+        this.uiLayer.add([
+            this.changeBadgeCircle,
+            this.changeBadgeText
+        ])
+
+        // ======================
         // BUTTON EFFECTS (BOTTOM GROUP)
         // ======================
 
@@ -878,6 +913,22 @@ export default class GameScene extends Phaser.Scene
         })
     }
 
+    updateChangeBadge()
+    {
+        const remaining = this.maxChangePerGame - this.changeUsageCount
+
+        this.changeBadgeText.setText(remaining.toString())
+
+        // 🔥 RENK KONTROL
+        if (remaining <= 0)
+        {
+            this.changeBadgeCircle.setFillStyle(0xff0000)
+        }
+        else
+        {
+            this.changeBadgeCircle.setFillStyle(0x000000)
+        }
+    }
 
     openChangePopup()
     {
@@ -1063,6 +1114,7 @@ export default class GameScene extends Phaser.Scene
             // 🔥 EKLE
             this.changeUsageCount++
             this.updateChangeButtonState()
+            this.updateChangeBadge()
             
 
             // 🔥 eski kartı çıkar
