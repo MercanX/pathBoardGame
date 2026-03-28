@@ -64,46 +64,65 @@ export default class AdService {
      * const success = await AdService.showRewarded()
      * if(success) → ödül ver
      */
-static async showRewarded(): Promise<boolean> {
+    static async showRewarded(): Promise<boolean> {
 
-    return new Promise(async (resolve) => {
+        return new Promise(async (resolve) => {
 
-        let rewardEarned = false
+            let rewardEarned = false
 
-        const rewardListener = await (AdMob as any).addListener(
-            "rewardedVideoAdRewarded",
-            () => {
-                rewardEarned = true
-            }
-        )
+            const rewardListener = await (AdMob as any).addListener(
+                "rewardedVideoAdRewarded",
+                () => {
+                    rewardEarned = true
+                }
+            )
 
-        const closeListener = await (AdMob as any).addListener(
-            "rewardedVideoAdClosed",
-            () => {
+            const closeListener = await (AdMob as any).addListener(
+                "rewardedVideoAdClosed",
+                () => {
+
+                    rewardListener.remove()
+                    closeListener.remove()
+
+                    resolve(rewardEarned)
+                }
+            )
+
+            try {
+
+                await AdMob.prepareRewardVideoAd({
+                    adId: "ca-app-pub-3940256099942544/5224354917"
+                })
+
+                await AdMob.showRewardVideoAd()
+
+            } catch (e) {
 
                 rewardListener.remove()
                 closeListener.remove()
 
-                resolve(rewardEarned)
+                resolve(false)
             }
-        )
 
+        })
+    }
+
+
+    static async showInterstitial()
+    {
         try {
 
-            await AdMob.prepareRewardVideoAd({
-                adId: "ca-app-pub-3940256099942544/5224354917"
+            await AdMob.prepareInterstitial({
+                adId: "ca-app-pub-3940256099942544/1033173712" // TEST ID
             })
 
-            await AdMob.showRewardVideoAd()
+            await AdMob.showInterstitial()
 
         } catch (e) {
 
-            rewardListener.remove()
-            closeListener.remove()
+            console.log("Interstitial error:", e)
 
-            resolve(false)
         }
+    }
 
-    })
-}
 }

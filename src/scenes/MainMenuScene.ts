@@ -10,6 +10,7 @@ import { SettingsService } from "../core/SettingsService"
 import { SoundService } from "../core/SoundService"
 import RewardService from "../services/RewardService"
 import AdService from "../services/AdService"
+import AdFlowService from "../services/AdFlowService"
 import { GameConfig } from "../config/GameConfig"
 
 export default class MainMenuScene extends Phaser.Scene
@@ -266,12 +267,18 @@ export default class MainMenuScene extends Phaser.Scene
         // ======================
 
         // 🔥 DEĞİŞTİRDİĞİM YER
-        btnMultiplayer.on("pointerdown", () => {
+        btnMultiplayer.on("pointerdown", async () => {
+
             SoundService.play("click")
 
             this.addConfettiExplosion(this.scale.width/2, 600)
-
             this.cameras.main.shake(150, 0.01)
+
+            // 🔥 INTERSTITIAL CONTROL
+            if (AdFlowService.shouldShowInterstitial())
+            {
+                await AdService.showInterstitial()
+            }
 
             this.scene.start("MatchmakingScene")
         })
