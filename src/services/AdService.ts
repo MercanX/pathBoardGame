@@ -71,14 +71,14 @@ export default class AdService {
             let rewardEarned = false
 
             const rewardListener = await (AdMob as any).addListener(
-                "rewardedVideoAdRewarded",
+                "onRewardedVideoAdReward",
                 () => {
                     rewardEarned = true
                 }
             )
 
             const closeListener = await (AdMob as any).addListener(
-                "rewardedVideoAdClosed",
+                "onRewardedVideoAdDismissed",
                 () => {
 
                     rewardListener.remove()
@@ -122,6 +122,17 @@ export default class AdService {
 
             console.log("Interstitial error:", e)
 
+        }
+    }
+
+    static async preloadRewarded() {
+        try {
+            await AdMob.prepareRewardVideoAd({
+                adId: "ca-app-pub-3940256099942544/5224354917"
+            })
+            console.log("✅ Rewarded hazır")
+        } catch (e) {
+            console.log("❌ preload error", e)
         }
     }
 

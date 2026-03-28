@@ -44,13 +44,12 @@ export default class MainMenuScene extends Phaser.Scene
         PlayerService.init()
         SettingsService.init()
         SoundService.init(this)
+
         await AdService.init()
         let isAdLoading = false
         let isNavigating = false
-
-        // 🔥 ADMOB BAŞLAT
-        AdService.init()
         AdService.showBanner()
+        await AdService.preloadRewarded()
         
         const { width, height } = this.scale
 
