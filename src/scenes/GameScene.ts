@@ -1062,6 +1062,7 @@ export default class GameScene extends Phaser.Scene
 
             // 🔥 EKLE
             this.changeUsageCount++
+            this.updateChangeButtonState()
             
 
             // 🔥 eski kartı çıkar
@@ -1077,6 +1078,16 @@ export default class GameScene extends Phaser.Scene
         })
 
         cancelBtn.on("pointerdown", destroyPopup)
+    }
+
+
+    updateChangeButtonState()
+    {
+        if (this.changeUsageCount >= this.maxChangePerGame)
+        {
+            this.btnChange.setAlpha(0.4)
+            this.btnChange.disableInteractive()
+        }
     }
 
     getChangeCost(): number
