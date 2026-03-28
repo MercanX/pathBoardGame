@@ -146,6 +146,10 @@ export default class GameScene extends Phaser.Scene
     isGameOver = false
     isBotRunning = false
 
+    // 🔥 CHANGE SYSTEM
+    changeUsageCount: number = 0
+    maxChangePerGame: number = 3
+
     constructor()
     {
         super("GameScene")
@@ -215,6 +219,7 @@ export default class GameScene extends Phaser.Scene
         this.setupCameras()
         this.setupViews()
 
+        this.changeUsageCount = 0
 
         this.botController = new BotController(
             this,
@@ -1017,9 +1022,17 @@ export default class GameScene extends Phaser.Scene
 
         confirmBtn.on("pointerdown", () => {
 
+
+            // 🔥 LIMIT KONTROL
+            if (this.changeUsageCount >= this.maxChangePerGame)
+            {
+                console.log("Change hakkı bitti")
+                return
+            }
+
             if (!selectedCardId) return
 
-            const CHANGE_COST = GameConfig.CHANGE.oneCard
+            const CHANGE_COST = this.getChangeCost()
 
             const profile = PlayerService.get()
 
@@ -1046,6 +1059,9 @@ export default class GameScene extends Phaser.Scene
             })
 
             this.updateGoldUI()
+
+            // 🔥 EKLE
+            this.changeUsageCount++
             
 
             // 🔥 eski kartı çıkar
@@ -1063,6 +1079,16 @@ export default class GameScene extends Phaser.Scene
         cancelBtn.on("pointerdown", destroyPopup)
     }
 
+    getChangeCost(): number
+    {
+        switch (this.changeUsageCount)
+        {
+            case 0: return GameConfig.CHANGE.oneCard
+            case 1: return GameConfig.CHANGE.twoCard
+            case 2: return GameConfig.CHANGE.reroll
+            default: return GameConfig.CHANGE.reroll
+        }
+    }
 
     openHomeConfirmPopup()
     {
