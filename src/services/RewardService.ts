@@ -1,7 +1,7 @@
 /**
  * File: src/services/RewardService.ts
  * Purpose:
- * - Rewarded reklam haklarını yönetir (limit + cooldown)
+ * - Rewarded reklam haklarını yönetir (limit + cooldown + exploit koruma)
  */
 
 import { GameConfig } from "../config/GameConfig"
@@ -16,7 +16,7 @@ export default class RewardService {
     static KEY = "reward_state"
 
     /**
-     * Mevcut state al
+     * Mevcut state al (SAFE + EXPLOIT KORUMA)
      */
     static getState(): RewardState {
 
@@ -26,7 +26,41 @@ export default class RewardService {
             return { used: 0, timestamps: [] }
         }
 
-        return JSON.parse(raw)
+        let state: RewardState
+
+        try {
+            state = JSON.parse(raw)
+        } catch {
+            // JSON bozuksa reset
+            return { used: 0, timestamps: [] }
+        }
+
+        // 🔒 structure validation
+        if (
+            typeof state.used !== "number" ||
+            !Array.isArray(state.timestamps)
+        ) {
+            return { used: 0, timestamps: [] }
+        }
+
+        // 🔒 invalid timestamp temizliği
+        state.timestamps = state.timestamps.filter(t =>
+            typeof t === "number" && t > 0
+        )
+
+        // 🔥 cooldown temizliği
+        state = this.cleanup(state)
+
+        // 🔒 max limit clamp (exploit fix)
+        if (state.used > GameConfig.REWARDED.maxViews) {
+            state.used = GameConfig.REWARDED.maxViews
+            state.timestamps = state.timestamps.slice(-state.used)
+        }
+
+        // temizlenmiş state’i geri kaydet
+        this.saveState(state)
+
+        return state
     }
 
     /**
@@ -59,10 +93,11 @@ export default class RewardService {
     static getRemaining(): number {
 
         let state = this.getState()
-        state = this.cleanup(state)
-        this.saveState(state)
 
-        return GameConfig.REWARDED.maxViews - state.used
+        return Math.max(
+            0,
+            GameConfig.REWARDED.maxViews - state.used
+        )
     }
 
     /**
@@ -79,10 +114,27 @@ export default class RewardService {
 
         let state = this.getState()
 
-        state.timestamps.push(Date.now())
+        const now = Date.now()
+
+        state.timestamps.push(now)
 
         state = this.cleanup(state)
 
+        // 🔒 tekrar limit clamp
+        if (state.used > GameConfig.REWARDED.maxViews) {
+            state.timestamps = state.timestamps.slice(
+                -GameConfig.REWARDED.maxViews
+            )
+            state.used = GameConfig.REWARDED.maxViews
+        }
+
         this.saveState(state)
+    }
+
+    /**
+     * Debug reset (opsiyonel)
+     */
+    static reset() {
+        localStorage.removeItem(this.KEY)
     }
 }
