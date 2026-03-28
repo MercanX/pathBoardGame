@@ -64,27 +64,46 @@ export default class AdService {
      * const success = await AdService.showRewarded()
      * if(success) → ödül ver
      */
-    static async showRewarded(): Promise<boolean> {
+static async showRewarded(): Promise<boolean> {
+
+    return new Promise(async (resolve) => {
+
+        let rewardEarned = false
+
+        const rewardListener = await (AdMob as any).addListener(
+            "rewardedVideoAdRewarded",
+            () => {
+                rewardEarned = true
+            }
+        )
+
+        const closeListener = await (AdMob as any).addListener(
+            "rewardedVideoAdClosed",
+            () => {
+
+                rewardListener.remove()
+                closeListener.remove()
+
+                resolve(rewardEarned)
+            }
+        )
 
         try {
 
-            const options: RewardAdOptions = {
-                adId: "ca-app-pub-3940256099942544/5224354917" // TEST Rewarded ID
-            }
+            await AdMob.prepareRewardVideoAd({
+                adId: "ca-app-pub-3940256099942544/5224354917"
+            })
 
-            // Reklamı hazırla
-            await AdMob.prepareRewardVideoAd(options)
-
-            // Reklamı göster
             await AdMob.showRewardVideoAd()
 
-            return true
+        } catch (e) {
 
-        } catch (error) {
+            rewardListener.remove()
+            closeListener.remove()
 
-            console.log("Rewarded Ad Error:", error)
-
-            return false
+            resolve(false)
         }
-    }
+
+    })
+}
 }
