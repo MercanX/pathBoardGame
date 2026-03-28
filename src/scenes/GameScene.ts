@@ -41,6 +41,7 @@ import AdService from "../services/AdService"
 import { giveCardToPlayer } from "../core/DeckEngine"
 
 import ChangeCardController from "../controllers/ChangeCardController"
+import { GameConfig } from "../config/GameConfig"
 
 export default class GameScene extends Phaser.Scene
 {
@@ -65,6 +66,7 @@ export default class GameScene extends Phaser.Scene
     uiLayer!: Phaser.GameObjects.Container
 
     changePopup?: Phaser.GameObjects.Container
+    goldText!: Phaser.GameObjects.Text
 
     ghost =
     {
@@ -473,15 +475,33 @@ export default class GameScene extends Phaser.Scene
         }
     }
 
+    updateGoldUI()
+    {
+        if(!this.goldText) return
+
+        this.goldText.setText(PlayerService.get().gold.toString())
+    }
+
+
     renderStaticUi()
     {
 
         const { width, height } = this.scale
-        const title = this.add.image(width/2, 90, "title")
-        title.setScale(0.6)
+        // ======================
+        // GOLD UI
+        // ======================
+        const goldIcon = this.add.image(width - 120, 90, "gold_icon")
+        goldIcon.setScale(0.5)
 
+        this.goldText = this.add.text(width - 70, 90, "0", {
+            fontFamily: "Arial",
+            fontSize: "32px",
+            color: "#FFD700",
+            stroke: "#000000",
+            strokeThickness: 4
+        }).setOrigin(0, 0.5)
    
-
+        this.goldText.setText(PlayerService.get().gold.toString())
 
         const boardFrame = this.add.rectangle(
             this.boardViewportX + this.boardViewportWidth / 2,
@@ -494,7 +514,7 @@ export default class GameScene extends Phaser.Scene
         boardFrame.setStrokeStyle(2, 0x3a4654)
         boardFrame.setFillStyle(0x111827, 0.15)
 
-        this.uiLayer.add([title, boardFrame])
+        this.uiLayer.add([goldIcon, this.goldText, boardFrame])
     }
 
     setupInput()
@@ -985,6 +1005,7 @@ export default class GameScene extends Phaser.Scene
         .setScale(0.5)
         .setInteractive({ useHandCursor: true })
 
+        
         // =========================
         // ACTIONS
         // =========================
@@ -998,6 +1019,17 @@ export default class GameScene extends Phaser.Scene
 
             if (!selectedCardId) return
 
+            const CHANGE_COST = GameConfig.CHANGE.oneCard
+
+            const profile = PlayerService.get()
+
+            // 🔥 GOLD YETERLİ Mİ
+            if (profile.gold < CHANGE_COST)
+            {
+                console.log("Gold yetmez")
+                return
+            }
+
             const state = this.gameEngine.getState()
             if (!state) return
 
@@ -1008,9 +1040,19 @@ export default class GameScene extends Phaser.Scene
 
             if (this.selectedHandIndex === null) return
 
+            // 🔥 GOLD DÜŞ
+            PlayerService.update({
+                gold: profile.gold - CHANGE_COST
+            })
+
+            this.updateGoldUI()
+            
+
+            // 🔥 eski kartı çıkar
             const removed = player.hand.splice(this.selectedHandIndex, 1)[0]
             state.discard.push(removed)
 
+            // 🔥 yeni kart ver
             player.hand.push(selectedCardId)
 
             this.refreshHandView()

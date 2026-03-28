@@ -38,5 +38,11 @@ export const GameConfig =
         maxViews: 5,
         cooldownMs: 5 * 60 * 1000,
         rewardGold: 50
+    },
+
+    CHANGE: {
+        oneCard: 50,
+        twoCard: 90,
+        reroll: 120
     }
 }
