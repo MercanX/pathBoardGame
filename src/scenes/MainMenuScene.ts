@@ -15,6 +15,10 @@ import { GameConfig } from "../config/GameConfig"
 
 export default class MainMenuScene extends Phaser.Scene
 {
+
+
+
+
     constructor()
     {
         super("MainMenuScene")
@@ -34,13 +38,15 @@ export default class MainMenuScene extends Phaser.Scene
 
     }
 
-    create()
+    async create()
     {
 
         PlayerService.init()
         SettingsService.init()
         SoundService.init(this)
+        await AdService.init()
         let isAdLoading = false
+        let isNavigating = false
 
         // 🔥 ADMOB BAŞLAT
         AdService.init()
@@ -266,21 +272,33 @@ export default class MainMenuScene extends Phaser.Scene
         // BUTTON ACTIONS
         // ======================
 
-        // 🔥 DEĞİŞTİRDİĞİM YER
         btnMultiplayer.on("pointerdown", async () => {
+
+            if (isNavigating) return
+            isNavigating = true
 
             SoundService.play("click")
 
             this.addConfettiExplosion(this.scale.width/2, 600)
             this.cameras.main.shake(150, 0.01)
 
-            // 🔥 INTERSTITIAL CONTROL
-            if (AdFlowService.shouldShowInterstitial())
-            {
-                await AdService.showInterstitial()
+            //AdService.hideBanner()
+
+            try {
+
+                if (AdFlowService.shouldShowInterstitial())
+                {
+                    await AdService.showInterstitial()
+                    await new Promise(r => setTimeout(r, 200))
+                }
+
+            } catch(e) {
+                console.log(e)
             }
 
             this.scene.start("MatchmakingScene")
+
+            isNavigating = false
         })
 
         btnSettings.on("pointerdown", () => {
