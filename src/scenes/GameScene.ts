@@ -40,6 +40,8 @@ import RageAdService from "../services/RageAdService"
 import AdService from "../services/AdService"
 import { giveCardToPlayer } from "../core/DeckEngine"
 
+import ChangeCardController from "../controllers/ChangeCardController"
+
 export default class GameScene extends Phaser.Scene
 {
     gameEngine!: GameEngine
@@ -53,6 +55,7 @@ export default class GameScene extends Phaser.Scene
     gameOverController!: GameOverController
     gameOverUIController!: GameOverUIController
     effectController!: EffectController
+    changeCardController!: ChangeCardController
 
     uiCamera!: Phaser.Cameras.Scene2D.Camera
     boardCamera!: Phaser.Cameras.Scene2D.Camera
@@ -253,6 +256,11 @@ export default class GameScene extends Phaser.Scene
         this.gameOverUIController = new GameOverUIController(this)
 
         this.effectController = new EffectController(
+            this,
+            this.uiLayer
+        )
+
+        this.changeCardController = new ChangeCardController(
             this,
             this.uiLayer
         )
@@ -828,34 +836,15 @@ export default class GameScene extends Phaser.Scene
         })
 
         // CHANGE BUTTON
-this.btnChange.on("pointerdown", () => {
+        this.btnChange.on("pointerdown", () => {
 
-    if (this.selectedHandIndex === null) {
-        console.log("Kart seçilmedi")
-        return
-    }
+            if (this.selectedHandIndex === null) {
+                console.log("Kart seçilmedi")
+                return
+            }
 
-    const state = this.gameEngine.getState()
-    if (!state) return
-
-    const playerIndex = state.players.findIndex(p => !p.isBot)
-    if (playerIndex === -1) return
-
-    const player = state.players[playerIndex]
-
-    // 🔥 eski kartı sil
-    const removed = player.hand.splice(this.selectedHandIndex, 1)[0]
-
-    // 🔥 discard'a at
-    state.discard.push(removed)
-
-    // 🔥 yeni kart ver (ENGINE UYUMLU)
-    giveCardToPlayer(state, playerIndex)
-
-    console.log("Kart değiştirildi")
-
-    this.refreshHandView()
-})
+            this.openChangePopup()
+        })
 
         // MAP BUTTON
         this.btnMap.on("pointerdown", () => {
@@ -863,7 +852,9 @@ this.btnChange.on("pointerdown", () => {
         })
     }
 
-openHomeConfirmPopup()
+
+
+openChangePopup()
 {
     const width = this.scale.width
     const height = this.scale.height
@@ -872,7 +863,6 @@ openHomeConfirmPopup()
     {
         this.toggleMapMode()
     }
-
 
     // =========================
     // OVERLAY
@@ -892,43 +882,88 @@ openHomeConfirmPopup()
         .setInteractive()
 
     // =========================
-    // POPUP IMAGE (ARKA PLAN)
+    // GRID (4x3) 🔥 BÜYÜTÜLDÜ
     // =========================
-    const popup = this.add.image(
-        width / 2,
-        height / 2 - 200,
-        "ui_confirm_bg" // 🔥 SEN EKLEYECEKSİN
-    )
+    const cols = 4
+    const rows = 3
+    const gap = 12
 
-    popup
-        .setDepth(99995)
-        .setScale(0.7)
+    const gridHeight = height * 0.4
+    const gridWidth  = width * 0.9
+
+    const cellW = (gridWidth - gap * (cols - 1)) / cols
+    const cellH = (gridHeight - gap * (rows - 1)) / rows
+
+    const startX = width / 2 - gridWidth / 2
+    const startY = 125
+
+for (let r = 0; r < rows; r++)
+{
+    for (let c = 0; c < cols; c++)
+    {
+        const x = startX + c * (cellW + gap) + cellW / 2
+        const y = startY + r * (cellH + gap) + cellH / 2
+
+        // slot arka planı
+        const slot = this.add.rectangle(
+            x,
+            y,
+            cellW,
+            cellH,
+            0x0b1220,
+            0.4
+        )
+        .setStrokeStyle(2, 0x3a4654)
+        .setDepth(99998)
         .setScrollFactor(0)
 
+        // 🔥 YENİ: deck’ten kart çek (geçici, popup için)
+        const state = this.gameEngine.getState()
+        const cardId = state?.deck?.length ? state.deck[Math.floor(Math.random() * state.deck.length)] : null
+
+        if (cardId)
+        {
+            const card = this.add.image(x, y, cardId)
+                .setDisplaySize(cellW * 0.9, cellH * 0.9)
+                .setDepth(99999)
+                .setScrollFactor(0)
+                .setInteractive({ useHandCursor: true })
+
+            // 🔥 YENİ: seçince highlight (geçici UX)
+            card.on("pointerdown", () => {
+                card.setScale(1.05)
+                slot.setStrokeStyle(3, 0x22d3ee)
+                console.log("Seçilen kart:", cardId)
+            })
+        }
+    }
+}
+
     // =========================
-    // YES BUTTON
+    // CONFIRM BUTTON
     // =========================
-    const yesBtn = this.add.image(
+    const buttonY = startY + gridHeight + 140
+    const confirmBtn = this.add.image(
         width / 2 - 120,
-        height / 2 + 80,
-        "btn_yes" // 🔥 SEN EKLEYECEKSİN
+        buttonY,
+        "btn_yes"
     )
 
-    yesBtn
+    confirmBtn
         .setDepth(99999)
         .setScale(0.5)
         .setInteractive({ useHandCursor: true })
 
     // =========================
-    // NO BUTTON
+    // CANCEL BUTTON 🔥 YENİ
     // =========================
-    const noBtn = this.add.image(
+    const cancelBtn = this.add.image(
         width / 2 + 120,
-        height / 2 + 80,
-        "btn_no" // 🔥 SEN EKLEYECEKSİN
+        buttonY,
+        "btn_no"
     )
 
-    noBtn
+    cancelBtn
         .setDepth(99999)
         .setScale(0.5)
         .setInteractive({ useHandCursor: true })
@@ -937,11 +972,8 @@ openHomeConfirmPopup()
     // ACTIONS
     // =========================
 
-    yesBtn.on("pointerdown", () => {
+    confirmBtn.on("pointerdown", () => {
 
-        // ======================
-        // 🔥 EXIT = LOSS
-        // ======================
         if(!this.isGameOver)
         {
             PlayerService.addLoss()
@@ -951,23 +983,118 @@ openHomeConfirmPopup()
         this.scene.start("MainMenuScene")
     })
 
-    noBtn.on("pointerdown", () => {
+    cancelBtn.on("pointerdown", () => {
         overlay.destroy()
-        popup.destroy()
-        yesBtn.destroy()
-        noBtn.destroy()
-    })
-
-    // =========================
-    // ANIM (OPTIONAL)
-    // =========================
-    this.tweens.add({
-        targets: popup,
-        scale: { from: 0.5, to: 0.7 },
-        duration: 250,
-        ease: "Back.easeOut"
+        confirmBtn.destroy()
+        cancelBtn.destroy()
     })
 }
+
+    openHomeConfirmPopup()
+    {
+        const width = this.scale.width
+        const height = this.scale.height
+
+        if(!this.isMapMode)
+        {
+            this.toggleMapMode()
+        }
+
+
+        // =========================
+        // OVERLAY
+        // =========================
+        const overlay = this.add.rectangle(
+            width / 2,
+            height / 2,
+            width+100,
+            height+100,
+            0x000000,
+            0.6
+        )
+
+        overlay
+            .setScrollFactor(0)
+            .setDepth(99990)
+            .setInteractive()
+
+        // =========================
+        // POPUP IMAGE (ARKA PLAN)
+        // =========================
+        const popup = this.add.image(
+            width / 2,
+            height / 2 - 200,
+            "ui_confirm_bg" // 🔥 SEN EKLEYECEKSİN
+        )
+
+        popup
+            .setDepth(99995)
+            .setScale(0.7)
+            .setScrollFactor(0)
+
+        // =========================
+        // YES BUTTON
+        // =========================
+        const yesBtn = this.add.image(
+            width / 2 - 120,
+            height / 2 + 80,
+            "btn_yes" // 🔥 SEN EKLEYECEKSİN
+        )
+
+        yesBtn
+            .setDepth(99999)
+            .setScale(0.5)
+            .setInteractive({ useHandCursor: true })
+
+        // =========================
+        // NO BUTTON
+        // =========================
+        const noBtn = this.add.image(
+            width / 2 + 120,
+            height / 2 + 80,
+            "btn_no" // 🔥 SEN EKLEYECEKSİN
+        )
+
+        noBtn
+            .setDepth(99999)
+            .setScale(0.5)
+            .setInteractive({ useHandCursor: true })
+
+        // =========================
+        // ACTIONS
+        // =========================
+
+        yesBtn.on("pointerdown", () => {
+
+            // ======================
+            // 🔥 EXIT = LOSS
+            // ======================
+            if(!this.isGameOver)
+            {
+                PlayerService.addLoss()
+            }
+
+            this.scene.stop("GameScene")
+            this.scene.start("MainMenuScene")
+        })
+
+        noBtn.on("pointerdown", () => {
+            overlay.destroy()
+            popup.destroy()
+            yesBtn.destroy()
+            noBtn.destroy()
+        })
+
+        // =========================
+        // ANIM (OPTIONAL)
+        // =========================
+        this.tweens.add({
+            targets: popup,
+            scale: { from: 0.5, to: 0.7 },
+            duration: 250,
+            ease: "Back.easeOut"
+        })
+    }
 
     async checkGameOver()
     {

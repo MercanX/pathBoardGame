@@ -37,16 +37,21 @@ export default class ChangeCardController
         const width = this.scene.scale.width
         const height = this.scene.scale.height
 
-        // varsa eski popup kapat
+        // eski popup temizle
         if (this.popup)
         {
             this.popup.destroy()
             this.popup = undefined
         }
 
+        // =========================
+        // CONTAINER (EN KRİTİK)
+        // =========================
         const container = this.scene.add.container(0, 0)
         this.uiLayer.add(container)
         this.popup = container
+
+        container.setDepth(99999) // 🔥 EN ÖNEMLİ SATIR
 
         // =========================
         // OVERLAY
@@ -60,7 +65,7 @@ export default class ChangeCardController
             0.6
         )
         .setInteractive()
-        .setDepth(1000)
+        .setScrollFactor(0)
 
         // =========================
         // PANEL
@@ -77,7 +82,11 @@ export default class ChangeCardController
             0.95
         )
         .setStrokeStyle(3, 0x3a4654)
-        .setDepth(1001)
+        .setScrollFactor(0)
+
+        // 🔥 SIRA DÜZGÜN: önce panel eklenir
+        container.add(overlay)
+        container.add(panel)
 
         // =========================
         // GRID (4x3)
@@ -108,7 +117,7 @@ export default class ChangeCardController
                     0
                 )
                 .setStrokeStyle(2, 0x3a4654)
-                .setDepth(1002)
+                .setScrollFactor(0)
 
                 container.add(slot)
             }
@@ -121,7 +130,5 @@ export default class ChangeCardController
             container.destroy()
             this.popup = undefined
         })
-
-        container.add([overlay, panel])
     }
 }
