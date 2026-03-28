@@ -1207,9 +1207,7 @@ export default class GameScene extends Phaser.Scene
                 // destroyPopup() ❌ SİL
 
                 // 🔥 UI GÜNCELLE
-                confirmBtn.setAlpha(1)
-                confirmBtn.setInteractive()
-                watchAdBtn.setVisible(false)
+                updatePopupState()
 
 
             } catch (e) {
