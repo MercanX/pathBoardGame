@@ -56,6 +56,7 @@ export default class GameScene extends Phaser.Scene
     gameOverUIController!: GameOverUIController
     effectController!: EffectController
     changeCardController!: ChangeCardController
+    changePopupElements: Phaser.GameObjects.GameObject[] = []
 
     uiCamera!: Phaser.Cameras.Scene2D.Camera
     boardCamera!: Phaser.Cameras.Scene2D.Camera
@@ -853,142 +854,173 @@ export default class GameScene extends Phaser.Scene
     }
 
 
-
-openChangePopup()
-{
-    const width = this.scale.width
-    const height = this.scale.height
-
-    if(!this.isMapMode)
+    openChangePopup()
     {
-        this.toggleMapMode()
-    }
+        const width = this.scale.width
+        const height = this.scale.height
 
-    // =========================
-    // OVERLAY
-    // =========================
-    const overlay = this.add.rectangle(
-        width / 2,
-        height / 2,
-        width+100,
-        height+100,
-        0x000000,
-        0.6
-    )
+        if(!this.isMapMode)
+        {
+            this.toggleMapMode()
+        }
 
-    overlay
-        .setScrollFactor(0)
-        .setDepth(99990)
-        .setInteractive()
+        this.changePopupElements = []
 
-    // =========================
-    // GRID (4x3) 🔥 BÜYÜTÜLDÜ
-    // =========================
-    const cols = 4
-    const rows = 3
-    const gap = 12
+       const addEl = <T extends Phaser.GameObjects.GameObject>(el: T): T => {
+            this.changePopupElements.push(el)
+            return el
+        }
 
-    const gridHeight = height * 0.4
-    const gridWidth  = width * 0.9
-
-    const cellW = (gridWidth - gap * (cols - 1)) / cols
-    const cellH = (gridHeight - gap * (rows - 1)) / rows
-
-    const startX = width / 2 - gridWidth / 2
-    const startY = 125
-
-for (let r = 0; r < rows; r++)
-{
-    for (let c = 0; c < cols; c++)
-    {
-        const x = startX + c * (cellW + gap) + cellW / 2
-        const y = startY + r * (cellH + gap) + cellH / 2
-
-        // slot arka planı
-        const slot = this.add.rectangle(
-            x,
-            y,
-            cellW,
-            cellH,
-            0x0b1220,
-            0.4
+        // =========================
+        // OVERLAY
+        // =========================
+        const overlay = addEl(
+            this.add.rectangle(
+                width / 2,
+                height / 2,
+                width+100,
+                height+100,
+                0x000000,
+                0.6
+            )
         )
-        .setStrokeStyle(2, 0x3a4654)
-        .setDepth(99998)
-        .setScrollFactor(0)
 
-        // 🔥 YENİ: deck’ten kart çek (geçici, popup için)
+        overlay
+            .setScrollFactor(0)
+            .setDepth(99990)
+            .setInteractive()
+
+        // =========================
+        // GRID
+        // =========================
+        const cols = 4
+        const rows = 3
+        const gap = 12
+
+        const gridHeight = height * 0.4
+        const gridWidth  = width * 0.9
+
+        const cellW = (gridWidth - gap * (cols - 1)) / cols
+        const cellH = (gridHeight - gap * (rows - 1)) / rows
+
+        const startX = width / 2 - gridWidth / 2
+        const startY = 125
+
+        let selectedCardId: string | null = null
+        let selectedSlot: Phaser.GameObjects.Rectangle | null = null
+        let selectedCardImage: Phaser.GameObjects.Image | null = null
+
         const state = this.gameEngine.getState()
-        const cardId = state?.deck?.length ? state.deck[Math.floor(Math.random() * state.deck.length)] : null
 
-        if (cardId)
+        for (let r = 0; r < rows; r++)
         {
-            const card = this.add.image(x, y, cardId)
-                .setDisplaySize(cellW * 0.9, cellH * 0.9)
-                .setDepth(99999)
+            for (let c = 0; c < cols; c++)
+            {
+                const x = startX + c * (cellW + gap) + cellW / 2
+                const y = startY + r * (cellH + gap) + cellH / 2
+
+                const slot = addEl(
+                    this.add.rectangle(
+                        x,
+                        y,
+                        cellW,
+                        cellH,
+                        0x0b1220,
+                        0.4
+                    )
+                )
+                .setStrokeStyle(2, 0x3a4654)
+                .setDepth(99998)
                 .setScrollFactor(0)
-                .setInteractive({ useHandCursor: true })
 
-            // 🔥 YENİ: seçince highlight (geçici UX)
-            card.on("pointerdown", () => {
-                card.setScale(1.05)
-                slot.setStrokeStyle(3, 0x22d3ee)
-                console.log("Seçilen kart:", cardId)
-            })
+                const cardId = state?.deck?.length
+                    ? state.deck[Math.floor(Math.random() * state.deck.length)]
+                    : null
+
+                if (cardId)
+                {
+                    const card = addEl(
+                        this.add.image(x, y, cardId)
+                    )
+                    .setDisplaySize(cellW * 0.9, cellH * 0.9)
+                    .setDepth(99999)
+                    .setScrollFactor(0)
+                    .setInteractive({ useHandCursor: true })
+
+                    card.on("pointerdown", () => {
+
+                        if (selectedSlot)
+                            selectedSlot.setStrokeStyle(2, 0x3a4654)
+
+                        if (selectedCardImage)
+                            selectedCardImage.setDisplaySize(cellW * 0.9, cellH * 0.9)
+
+                        selectedCardId = cardId
+                        selectedSlot = slot
+                        selectedCardImage = card
+
+                        slot.setStrokeStyle(3, 0x22d3ee)
+                        card.setDisplaySize(cellW * 0.95, cellH * 0.95)
+                    })
+                }
+            }
         }
+
+        // =========================
+        // BUTTONS
+        // =========================
+        const buttonY = startY + gridHeight + 140
+
+        const confirmBtn = addEl(
+            this.add.image(width / 2 - 120, buttonY, "btn_yes")
+        )
+        .setDepth(99999)
+        .setScale(0.5)
+        .setInteractive({ useHandCursor: true })
+
+        const cancelBtn = addEl(
+            this.add.image(width / 2 + 120, buttonY, "btn_no")
+        )
+        .setDepth(99999)
+        .setScale(0.5)
+        .setInteractive({ useHandCursor: true })
+
+        // =========================
+        // ACTIONS
+        // =========================
+
+        const destroyPopup = () => {
+            this.changePopupElements.forEach(el => el.destroy())
+            this.changePopupElements = []
+        }
+
+        confirmBtn.on("pointerdown", () => {
+
+            if (!selectedCardId) return
+
+            const state = this.gameEngine.getState()
+            if (!state) return
+
+            const playerIndex = state.players.findIndex(p => !p.isBot)
+            if (playerIndex === -1) return
+
+            const player = state.players[playerIndex]
+
+            if (this.selectedHandIndex === null) return
+
+            const removed = player.hand.splice(this.selectedHandIndex, 1)[0]
+            state.discard.push(removed)
+
+            player.hand.push(selectedCardId)
+
+            this.refreshHandView()
+
+            destroyPopup()
+        })
+
+        cancelBtn.on("pointerdown", destroyPopup)
     }
-}
 
-    // =========================
-    // CONFIRM BUTTON
-    // =========================
-    const buttonY = startY + gridHeight + 140
-    const confirmBtn = this.add.image(
-        width / 2 - 120,
-        buttonY,
-        "btn_yes"
-    )
-
-    confirmBtn
-        .setDepth(99999)
-        .setScale(0.5)
-        .setInteractive({ useHandCursor: true })
-
-    // =========================
-    // CANCEL BUTTON 🔥 YENİ
-    // =========================
-    const cancelBtn = this.add.image(
-        width / 2 + 120,
-        buttonY,
-        "btn_no"
-    )
-
-    cancelBtn
-        .setDepth(99999)
-        .setScale(0.5)
-        .setInteractive({ useHandCursor: true })
-
-    // =========================
-    // ACTIONS
-    // =========================
-
-    confirmBtn.on("pointerdown", () => {
-
-        if(!this.isGameOver)
-        {
-            PlayerService.addLoss()
-        }
-
-        this.scene.stop("GameScene")
-        this.scene.start("MainMenuScene")
-    })
-
-    cancelBtn.on("pointerdown", () => {
-        overlay.destroy()
-        confirmBtn.destroy()
-        cancelBtn.destroy()
-    })
-}
 
     openHomeConfirmPopup()
     {
@@ -1096,6 +1128,7 @@ for (let r = 0; r < rows; r++)
         })
     }
 
+
     async checkGameOver()
     {
         const result = this.gameOverController.checkGameOver()
@@ -1173,6 +1206,7 @@ for (let r = 0; r < rows; r++)
 
         return result
     }
+
 
     refreshHandView()
     {
