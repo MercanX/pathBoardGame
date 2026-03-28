@@ -26,109 +26,133 @@ export default class GhostController
     }
 
 
-updateGhostForSelectedCard()
-{
-    const state = this.scene.gameEngine.getState()
-    if(!state) return
-
-    const selectedCard = this.scene.handView.getSelectedCard()
-    if(!selectedCard) return
-
-    const player = state.players[state.currentPlayer]
-
-    const nextCell = findCurrentPlayerNextCell(
-        state,
-        player.id
-    )
-
-    if(!nextCell) return
-
-    const center = this.scene.getCellCenter(nextCell.x, nextCell.y)
-
-    if(!this.scene.ghostCard)
+    updateGhostForSelectedCard()
     {
-        this.scene.ghostCard = this.scene.add.image(
-            center.x,
-            center.y,
-            selectedCard
+        const state = this.scene.gameEngine.getState()
+        if(!state) return
+
+        const selectedCard = this.scene.handView.getSelectedCard()
+        if(!selectedCard) return
+
+        const player = state.players[state.currentPlayer]
+
+        const nextCell = findCurrentPlayerNextCell(
+            state,
+            player.id
         )
 
-        this.scene.ghostCard.setDisplaySize(
-            this.scene.cellSize - 4,
-            this.scene.cellSize - 4
+        if(!nextCell) return
+
+        const center = this.scene.getCellCenter(nextCell.x, nextCell.y)
+
+        if(!this.scene.ghostCard)
+        {
+            this.scene.ghostCard = this.scene.add.image(
+                center.x,
+                center.y,
+                selectedCard
+            )
+
+            this.scene.ghostCard.setDisplaySize(
+                this.scene.cellSize - 4,
+                this.scene.cellSize - 4
+            )
+
+            this.scene.ghostCard.setDepth(200)
+
+            this.scene.boardLayer.add(this.scene.ghostCard)
+        }
+        else
+        {
+            this.scene.ghostCard.setTexture(selectedCard)
+            this.scene.ghostCard.setPosition(center.x, center.y)
+            this.scene.ghostCard.setVisible(true)
+        }
+
+        this.scene.ghostCard.setRotation(
+            this.scene.currentRotation * Math.PI / 2
         )
 
-        this.scene.ghostCard.setDepth(200)
 
-        this.scene.boardLayer.add(this.scene.ghostCard)
-    }
-    else
-    {
-        this.scene.ghostCard.setTexture(selectedCard)
-        this.scene.ghostCard.setPosition(center.x, center.y)
-        this.scene.ghostCard.setVisible(true)
-    }
+        if(!this.scene.highlightCell)
+        {
+            this.scene.highlightCell = this.scene.add.rectangle(
+                center.x,
+                center.y,
+                this.scene.cellSize - 6,
+                this.scene.cellSize - 6
+            )
 
-    this.scene.ghostCard.setRotation(
-        this.scene.currentRotation * Math.PI / 2
-    )
+            this.scene.highlightCell.setDepth(150)
+            this.scene.boardLayer.add(this.scene.highlightCell)
 
-    if(!this.scene.highlightCell)
-    {
-        this.scene.highlightCell = this.scene.add.rectangle(
-            center.x,
-            center.y,
-            this.scene.cellSize - 6,
-            this.scene.cellSize - 6
+            // ======================
+            // 🔥 BURAYA EKLE
+            // ======================
+            if(!this.scene.highlightCell.getData("pulse"))
+            {
+                this.scene.highlightCell.setData("pulse", true)
+
+                this.scene.tweens.add({
+                    targets: this.scene.highlightCell,
+                    alpha: { from: 1, to: 0.4 },
+                    duration: 600,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: "Sine.easeInOut"
+                })
+            }
+        } 
+
+
+
+        this.scene.highlightCell.setPosition(center.x, center.y)
+        this.scene.highlightCell.setVisible(true)
+
+        const validMoves = getValidMovesForPlayer(
+            state,
+            state.currentPlayer
         )
 
-        this.scene.highlightCell.setDepth(150)
-        this.scene.boardLayer.add(this.scene.highlightCell)
-    }
-
-    this.scene.highlightCell.setPosition(center.x, center.y)
-    this.scene.highlightCell.setVisible(true)
-
-    const validMoves = getValidMovesForPlayer(
-        state,
-        state.currentPlayer
-    )
-
-    const isAllowedCard = validMoves.some(v =>
-        v.cardId === selectedCard &&
-        v.rotation === this.scene.currentRotation
-    )
-
-    if(isAllowedCard)
-    {
-        this.scene.highlightCell.setStrokeStyle(20, 0x22c55e, 0.5)
-        this.scene.highlightCell.setFillStyle(0x22c55e, 0.5)
-        this.scene.ghostCard.setAlpha(1)
-    }
-    else
-    {
-        this.scene.highlightCell.setStrokeStyle(20, 0xef4444, 0.5)
-        this.scene.highlightCell.setFillStyle(0xef4444, 0.5)
-        this.scene.ghostCard.setAlpha(0.5)
-    }
-
-    if(this.scene.pathPreview)
-    {
-        this.scene.clearGhostObjects()
-    }
-
-    if(
-        state.board.board[nextCell.y][nextCell.x].cardId === null
-    )
-    {
-        this.scene.boardView.renderGhostPath(
-            selectedCard,
-            this.scene.currentRotation,
-            nextCell.x,
-            nextCell.y
+        const isAllowedCard = validMoves.some(v =>
+            v.cardId === selectedCard &&
+            v.rotation === this.scene.currentRotation
         )
+
+        if(isAllowedCard)
+        {
+            this.scene.highlightCell.setStrokeStyle(4, 0x22c55e, 1)
+            this.scene.highlightCell.setFillStyle(0x000000, 0)
+            this.scene.highlightCell.setBlendMode(Phaser.BlendModes.ADD)
+
+            this.scene.ghostCard.setAlpha(1)
+        }
+        else
+        {
+            this.scene.highlightCell.setStrokeStyle(4, 0xef4444, 1)
+            this.scene.highlightCell.setFillStyle(0x000000, 0)
+            this.scene.highlightCell.setBlendMode(Phaser.BlendModes.ADD)
+
+            this.scene.ghostCard.setAlpha(0.5)
+        }
+
+        if(this.scene.pathPreview)
+        {
+            this.scene.clearGhostObjects()
+        }
+
+        if(
+            state.board.board[nextCell.y][nextCell.x].cardId === null
+        )
+        {
+            this.scene.boardView.renderGhostPath(
+                selectedCard,
+                this.scene.currentRotation,
+                nextCell.x,
+                nextCell.y
+            )
+        }
     }
-}
 
 
 }
