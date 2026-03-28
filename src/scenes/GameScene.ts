@@ -210,7 +210,7 @@ export default class GameScene extends Phaser.Scene
     create()
     {
 
-
+        AdService.init()
         this.isGameOver = false
         this.isBotRunning = false
         this.isMapMode = false
@@ -489,6 +489,7 @@ export default class GameScene extends Phaser.Scene
     updateGoldUI()
     {
         if(!this.goldText) return
+        this.updateChangeButtonVisual()
 
         this.goldText.setText(PlayerService.get().gold.toString())
     }
@@ -911,6 +912,10 @@ export default class GameScene extends Phaser.Scene
         this.btnMap.on("pointerdown", () => {
             this.toggleMapMode()
         })
+
+        this.updateChangeButtonVisual()
+
+
     }
 
     updateChangeBadge()
@@ -929,11 +934,27 @@ export default class GameScene extends Phaser.Scene
             this.changeBadgeCircle.setFillStyle(0x000000)
         }
     }
+updateChangeButtonVisual()
+{
+    const cost = this.getChangeCost()
+    const gold = PlayerService.get().gold
 
+    if (gold < cost)
+    {
+        this.btnChange.setTexture("btn_reward")
+    }
+    else
+    {
+        this.btnChange.setTexture("btn_change")
+    }
+}
     openChangePopup()
     {
         const width = this.scale.width
         const height = this.scale.height
+        
+        this.input.enabled = false
+        
 
         if(!this.isMapMode)
         {
@@ -1069,6 +1090,29 @@ export default class GameScene extends Phaser.Scene
         .setScale(0.5)
         .setInteractive({ useHandCursor: true })
 
+        const watchAdBtn = addEl(
+            this.add.image(width / 2, buttonY + 90, "btn_reward")
+        )
+        .setDepth(99999)
+        .setScale(0.5)
+        .setInteractive({ useHandCursor: true })
+
+
+        const CHANGE_COST = this.getChangeCost()
+        const profile = PlayerService.get()
+
+        if (profile.gold < CHANGE_COST)
+        {
+            confirmBtn.setAlpha(0.3)
+            confirmBtn.disableInteractive()
+
+            watchAdBtn.setVisible(true)
+        }
+        else
+        {
+            watchAdBtn.setVisible(false)
+        }
+
         
         // =========================
         // ACTIONS
@@ -1079,67 +1123,57 @@ export default class GameScene extends Phaser.Scene
             this.changePopupElements = []
         }
 
-confirmBtn.on("pointerdown", () => {
+        confirmBtn.on("pointerdown", () => {
 
-    // 🔥 LIMIT
-    if (this.changeUsageCount >= this.maxChangePerGame)
-    {
-        console.log("Change hakkı bitti")
-        return
-    }
+            // 🔥 LIMIT
+            if (this.changeUsageCount >= this.maxChangePerGame)
+            {
+                console.log("Change hakkı bitti")
+                return
+            }
 
-    if (!selectedCardId) return
+            if (!selectedCardId) return
 
-    const CHANGE_COST = this.getChangeCost()
-    const profile = PlayerService.get()
+            const CHANGE_COST = this.getChangeCost()
+            const profile = PlayerService.get()
 
-    // =========================
-    // 🔥 GOLD YOK → REKLAM
-    // =========================
-if (profile.gold < CHANGE_COST)
-{
-    console.log("Gold yok → reklam açılıyor")
 
-    // 🔥 küçük feedback
-    this.tweens.add({
-        targets: this.btnChange,
-        scale: 0.6,
-        yoyo: true,
-        duration: 100
-    })
+            // =========================
+            // 🔥 NORMAL CHANGE
+            // =========================
+            this.applyCardChange(selectedCardId, true)
+            destroyPopup()
+        })
 
-    AdService.showRewarded().then((success) => {
 
-        if (!success)
-        {
-            console.log("Reklam izlenmedi")
-            return
-        }
+        watchAdBtn.on("pointerdown", () => {
 
-        console.log("Reklam izlendi → free change")
+            console.log("Watch Ad clicked")
 
-        if (selectedCardId)
-        {
-            this.applyCardChange(selectedCardId)
-        }
+            AdService.showRewarded().then((success) => {
 
-        destroyPopup()
-    })
+                if (!success)
+                {
+                    console.log("Reklam izlenmedi")
+                    return
+                }
 
-    return
-}
+                console.log("Reklam izlendi → free change")
 
-    // =========================
-    // 🔥 NORMAL CHANGE
-    // =========================
-    this.applyCardChange(selectedCardId)
-    destroyPopup()
-})
+                if (selectedCardId)
+                {
+                    this.applyCardChange(selectedCardId)
+                }
+
+                destroyPopup()
+            })
+        })
+
 
         cancelBtn.on("pointerdown", destroyPopup)
     }
 
-applyCardChange(selectedCardId: string)
+applyCardChange(selectedCardId: string, isReward = false)
 {
     const state = this.gameEngine.getState()
     if (!state) return
@@ -1154,9 +1188,15 @@ applyCardChange(selectedCardId: string)
     const CHANGE_COST = this.getChangeCost()
     const profile = PlayerService.get()
 
-    // 🔥 GOLD varsa düş
-    if (profile.gold >= CHANGE_COST)
+    // ❗ SADECE gold varsa düş
+    if (!isReward)
     {
+        if (profile.gold < CHANGE_COST)
+        {
+            console.log("Gold yetmiyor → işlem iptal")
+            return
+        }
+
         PlayerService.update({
             gold: profile.gold - CHANGE_COST
         })
@@ -1175,7 +1215,12 @@ applyCardChange(selectedCardId: string)
 
     player.hand.push(selectedCardId)
 
+    this.selectedHandIndex = null // ❗ reset
+
     this.refreshHandView()
+    this.clearGhostObjects() // ❗ önemli
+
+    this.updateChangeButtonVisual()
 }
     
 
