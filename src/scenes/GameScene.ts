@@ -38,7 +38,7 @@ import { PlayerService } from "../core/PlayerService"
 
 import RageAdService from "../services/RageAdService"
 import AdService from "../services/AdService"
-
+import { giveCardToPlayer } from "../core/DeckEngine"
 
 export default class GameScene extends Phaser.Scene
 {
@@ -59,6 +59,8 @@ export default class GameScene extends Phaser.Scene
    
     boardLayer!: Phaser.GameObjects.Container
     uiLayer!: Phaser.GameObjects.Container
+
+    changePopup?: Phaser.GameObjects.Container
 
     ghost =
     {
@@ -119,6 +121,8 @@ export default class GameScene extends Phaser.Scene
     isMapMode = false
 
     currentRotation = 0
+
+    selectedHandIndex: number | null = null
 
     isDragging = false
 
@@ -263,7 +267,13 @@ export default class GameScene extends Phaser.Scene
         this.events.on(
             "hand_card_selected",
             () => {
+
                 this.ghostController.updateGhostForSelectedCard()
+
+                // 🔥 YENİ EKLE
+                this.selectedHandIndex = this.handView.selectedIndex
+
+                console.log("Selected index:", this.selectedHandIndex)
             }
         )
 
@@ -818,9 +828,34 @@ export default class GameScene extends Phaser.Scene
         })
 
         // CHANGE BUTTON
-        this.btnChange.on("pointerdown", () => {
-            console.log("CHANGE BUTTON CLICKED")
-        })
+this.btnChange.on("pointerdown", () => {
+
+    if (this.selectedHandIndex === null) {
+        console.log("Kart seçilmedi")
+        return
+    }
+
+    const state = this.gameEngine.getState()
+    if (!state) return
+
+    const playerIndex = state.players.findIndex(p => !p.isBot)
+    if (playerIndex === -1) return
+
+    const player = state.players[playerIndex]
+
+    // 🔥 eski kartı sil
+    const removed = player.hand.splice(this.selectedHandIndex, 1)[0]
+
+    // 🔥 discard'a at
+    state.discard.push(removed)
+
+    // 🔥 yeni kart ver (ENGINE UYUMLU)
+    giveCardToPlayer(state, playerIndex)
+
+    console.log("Kart değiştirildi")
+
+    this.refreshHandView()
+})
 
         // MAP BUTTON
         this.btnMap.on("pointerdown", () => {
