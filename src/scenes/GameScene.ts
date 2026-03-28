@@ -1071,66 +1071,96 @@ export default class GameScene extends Phaser.Scene
             this.changePopupElements = []
         }
 
-        confirmBtn.on("pointerdown", () => {
+confirmBtn.on("pointerdown", () => {
 
+    // 🔥 LIMIT
+    if (this.changeUsageCount >= this.maxChangePerGame)
+    {
+        console.log("Change hakkı bitti")
+        return
+    }
 
-            // 🔥 LIMIT KONTROL
-            if (this.changeUsageCount >= this.maxChangePerGame)
+    if (!selectedCardId) return
+
+    const CHANGE_COST = this.getChangeCost()
+    const profile = PlayerService.get()
+
+    // =========================
+    // 🔥 GOLD YOK → REKLAM
+    // =========================
+    if (profile.gold < CHANGE_COST)
+    {
+        console.log("Gold yok → reklam açılıyor")
+
+        AdService.showRewarded().then((success) => {
+
+            if (!success)
             {
-                console.log("Change hakkı bitti")
+                console.log("Reklam izlenmedi")
                 return
             }
 
-            if (!selectedCardId) return
+            console.log("Reklam izlendi → free change")
 
-            const CHANGE_COST = this.getChangeCost()
-
-            const profile = PlayerService.get()
-
-            // 🔥 GOLD YETERLİ Mİ
-            if (profile.gold < CHANGE_COST)
+            if (selectedCardId)
             {
-                console.log("Gold yetmez")
-                return
+                this.applyCardChange(selectedCardId)
             }
-
-            const state = this.gameEngine.getState()
-            if (!state) return
-
-            const playerIndex = state.players.findIndex(p => !p.isBot)
-            if (playerIndex === -1) return
-
-            const player = state.players[playerIndex]
-
-            if (this.selectedHandIndex === null) return
-
-            // 🔥 GOLD DÜŞ
-            PlayerService.update({
-                gold: profile.gold - CHANGE_COST
-            })
-
-            this.updateGoldUI()
-
-            // 🔥 EKLE
-            this.changeUsageCount++
-            this.updateChangeButtonState()
-            this.updateChangeBadge()
-            
-
-            // 🔥 eski kartı çıkar
-            const removed = player.hand.splice(this.selectedHandIndex, 1)[0]
-            state.discard.push(removed)
-
-            // 🔥 yeni kart ver
-            player.hand.push(selectedCardId)
-
-            this.refreshHandView()
-
             destroyPopup()
         })
 
+        return
+    }
+
+    // =========================
+    // 🔥 NORMAL CHANGE
+    // =========================
+    this.applyCardChange(selectedCardId)
+    destroyPopup()
+})
+
         cancelBtn.on("pointerdown", destroyPopup)
     }
+
+applyCardChange(selectedCardId: string)
+{
+    const state = this.gameEngine.getState()
+    if (!state) return
+
+    const playerIndex = state.players.findIndex(p => !p.isBot)
+    if (playerIndex === -1) return
+
+    const player = state.players[playerIndex]
+
+    if (this.selectedHandIndex === null) return
+
+    const CHANGE_COST = this.getChangeCost()
+    const profile = PlayerService.get()
+
+    // 🔥 GOLD varsa düş
+    if (profile.gold >= CHANGE_COST)
+    {
+        PlayerService.update({
+            gold: profile.gold - CHANGE_COST
+        })
+
+        this.updateGoldUI()
+    }
+
+    // 🔥 kullanım sayısı
+    this.changeUsageCount++
+    this.updateChangeButtonState()
+    this.updateChangeBadge()
+
+    // 🔥 kart değiştir
+    const removed = player.hand.splice(this.selectedHandIndex, 1)[0]
+    state.discard.push(removed)
+
+    player.hand.push(selectedCardId)
+
+    this.refreshHandView()
+}
+    
 
 
     updateChangeButtonState()
