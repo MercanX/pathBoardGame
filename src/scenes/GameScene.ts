@@ -42,6 +42,7 @@ import { giveCardToPlayer } from "../core/DeckEngine"
 
 import ChangeCardController from "../controllers/ChangeCardController"
 import { GameConfig } from "../config/GameConfig"
+import RewardService from "../services/RewardService"
 
 export default class GameScene extends Phaser.Scene
 {
@@ -1098,12 +1099,42 @@ export default class GameScene extends Phaser.Scene
         const buttonY = lastRowY + cellH / 2 + 50
 
         const costText = addEl(
-            this.add.text(width / 2, buttonY + 175, "", {
+            this.add.text(width / 2, buttonY + 155, "", {
                 fontFamily: "Orbitron",
                 fontSize: "33px",
                 color: "#ffffff",
                 stroke: "#000000",
+                fontStyle: "bold",
                 strokeThickness: 4
+            })
+        )
+        .setOrigin(0.5)
+        .setDepth(99999)
+        .setScrollFactor(0)
+
+
+        const rewardInfoText = addEl(
+            this.add.text(width / 2, buttonY + 200, "", {
+                fontFamily: "Orbitron",
+                fontSize: "29px",
+                color: "#00ffcc",
+                stroke: "#000000",
+                fontStyle: "bold",
+                strokeThickness: 3
+            })
+        )
+        .setOrigin(0.5)
+        .setDepth(99999)
+        .setScrollFactor(0)
+
+        const cooldownText = addEl(
+            this.add.text(width / 2, buttonY + 230, "", {
+                fontFamily: "Orbitron",
+                fontSize: "29px",
+                color: "#ffffff",
+                stroke: "#000000",
+                fontStyle: "bold",
+                strokeThickness: 3
             })
         )
         .setOrigin(0.5)
@@ -1160,11 +1191,66 @@ export default class GameScene extends Phaser.Scene
             }
         }
 
+        const updateRewardInfo = () => {
 
+            const remaining = RewardService.getRemaining()
+            const max = GameConfig.REWARDED.maxViews
+            const reward = GameConfig.REWARDED.rewardGold
+
+            rewardInfoText.setText(`WATCH AD +${reward} (${remaining}/${max})`)
+
+            if (remaining <= 0)
+            {
+                watchAdBtn.setAlpha(0.4)
+                watchAdBtn.disableInteractive()
+            }
+            else
+            {
+                watchAdBtn.setAlpha(1)
+                watchAdBtn.setInteractive({ useHandCursor: true })
+            }
+        }
+
+        const updateCooldown = () => {
+
+            const state = RewardService.getState()
+            const now = Date.now()
+
+            if (state.timestamps.length === 0)
+            {
+                cooldownText.setText("")
+                return
+            }
+
+            const first = state.timestamps[0]
+            const remainingMs = GameConfig.REWARDED.cooldownMs - (now - first)
+
+            if (remainingMs <= 0)
+            {
+                cooldownText.setText("")
+                return
+            }
+
+            const sec = Math.floor(remainingMs / 1000)
+            const min = Math.floor(sec / 60)
+            const s = sec % 60
+
+            cooldownText.setText(`NEXT IN ${min}:${s.toString().padStart(2, "0")}`)
+        }
 
         updatePopupState()
+        updateRewardInfo()
+        updateCooldown()
 
-        
+        const timer = this.time.addEvent({
+            delay: 1000,
+            loop: true,
+            callback: () => {
+                updateRewardInfo()
+                updateCooldown()
+            }
+        })
+                
         // =========================
         // ACTIONS
         // =========================
@@ -1173,7 +1259,9 @@ export default class GameScene extends Phaser.Scene
             this.changePopupElements.forEach(el => el.destroy())
             this.changePopupElements = []
 
-            this.input.enabled = true // 🔥 EKLE
+            timer.remove() // 🔥 ÇOK KRİTİK
+
+            this.input.enabled = true
         }
 
         confirmBtn.on("pointerdown", () => {
@@ -1197,6 +1285,14 @@ export default class GameScene extends Phaser.Scene
             console.log("Watch Ad clicked")
 
             try {
+
+                if (!RewardService.canWatch())
+                {
+                    updateRewardInfo()
+                    updateCooldown()
+                    return
+                }
+
                 const success = await AdService.showRewarded()
 
                 if (!success)
@@ -1205,26 +1301,27 @@ export default class GameScene extends Phaser.Scene
                     return
                 }
 
-                console.log("Reward success")
-                this.selectedHandIndex = this.handView.selectedIndex
+                // 🔥 BURADAN SONRA SUCCESS
+                RewardService.registerWatch()
 
-                // 🔥 ALTIN EKLE
                 PlayerService.update({
-                    gold: PlayerService.get().gold +  GameConfig.REWARDED.rewardGold
+                    gold: PlayerService.get().gold + GameConfig.REWARDED.rewardGold
                 })
 
                 this.updateGoldUI()
 
-                updatePopupState()
+                console.log("Reward success")
+                //this.selectedHandIndex = this.handView.selectedIndex
 
-                console.log("Gold verildi")
+
+                this.updateGoldUI()
+
+                updatePopupState()
+                updateRewardInfo()
+                updateCooldown()
 
                 // 🔥 POPUP KAPANMASIN
                 // destroyPopup() ❌ SİL
-
-                // 🔥 UI GÜNCELLE
-                updatePopupState()
-
 
             } catch (e) {
                 console.log("Ad error:", e)
