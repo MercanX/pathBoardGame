@@ -36,6 +36,10 @@ import GameOverUIController from "../controllers/GameOverUIController"
 import EffectController from "../controllers/EffectController"
 import { PlayerService } from "../core/PlayerService"
 
+import RageAdService from "../services/RageAdService"
+import AdService from "../services/AdService"
+
+
 export default class GameScene extends Phaser.Scene
 {
     gameEngine!: GameEngine
@@ -919,15 +923,13 @@ openHomeConfirmPopup()
     })
 }
 
-    checkGameOver()
+    async checkGameOver()
     {
         const result = this.gameOverController.checkGameOver()
 
         console.log("GAME OVER RESULT:", result)
 
         if(!result) return null
-
-        // 👇 ZATEN GAME OVER İSE TEKRAR ÇALIŞMA
         if(this.isGameOver) return result
 
         this.isGameOver = true
@@ -942,8 +944,9 @@ openHomeConfirmPopup()
 
         console.log("SHOW UI TRIGGERED")
 
-  
         const state = this.gameEngine.getState()
+
+        let isHumanLose = false
 
         if(state && result)
         {
@@ -963,20 +966,37 @@ openHomeConfirmPopup()
                     else if(winnerId === botPlayer.id)
                     {
                         PlayerService.addLoss()
+                        isHumanLose = true
                     }
                 }
-            }
-            else if(result.type === "DRAW")
-            {
-                // İstersen burada draw logic ekleriz
-                // örn: küçük rating artışı
             }
         }
 
         // ======================
-        // 🔥 ZATEN VAR OLAN SATIR
+        // ✅ UI'ı HEMEN GÖSTER
         // ======================
         this.gameOverUIController.show(result)
+
+        // ======================
+        // 🔥 RAGE AD (ASYNC, UI BLOK YOK)
+        // ======================
+        if (isHumanLose)
+        {
+            setTimeout(async () => {
+
+                try {
+
+                    if (RageAdService.shouldShowAfterLose("OUT_OF_BOARD"))
+                    {
+                        await AdService.showInterstitial()
+                    }
+
+                } catch(e) {
+                    console.log("Rage Ad Error:", e)
+                }
+
+            }, 300) // küçük delay = daha smooth UX
+        }
 
         return result
     }
