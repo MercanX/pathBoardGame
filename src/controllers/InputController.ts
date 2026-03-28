@@ -198,6 +198,54 @@ handleClick(pointer: Phaser.Input.Pointer)
 
             this.boardView.render(nextCellForRender)
 
+// ======================
+// 🔥 IMPACT EFFECT (DOĞRU YER)
+// ======================
+const center = this.getCellCenter(cell.x, cell.y)
+
+const circle = this.scene.add.circle(
+    center.x,
+    center.y,
+    10,
+    0xffffff,
+    0.5
+)
+
+this.scene.boardLayer.add(circle)
+
+this.scene.tweens.add({
+    targets: circle,
+    scale: 3,
+    alpha: 0,
+    duration: 300,
+    ease: "Cubic.easeOut",
+    onComplete: () => circle.destroy()
+})
+
+const flash = this.scene.add.rectangle(
+    center.x,
+    center.y,
+    this.getCellSize(),
+    this.getCellSize(),
+    0xffffff,
+    0.4
+)
+
+this.scene.boardLayer.add(flash)
+
+this.scene.tweens.add({
+    targets: flash,
+    alpha: 0,
+    duration: 150,
+    ease: "Quad.easeOut",
+    onComplete: () => flash.destroy()
+})
+
+this.scene.cameras.main.shake(120, 0.003)
+
+
+
+
             /*
             const validMoves = getValidMovesForPlayer(
                 newState,
@@ -218,7 +266,9 @@ handleClick(pointer: Phaser.Input.Pointer)
             this.scene.clearGhostObjects()
         }
 
-        this.focusBoardCell(focusX, focusY, true)
+        this.scene.time.delayedCall(1000, () => {
+            this.focusBoardCell(focusX, focusY, true)
+        })
 
         if(newState)
         {
