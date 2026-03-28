@@ -972,12 +972,19 @@ export default class GameScene extends Phaser.Scene
         const cols = 4
         const rows = 3
         const gap = 12
+        const topSafe = 120
+        const bottomSafe = 180
 
-        const gridHeight = height * 0.4
+        const gridHeight = height - topSafe - bottomSafe
         const gridWidth  = width * 0.9
 
-        const cellW = (gridWidth - gap * (cols - 1)) / cols
-        const cellH = (gridHeight - gap * (rows - 1)) / rows
+        const sizeByWidth  = (gridWidth - gap * (cols - 1)) / cols
+        const sizeByHeight = (gridHeight - gap * (rows - 1)) / rows
+
+        const cellSize = Math.min(sizeByWidth, sizeByHeight)
+
+        const cellW = cellSize
+        const cellH = cellSize
 
         const startX = width / 2 - gridWidth / 2
         const startY = 125
@@ -1045,7 +1052,8 @@ export default class GameScene extends Phaser.Scene
         // =========================
         // BUTTONS
         // =========================
-        const buttonY = startY + gridHeight + 140
+        const lastRowY = startY + (rows - 1) * (cellH + gap) + cellH / 2
+        const buttonY = lastRowY + cellH / 2 + 50
 
         const confirmBtn = addEl(
             this.add.image(width / 2 - 120, buttonY, "btn_yes")
@@ -1088,29 +1096,38 @@ confirmBtn.on("pointerdown", () => {
     // =========================
     // 🔥 GOLD YOK → REKLAM
     // =========================
-    if (profile.gold < CHANGE_COST)
-    {
-        console.log("Gold yok → reklam açılıyor")
+if (profile.gold < CHANGE_COST)
+{
+    console.log("Gold yok → reklam açılıyor")
 
-        AdService.showRewarded().then((success) => {
+    // 🔥 küçük feedback
+    this.tweens.add({
+        targets: this.btnChange,
+        scale: 0.6,
+        yoyo: true,
+        duration: 100
+    })
 
-            if (!success)
-            {
-                console.log("Reklam izlenmedi")
-                return
-            }
+    AdService.showRewarded().then((success) => {
 
-            console.log("Reklam izlendi → free change")
+        if (!success)
+        {
+            console.log("Reklam izlenmedi")
+            return
+        }
 
-            if (selectedCardId)
-            {
-                this.applyCardChange(selectedCardId)
-            }
-            destroyPopup()
-        })
+        console.log("Reklam izlendi → free change")
 
-        return
-    }
+        if (selectedCardId)
+        {
+            this.applyCardChange(selectedCardId)
+        }
+
+        destroyPopup()
+    })
+
+    return
+}
 
     // =========================
     // 🔥 NORMAL CHANGE
