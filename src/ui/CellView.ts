@@ -24,6 +24,7 @@ export default class CellView
 
     rect: Phaser.GameObjects.Rectangle
     cardSprite?: Phaser.GameObjects.Image
+    bgSprite?: Phaser.GameObjects.Image
 
     px: number
     py: number
@@ -74,10 +75,17 @@ export default class CellView
 
     setCard(cardId: string | null, rotation: number)
     {
+        
         if(this.cardSprite)
         {
             this.cardSprite.destroy()
             this.cardSprite = undefined
+        }
+
+        if(this.bgSprite)
+        {
+            this.bgSprite.destroy()
+            this.bgSprite = undefined
         }
 
         if(!cardId)
@@ -85,6 +93,21 @@ export default class CellView
             this.clearOverlays()
             return
         }
+
+        // 🔥 ZEMİN
+        this.bgSprite = this.scene.add.image(
+            this.px + (this.size / 2),
+            this.py + (this.size / 2),
+            "cardbg_04"
+        )
+
+        this.bgSprite.setDisplaySize(
+            this.size,
+            this.size
+        )
+
+        this.parentContainer.add(this.bgSprite)
+
 
         this.cardSprite = this.scene.add.image(
             this.px + (this.size / 2),

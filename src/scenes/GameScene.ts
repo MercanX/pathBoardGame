@@ -163,10 +163,15 @@ export default class GameScene extends Phaser.Scene
     {
 
       
+        for(let i = 1; i <= 15; i++)
+        {
+            const num = i.toString().padStart(2, "0")
+            this.load.image(`cardbg_${num}`, `assets/cards/cardbg_${num}.jpg`)
+        }
         for(let i = 1; i <= 20; i++)
         {
             const num = i.toString().padStart(2, "0")
-            this.load.image(`card_${num}`, `assets/cards/card_${num}.jpg`)
+            this.load.image(`card_${num}`, `assets/cards/card_${num}.png`)
         }
 
         for(const card of CardDefinitions)
@@ -434,6 +439,8 @@ export default class GameScene extends Phaser.Scene
             this.boardWorldY,
             this.boardMargin
         )
+
+
 
         const handWidth = this.scale.width
         const handX = 0
