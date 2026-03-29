@@ -170,34 +170,42 @@ player.hand.forEach((cardId, index) => {
 
     const slot = this.slotRects[index]
 
-    const card = this.scene.add.image(
-        slot.x,
-        slot.y,
-        cardId
+    // 🔥 CONTAINER
+    const container = this.scene.add.container(slot.x, slot.y)
+
+    // 🔥 ZEMİN
+    const bg = this.scene.add.image(0, 0, "cardbg_04")
+    bg.setDisplaySize(
+        slot.width - 20,
+        slot.height - 20
     )
+    container.add(bg)
+
+    // 🔥 CARD
+    const card = this.scene.add.image(0, 0, cardId)
 
     card.setOrigin(0.5)
-
-    // Kartı slot içine sığdır
     card.setDisplaySize(
         slot.width - 20,
         slot.height - 20
     )
 
-    card.setInteractive({ useHandCursor: true })
-    card.setDepth(10)
+    container.add(card)
 
-    // VALID CARD CONTROL
+    // INTERACTION
+    container.setSize(slot.width, slot.height)
+    container.setInteractive({ useHandCursor: true })
+
     if(validCards && !validCards.has(cardId))
     {
-        card.setAlpha(0.35)
+        container.setAlpha(0.35)
     }
     else
     {
-        card.setAlpha(1)
+        container.setAlpha(1)
     }
 
-    card.on("pointerdown", () => {
+    container.on("pointerdown", () => {
 
         this.selectedIndex = index
         this.highlight()
@@ -206,8 +214,9 @@ player.hand.forEach((cardId, index) => {
 
     })
 
-    this.parentContainer.add(card)
+    this.parentContainer.add(container)
     this.cards.push(card)
+    
 })
 
     if(this.selectedIndex >= player.hand.length)
