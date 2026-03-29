@@ -11,8 +11,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_01",
     sprite:"card_01",
     connections:[
-        [1,2],
-        [5,6]
+        [1,6],
+        [2,5]
     ]
 },
 
@@ -20,8 +20,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_02",
     sprite:"card_02",
     connections:[
-        [3,8],
-        [5,6]
+        [1,3],
+        [2,4]
     ]
 },
 
@@ -29,8 +29,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_03",
     sprite:"card_03",
     connections:[
-        [2,4],
-        [5,6]
+        [1,3],
+        [2,5]
     ]
 },
 
@@ -38,8 +38,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_04",
     sprite:"card_04",
     connections:[
-        [1,6],
-        [2,4]
+        [1,3],
+        [2,6]
     ]
 },
 
@@ -47,8 +47,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_05",
     sprite:"card_05",
     connections:[
-        [1,7],
-        [2,4]
+        [1,3],
+        [2,7]
     ]
 },
 
@@ -56,8 +56,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_06",
     sprite:"card_06",
     connections:[
-        [1,7],
-        [3,5]
+        [1,3],
+        [2,8]
     ]
 },
 
@@ -65,8 +65,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_07",
     sprite:"card_07",
     connections:[
-        [1,6],
-        [3,7]
+        [1,3],
+        [4,5]
     ]
 },
 
@@ -74,8 +74,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_08",
     sprite:"card_08",
     connections:[
-        [2,5],
-        [3,7]
+        [1,3],
+        [4,6]
     ]
 },
 
@@ -83,8 +83,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_09",
     sprite:"card_09",
     connections:[
-        [1,5],
-        [2,6]
+        [1,3],
+        [4,7]
     ]
 },
 
@@ -92,8 +92,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_10",
     sprite:"card_10",
     connections:[
-        [1,5],
-        [4,7]
+        [1,3],
+        [4,8]
     ]
 },
 
@@ -101,8 +101,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_11",
     sprite:"card_11",
     connections:[
-        [2,6],
-        [7,8]
+        [1,3],
+        [5,7]
     ]
 },
 
@@ -110,8 +110,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_12",
     sprite:"card_12",
     connections:[
-        [1,5],
-        [7,8]
+        [1,3],
+        [5,8]
     ]
 },
 
@@ -119,8 +119,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_13",
     sprite:"card_13",
     connections:[
-        [1,7],
-        [2,3]
+        [1,3],
+        [6,7]
     ]
 },
 
@@ -128,8 +128,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_14",
     sprite:"card_14",
     connections:[
-        [1,5],
-        [2,3]
+        [1,3],
+        [6,8]
     ]
 },
 
@@ -137,7 +137,7 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_15",
     sprite:"card_15",
     connections:[
-        [1,6],
+        [1,4],
         [2,3]
     ]
 },
@@ -146,8 +146,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_16",
     sprite:"card_16",
     connections:[
-        [2,3],
-        [4,7]
+        [1,4],
+        [2,5]
     ]
 },
 
@@ -155,8 +155,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_17",
     sprite:"card_17",
     connections:[
-        [2,3],
-        [4,8]
+        [1,4],
+        [2,6]
     ]
 },
 
@@ -164,8 +164,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_18",
     sprite:"card_18",
     connections:[
-        [3,5],
-        [4,8]
+        [1,4],
+        [2,7]
     ]
 },
 
@@ -173,8 +173,8 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_19",
     sprite:"card_19",
     connections:[
-        [1,8],
-        [2,3]
+        [1,4],
+        [2,8]
     ]
 },
 
@@ -182,9 +182,9 @@ export const CardDefinitions: CardDefinition[] = [
     id:"card_20",
     sprite:"card_20",
     connections:[
-        [1,8],
-        [4,5]
+        [1,4],
+        [3,7]
     ]
-}
+},
 
 ]
