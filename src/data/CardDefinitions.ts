@@ -279,14 +279,6 @@ export const CardDefinitions: CardDefinition[] = [
     sprite:"card_32",
     connections:[
         [1,6],
-        [3,4]
-    ]
-},
-{
-    id:"card_32",
-    sprite:"card_32",
-    connections:[
-        [1,6],
         [2,3]
     ]
 },
