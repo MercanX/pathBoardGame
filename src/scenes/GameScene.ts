@@ -163,7 +163,7 @@ export default class GameScene extends Phaser.Scene
     {
 
       
-        for(let i = 1; i <= 15; i++)
+        for(let i = 1; i <= 8; i++)
         {
             const num = i.toString().padStart(2, "0")
             this.load.image(`cardbg_${num}`, `assets/cards/cardbg_${num}.jpg`)

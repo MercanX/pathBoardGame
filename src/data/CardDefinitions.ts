@@ -186,5 +186,341 @@ export const CardDefinitions: CardDefinition[] = [
         [3,7]
     ]
 },
+{
+    id:"card_21",
+    sprite:"card_21",
+    connections:[
+        [1,4],
+        [3,8]
+    ]
+},
+{
+    id:"card_22",
+    sprite:"card_22",
+    connections:[
+        [1,4],
+        [5,8]
+    ]
+},
+{
+    id:"card_23",
+    sprite:"card_23",
+    connections:[
+        [1,4],
+        [6,7]
+    ]
+},
+{
+    id:"card_24",
+    sprite:"card_24",
+    connections:[
+        [1,4],
+        [6,8]
+    ]
+},
+{
+    id:"card_25",
+    sprite:"card_25",
+    connections:[
+        [1,5],
+        [2,3]
+    ]
+},
+{
+    id:"card_26",
+    sprite:"card_26",
+    connections:[
+        [1,5],
+        [2,4]
+    ]
+},
+{
+    id:"card_27",
+    sprite:"card_27",
+    connections:[
+        [1,5],
+        [2,6]
+    ]
+},
+{
+    id:"card_28",
+    sprite:"card_28",
+    connections:[
+        [1,5],
+        [2,8]
+    ]
+},
+{
+    id:"card_29",
+    sprite:"card_29",
+    connections:[
+        [1,5],
+        [3,7]
+    ]
+},
+{
+    id:"card_30",
+    sprite:"card_30",
+    connections:[
+        [1,5],
+        [3,8]
+    ]
+},
+{
+    id:"card_31",
+    sprite:"card_31",
+    connections:[
+        [1,5],
+        [4,8]
+    ]
+},
+{
+    id:"card_32",
+    sprite:"card_32",
+    connections:[
+        [1,6],
+        [3,4]
+    ]
+},
+{
+    id:"card_32",
+    sprite:"card_32",
+    connections:[
+        [1,6],
+        [2,3]
+    ]
+},
+{
+    id:"card_33",
+    sprite:"card_33",
+    connections:[
+        [1,6],
+        [2,4]
+    ]
+},
+{
+    id:"card_34",
+    sprite:"card_34",
+    connections:[
+        [1,6],
+        [2,5]
+    ]
+},
+{
+    id:"card_35",
+    sprite:"card_35",
+    connections:[
+        [1,6],
+        [2,8]
+    ]
+},
+{
+    id:"card_36",
+    sprite:"card_36",
+    connections:[
+        [1,6],
+        [3,8]
+    ]
+},
+{
+    id:"card_37",
+    sprite:"card_37",
+    connections:[
+        [1,6],
+        [4,5]
+    ]
+},
+{
+    id:"card_38",
+    sprite:"card_38",
+    connections:[
+        [1,6],
+        [4,8]
+    ]
+},
+{
+    id:"card_39",
+    sprite:"card_39",
+    connections:[
+        [1,8],
+        [2,3]
+    ]
+},
+{
+    id:"card_40",
+    sprite:"card_40",
+    connections:[
+        [1,8],
+        [2,4]
+    ]
+},
+{
+    id:"card_41",
+    sprite:"card_41",
+    connections:[
+        [1,8],
+        [2,6]
+    ]
+},
+{
+    id:"card_42",
+    sprite:"card_42",
+    connections:[
+        [1,8],
+        [2,7]
+    ]
+},
+{
+    id:"card_43",
+    sprite:"card_43",
+    connections:[
+        [1,8],
+        [3,7]
+    ]
+},
+{
+    id:"card_44",
+    sprite:"card_44",
+    connections:[
+        [1,8],
+        [4,5]
+    ]
+},
+{
+    id:"card_45",
+    sprite:"card_45",
+    connections:[
+        [1,8],
+        [4,6]
+    ]
+},
+{
+    id:"card_46",
+    sprite:"card_46",
+    connections:[
+        [2,4],
+        [6,8]
+    ]
+},
+{
+    id:"card_47",
+    sprite:"card_47",
+    connections:[
+        [2,6],
+        [4,8]
+    ]
+},
+{
+    id:"card_48",
+    sprite:"card_48",
+    connections:[
+        [1,2],
+        [3,4]
+    ]
+},
+{
+    id:"card_49",
+    sprite:"card_49",
+    connections:[
+        [1,2],
+        [3,5]
+    ]
+},
+{
+    id:"card_50",
+    sprite:"card_50",
+    connections:[
+        [1,2],
+        [3,6]
+    ]
+},
+{
+    id:"card_51",
+    sprite:"card_51",
+    connections:[
+        [1,2],
+        [3,7]
+    ]
+},
+{
+    id:"card_52",
+    sprite:"card_52",
+    connections:[
+        [1,2],
+        [3,8]
+    ]
+},
+{
+    id:"card_53",
+    sprite:"card_53",
+    connections:[
+        [1,2],
+        [4,5]
+    ]
+},
+{
+    id:"card_54",
+    sprite:"card_54",
+    connections:[
+        [1,2],
+        [4,6]
+    ]
+},
+{
+    id:"card_55",
+    sprite:"card_55",
+    connections:[
+        [1,2],
+        [4,7]
+    ]
+},
+{
+    id:"card_56",
+    sprite:"card_56",
+    connections:[
+        [1,2],
+        [4,8]
+    ]
+},
+{
+    id:"card_57",
+    sprite:"card_57",
+    connections:[
+        [1,2],
+        [5,6]
+    ]
+},
+{
+    id:"card_58",
+    sprite:"card_58",
+    connections:[
+        [1,2],
+        [5,8]
+    ]
+},
+{
+    id:"card_59",
+    sprite:"card_59",
+    connections:[
+        [1,2],
+        [5,7]
+    ]
+},
+{
+    id:"card_60",
+    sprite:"card_60",
+    connections:[
+        [1,2],
+        [6,7]
+    ]
+},
+{
+    id:"card_61",
+    sprite:"card_61",
+    connections:[
+        [1,2],
+        [6,8]
+    ]
+},
 
 ]
