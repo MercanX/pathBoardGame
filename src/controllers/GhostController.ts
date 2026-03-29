@@ -47,29 +47,47 @@ export default class GhostController
 
         if(!this.scene.ghostCard)
         {
-            this.scene.ghostCard = this.scene.add.image(
-                center.x,
-                center.y,
-                selectedCard
-            )
+            const container = this.scene.add.container(center.x, center.y)
 
-            this.scene.ghostCard.setDisplaySize(
+            // 🔥 ZEMİN
+            const bg = this.scene.add.image(0, 0, "cardbg_04")
+            bg.setDisplaySize(
                 this.scene.cellSize - 4,
                 this.scene.cellSize - 4
             )
 
-            this.scene.ghostCard.setDepth(200)
+            // 🔥 CARD
+            const card = this.scene.add.image(0, 0, selectedCard)
+            card.setDisplaySize(
+                this.scene.cellSize - 4,
+                this.scene.cellSize - 4
+            )
 
-            this.scene.boardLayer.add(this.scene.ghostCard)
+            container.add(bg)
+            container.add(card)
+
+            container.setDepth(200)
+
+            this.scene.boardLayer.add(container)
+
+            // 🔥 ghostCard artık container
+            this.scene.ghostCard = container as any
+
+            // 🔥 gerçek card referansı (önemli)
+            ;(this.scene.ghostCard as any).card = card
         }
         else
         {
-            this.scene.ghostCard.setTexture(selectedCard)
-            this.scene.ghostCard.setPosition(center.x, center.y)
-            this.scene.ghostCard.setVisible(true)
+            const container = this.scene.ghostCard as any
+
+            container.setPosition(center.x, center.y)
+            container.setVisible(true)
+
+            // 🔥 içindeki card texture değiştir
+            container.card.setTexture(selectedCard)
         }
 
-        this.scene.ghostCard.setRotation(
+        (this.scene.ghostCard as any).setRotation(
             this.scene.currentRotation * Math.PI / 2
         )
 
@@ -123,17 +141,17 @@ export default class GhostController
         {
             this.scene.highlightCell.setStrokeStyle(4, 0x22c55e, 1)
             this.scene.highlightCell.setFillStyle(0x000000, 0)
-            this.scene.highlightCell.setBlendMode(Phaser.BlendModes.ADD)
+            this.scene.highlightCell.setBlendMode(Phaser.BlendModes.ADD);
 
-            this.scene.ghostCard.setAlpha(1)
+            (this.scene.ghostCard as any).setAlpha(1)
         }
         else
         {
             this.scene.highlightCell.setStrokeStyle(4, 0xef4444, 1)
             this.scene.highlightCell.setFillStyle(0x000000, 0)
-            this.scene.highlightCell.setBlendMode(Phaser.BlendModes.ADD)
+            this.scene.highlightCell.setBlendMode(Phaser.BlendModes.ADD);
 
-            this.scene.ghostCard.setAlpha(0.5)
+            (this.scene.ghostCard as any).setAlpha(0.5)
         }
 
         if(this.scene.pathPreview)
