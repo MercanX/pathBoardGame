@@ -373,7 +373,7 @@ renderGhostPath(
         const baseMin = Math.min(baseA, baseB)
         const baseMax = Math.max(baseA, baseB)
 
-        const key = `${useCardId}_path_${baseMin}_${baseMax}`
+        const key = `card_path_${baseMin}_${baseMax}`
 
 
         this.addGhostOverlay(

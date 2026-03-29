@@ -174,17 +174,11 @@ export default class GameScene extends Phaser.Scene
             this.load.image(`card_${num}`, `assets/cards/card_${num}.png`)
         }
 
-        for(const card of CardDefinitions)
+        for(let a = 1; a <= 8; a++)
         {
-            for(const conn of card.connections)
+            for(let b = a + 1; b <= 8; b++)
             {
-                const a = conn[0]
-                const b = conn[1]
-
-                const min = Math.min(a,b)
-                const max = Math.max(a,b)
-
-                const key = `${card.id}_path_${min}_${max}`
+                const key = `card_path_${a}_${b}`
 
                 this.load.image(
                     key,

@@ -139,7 +139,7 @@ getPathOverlayKey(
     const min = Math.min(baseA, baseB)
     const max = Math.max(baseA, baseB)
 
-    return `${cardId}_path_${min}_${max}`
+    return `card_path_${min}_${max}`
 }
 
 setPathOverlay(
