@@ -55,7 +55,7 @@ export default class GhostController
             const bg = this.scene.add.image(
                 0,
                 0,
-                getItemAssetById(PlayerService.get().equippedBackground) || "cardbg_01"
+                getItemAssetById(PlayerService.get().equippedBoard) || "cardbg_01"
             )
             bg.setDisplaySize(
                 this.scene.cellSize - 4,
