@@ -16,7 +16,7 @@ type ShopRenderUI =
     id: string
     type: string
     img: Phaser.GameObjects.Image
-    border: Phaser.GameObjects.Arc
+    border: Phaser.GameObjects.Rectangle
     priceText: Phaser.GameObjects.Text
 }
 
@@ -73,14 +73,7 @@ export default class ShopScene extends Phaser.Scene
             this.scene.start("MainMenuScene")
         })
 
-        // =========================
-        // TITLE
-        // =========================
-        this.add.text(width / 2, 145, "SHOP", {
-            fontFamily: "Cinzel",
-            fontSize: "54px",
-            color: "#ffffff"
-        }).setOrigin(0.5)
+
 
         // =========================
         // GOLD UI
@@ -102,7 +95,7 @@ export default class ShopScene extends Phaser.Scene
         // =========================
         // DATA
         // =========================
-        const pathItems = ShopData.filter(i => i.type === "path")
+        //const pathItems = ShopData.filter(i => i.type === "path")
         const boardItems = ShopData.filter(i => i.type === "board")
 
         // =========================
@@ -113,17 +106,12 @@ export default class ShopScene extends Phaser.Scene
         const gap = 22
 
         const startX = width / 2 - ((cols * size + (cols - 1) * gap) / 2) + (size / 2)
-        const pathStartY = 450
+        //const pathStartY = 450
         const boardStartY = 800
 
         // =========================
         // SECTION TITLES
         // =========================
-        this.add.text(width / 2, pathStartY - 85, "PATH", {
-            fontFamily: "Cinzel",
-            fontSize: "30px",
-            color: "#00ffcc"
-        }).setOrigin(0.5)
 
         this.add.text(width / 2, boardStartY - 125, "BOARD", {
             fontFamily: "Cinzel",
@@ -158,7 +146,7 @@ export default class ShopScene extends Phaser.Scene
                 ui.img.clearTint()
 
                 const isEquipped =
-                    (ui.type === "path" && ui.id === currentPlayer.equippedPath) ||
+                    //(ui.type === "path" && ui.id === currentPlayer.equippedPath) ||
                     (ui.type === "board" && ui.id === currentPlayer.equippedBoard)
 
                 if(isEquipped)
@@ -196,9 +184,16 @@ export default class ShopScene extends Phaser.Scene
 
                 this.addButtonEffects(img)
 
-                const border = this.add.circle(x, y, size / 2 + 10)
-                    .setStrokeStyle(6, 0xf9f213)
-                    .setAlpha(0)
+                const border = this.add.rectangle(
+                    x,
+                    y,
+                    size + 20,
+                    size + 20
+                )
+                .setStrokeStyle(6, 0xf9f213)
+                .setAlpha(0)
+
+
 
                 const owned = PlayerService.hasItem(item.id)
 
@@ -235,7 +230,7 @@ export default class ShopScene extends Phaser.Scene
                 })
 
                 const isEquipped =
-                    (item.type === "path" && item.id === player.equippedPath) ||
+                    //(item.type === "path" && item.id === player.equippedPath) ||
                     (item.type === "board" && item.id === player.equippedBoard)
 
                 if(isEquipped)
@@ -392,45 +387,5 @@ resetBtn.on("pointerdown", () => {
         })
     }
 
-    addPressEffect(
-        target: Phaser.GameObjects.Text | Phaser.GameObjects.Rectangle,
-        baseScale: number
-    )
-    {
-        target.on("pointerover", () => {
-            this.tweens.add({
-                targets: target,
-                scaleX: baseScale * 1.04,
-                scaleY: baseScale * 1.04,
-                duration: 100
-            })
-        })
 
-        target.on("pointerout", () => {
-            this.tweens.add({
-                targets: target,
-                scaleX: baseScale,
-                scaleY: baseScale,
-                duration: 100
-            })
-        })
-
-        target.on("pointerdown", () => {
-            this.tweens.add({
-                targets: target,
-                scaleX: baseScale * 0.96,
-                scaleY: baseScale * 0.96,
-                duration: 80
-            })
-        })
-
-        target.on("pointerup", () => {
-            this.tweens.add({
-                targets: target,
-                scaleX: baseScale,
-                scaleY: baseScale,
-                duration: 80
-            })
-        })
-    }
 }
