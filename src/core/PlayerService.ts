@@ -20,6 +20,7 @@ export type PlayerProfile =
     ownedItems: string[]        // ✅ sahip olunanlar
     equippedAvatar: string      // ✅ aktif avatar
     equippedPath: string        // ✅ aktif path
+    equippedBackground: string
 }
 
 const STORAGE_KEY = "game_player_profile"
@@ -54,7 +55,9 @@ class PlayerServiceClass
 
                     equippedAvatar: parsed.equippedAvatar ?? parsed.avatar ?? "avatar_1",
 
-                    equippedPath: parsed.equippedPath ?? "path_blue"
+                    equippedPath: parsed.equippedPath ?? "path_blue",
+
+                    equippedBackground: parsed.equippedBackground ?? "cardbg_01"
                 }
 
 
@@ -72,7 +75,8 @@ class PlayerServiceClass
 
                     ownedItems: ["avatar_1"],
                     equippedAvatar: "avatar_1",
-                    equippedPath: "path_blue"
+                    equippedPath: "path_blue",
+                    equippedBackground: "bg_autumn_dirt"
                 }
 
 
@@ -92,7 +96,8 @@ class PlayerServiceClass
 
                 ownedItems: ["avatar_1"],
                 equippedAvatar: "avatar_1",
-                equippedPath: "path_blue"
+                equippedPath: "path_blue",
+                equippedBackground: "bg_autumn_dirt"
             }
         }
     }
@@ -187,6 +192,16 @@ class PlayerServiceClass
     }
 
     // =========================
+    // EQUIP BACKGROUND
+    // =========================
+    equipBackground(id: string)
+    {
+        this.player.equippedBackground = id
+        this.save()
+    }
+
+
+    // =========================
     // BUY ITEM
     // =========================
     buyItem(item: { id: string, price: number }): boolean
@@ -221,6 +236,12 @@ class PlayerServiceClass
             this.player.equippedPath = item.id
         }
 
+        if(item.id.startsWith("bg_"))
+        {
+            this.player.equippedBackground = item.id
+        }
+
+
         this.save()
 
         return true
@@ -241,7 +262,8 @@ class PlayerServiceClass
 
             ownedItems: ["avatar_1"],
             equippedAvatar: "avatar_1",
-            equippedPath: "path_blue"
+            equippedPath: "path_blue",
+            equippedBackground: "bg_autumn_dirt"
         }
 
         this.save()
