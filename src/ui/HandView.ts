@@ -15,6 +15,7 @@
 import Phaser from "phaser"
 import GameEngine from "../core/GameEngine"
 import { PlayerService } from "../core/PlayerService"
+import { getItemAssetById } from "../data/ShopData"
 
 export default class HandView
 {
@@ -179,7 +180,7 @@ player.hand.forEach((cardId, index) => {
     const bg = this.scene.add.image(
         0,
         0,
-        PlayerService.get().equippedBackground
+        getItemAssetById(PlayerService.get().equippedBackground) || "cardbg_01"
     )
     bg.setDisplaySize(
         slot.width - 20,

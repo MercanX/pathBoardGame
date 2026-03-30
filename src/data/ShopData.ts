@@ -155,4 +155,12 @@ export const ShopData: ShopItem[] =
         price: 200,
         asset: "cardbg_08"
     }
+
+
 ]
+
+export function getItemAssetById(id: string): string | null
+{
+    const item = ShopData.find(i => i.id === id)
+    return item ? item.asset : null
+}

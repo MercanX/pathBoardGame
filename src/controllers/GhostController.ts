@@ -13,6 +13,8 @@ import Phaser from "phaser"
 import GameScene from "../scenes/GameScene"
 import { findCurrentPlayerNextCell } from "../core/PathEngine"
 import { getValidMovesForPlayer } from "../core/RuleEngine"
+import { PlayerService } from "../core/PlayerService"
+import { getItemAssetById } from "../data/ShopData"
 
 export default class GhostController
 {
@@ -50,7 +52,11 @@ export default class GhostController
             const container = this.scene.add.container(center.x, center.y)
 
             // 🔥 ZEMİN
-            const bg = this.scene.add.image(0, 0, "cardbg_04")
+            const bg = this.scene.add.image(
+                0,
+                0,
+                getItemAssetById(PlayerService.get().equippedBackground) || "cardbg_01"
+            )
             bg.setDisplaySize(
                 this.scene.cellSize - 4,
                 this.scene.cellSize - 4
