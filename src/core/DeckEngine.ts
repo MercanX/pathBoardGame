@@ -13,7 +13,7 @@ import { GameConfig } from "../config/GameConfig"
  */
 export function getAllCardIds():string[]
 {
-    const pool = GameConfig.CARD_POOLS.default
+    const pool = GameConfig.CARD_POOLS.balance
 
     if(pool && pool.length > 0)
     {
