@@ -2,10 +2,10 @@
  * File: src/data/ShopData.ts
  * Purpose:
  * - Shop'ta satılan tüm item'ları merkezi olarak tutar
- * - Şimdilik avatar ve path color item'ları içerir
+ * - Avatar, Path ve Background item'ları içerir
  */
 
-export type ShopItemType = "avatar" | "path"
+export type ShopItemType = "avatar" | "path" | "background"
 
 export type ShopItem =
 {
@@ -94,5 +94,65 @@ export const ShopData: ShopItem[] =
         title: "Gold Path",
         price: 500,
         asset: "path_gold"
+    },
+
+    // =========================
+    // BACKGROUNDS
+    // =========================
+    {
+        id: "bg_autumn_dirt",
+        type: "background",
+        title: "Autumn Dirt",
+        price: 200,
+        asset: "cardbg_01"
+    },
+    {
+        id: "bg_lava_full",
+        type: "background",
+        title: "Lava Core",
+        price: 500,
+        asset: "cardbg_02"
+    },
+    {
+        id: "bg_dark_forest",
+        type: "background",
+        title: "Dark Forest",
+        price: 300,
+        asset: "cardbg_03"
+    },
+    {
+        id: "bg_autumn_soft",
+        type: "background",
+        title: "Soft Autumn",
+        price: 250,
+        asset: "cardbg_04"
+    },
+    {
+        id: "bg_leaves_dense",
+        type: "background",
+        title: "Leaf Carpet",
+        price: 350,
+        asset: "cardbg_05"
+    },
+    {
+        id: "bg_ice_cracked",
+        type: "background",
+        title: "Frozen Ice",
+        price: 400,
+        asset: "cardbg_06"
+    },
+    {
+        id: "bg_lava_crack",
+        type: "background",
+        title: "Lava Cracks",
+        price: 450,
+        asset: "cardbg_07"
+    },
+    {
+        id: "bg_grass_path",
+        type: "background",
+        title: "Grass Path",
+        price: 200,
+        asset: "cardbg_08"
     }
 ]
