@@ -5,12 +5,22 @@
 
 import { CardDefinitions } from "../data/CardDefinitions"
 import { GameState } from "./GameState"
+import { GameConfig } from "../config/GameConfig"
+
 
 /**
  * Tüm kart id listesini çıkar
  */
 export function getAllCardIds():string[]
 {
+    const pool = GameConfig.CARD_POOLS.default
+
+    if(pool && pool.length > 0)
+    {
+        return pool
+    }
+
+    // fallback (full mode)
     return CardDefinitions.map(c => c.id)
 }
 

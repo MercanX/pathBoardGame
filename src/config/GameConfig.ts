@@ -44,5 +44,57 @@ export const GameConfig =
         oneCard: 50,
         twoCard: 90,
         reroll: 120
+    },
+
+    CARD_POOLS:
+    {
+        default:
+        [
+            "card_01",
+            "card_02",
+            "card_03",
+            "card_04",
+            "card_05",
+            "card_06",
+
+            "card_07",
+            "card_08",
+            "card_09",
+
+            "card_11",
+            "card_13",
+            "card_14",
+
+            "card_15",
+            "card_16",
+            "card_17",
+            "card_18",
+            "card_19",
+
+            "card_20",
+            "card_21",
+            "card_22",
+            "card_23",
+            "card_24",
+
+            "card_25",
+            "card_26",
+            "card_27",
+
+            "card_29",
+            "card_30",
+            "card_31",
+
+            "card_35",
+            "card_38",
+
+            "card_48",
+            "card_55",
+            "card_57",
+
+
+        ]
     }
+
+    
 }
