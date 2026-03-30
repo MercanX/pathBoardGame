@@ -120,7 +120,7 @@ export default class ShopScene extends Phaser.Scene
             // EQUIPPED STATE
             if(
                 (item.type === "path" && item.id === player.equippedPath) ||
-                (item.type === "board" && item.id === player.equippedBackground)
+                (item.type === "board" && item.id === player.equippedBoard)
             )
             {
                 priceText.setText("EQUIPPED")
@@ -152,7 +152,7 @@ export default class ShopScene extends Phaser.Scene
                         PlayerService.equipPath(item.id)
 
                     if(item.type === "board")
-                        PlayerService.equipBackground(item.id)
+                        PlayerService.equipBoard(item.id)
 
                     refreshUI()
 
@@ -243,8 +243,8 @@ export default class ShopScene extends Phaser.Scene
                 if(selectedItem.type === "path")
                     PlayerService.equipPath(selectedItem.id)
 
-                if(selectedItem.type === "background")
-                    PlayerService.equipBackground(selectedItem.id)
+                if(selectedItem.type === "equipBoard")
+                    PlayerService.equipBoard(selectedItem.id)
 
                 refreshUI()
 

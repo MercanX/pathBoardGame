@@ -18,9 +18,7 @@ export type ShopItem =
 
 export const ShopData: ShopItem[] =
 [
-
-
-    
+   
 
     // =========================
     // PATH COLORS
