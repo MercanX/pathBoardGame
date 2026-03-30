@@ -66,112 +66,128 @@ export default class ShopScene extends Phaser.Scene
         const startY = 200
 
         const borders: Phaser.GameObjects.Rectangle[] = []
+                
+        // ======================
+        // DATA SPLIT
+        // ======================
+        const pathItems = ShopData.filter(i => i.type === "path")
+        const boardItems = ShopData.filter(i => i.type === "board")
 
-        ShopData.forEach((item, index) => {
-
-            const col = index % cols
-            const row = Math.floor(index / cols)
-
-            const x = startX + col * (size + gap)
-            const y = startY + row * (size + gap)
-
-
-
-
-            // BORDER (her item için)
-            const border = this.add.rectangle(x, y, size + 10, size + 10)
-                .setStrokeStyle(4, 0x00ffcc)
-                .setAlpha(0)
-
-            borders.push(border)
-
-            // ITEM IMAGE
-            const img = this.add.image(x, y, item.asset)
-                .setDisplaySize(size, size)
-                .setInteractive()
-
-            // OWNED?
-            const owned = PlayerService.hasItem(item.id)
-
-            if(!owned)
+        const renderItems = (items: any[], offsetY: number) =>
+        {
+            items.forEach((item, index) =>
             {
-                img.setTint(0x777777)
-            }
+                const col = index % cols
+                const row = Math.floor(index / cols)
 
-            // PRICE TEXT
-            const priceText = this.add.text(
-                x,
-                y + 80,
-                owned ? "OWNED" : `${item.price}G`,
+                const x = startX + col * (size + gap)
+                const y = startY + offsetY + row * (size + gap)
+
+                // BORDER
+                const border = this.add.rectangle(x, y, size + 10, size + 10)
+                    .setStrokeStyle(4, 0x00ffcc)
+                    .setAlpha(0)
+
+                borders.push(border)
+
+                // IMAGE
+                const img = this.add.image(x, y, item.asset)
+                    .setDisplaySize(size, size)
+                    .setInteractive()
+
+                const owned = PlayerService.hasItem(item.id)
+
+                if(!owned)
                 {
-                    fontFamily: "Orbitron",
-                    fontSize: "24px",
-                    color: owned ? "#00ff99" : "#ffffff"
+                    img.setTint(0x777777)
                 }
-            ).setOrigin(0.5)
 
-            itemUIs.push({
-                id: item.id,
-                type: item.type,
-                priceText
-            })
+                const priceText = this.add.text(
+                    x,
+                    y + 80,
+                    owned ? "OWNED" : `${item.price}G`,
+                    {
+                        fontFamily: "Orbitron",
+                        fontSize: "24px",
+                        color: owned ? "#00ff99" : "#ffffff"
+                    }
+                ).setOrigin(0.5)
 
-
-            // EQUIPPED STATE
-            if(
-                (item.type === "path" && item.id === player.equippedPath) ||
-                (item.type === "board" && item.id === player.equippedBoard)
-            )
-            {
-                priceText.setText("EQUIPPED")
-                priceText.setColor("#00ffcc")
-                border.setAlpha(1)
-            }
-
-            // CLICK
-            img.on("pointerdown", () => {
-
-                SoundService.play("click")
-
-                // CLICK ANIM
-                this.tweens.add({
-                    targets: img,
-                    scale: 0.9,
-                    duration: 80,
-                    yoyo: true
+                itemUIs.push({
+                    id: item.id,
+                    type: item.type,
+                    priceText
                 })
 
-                // reset borders
-                borders.forEach(b => b.setAlpha(0))
-
-  
-                // OWNED → direkt equip
-                if(PlayerService.hasItem(item.id))
+                // EQUIPPED
+                if(
+                    (item.type === "path" && item.id === player.equippedPath) ||
+                    (item.type === "board" && item.id === player.equippedBoard)
+                )
                 {
-                    if(item.type === "path")
-                        PlayerService.equipPath(item.id)
+                    priceText.setText("EQUIPPED")
+                    priceText.setColor("#00ffcc")
+                    border.setAlpha(1)
+                }
 
-                    if(item.type === "board")
-                        PlayerService.equipBoard(item.id)
+                // CLICK
+                img.on("pointerdown", () =>
+                {
+                    SoundService.play("click")
 
-                    refreshUI()
+                    this.tweens.add({
+                        targets: img,
+                        scale: 0.9,
+                        duration: 80,
+                        yoyo: true
+                    })
+
+                    borders.forEach(b => b.setAlpha(0))
+
+                    if(PlayerService.hasItem(item.id))
+                    {
+                        if(item.type === "path")
+                            PlayerService.equipPath(item.id)
+
+                        if(item.type === "board")
+                            PlayerService.equipBoard(item.id)
+
+                        refreshUI()
+
+                        borders.forEach(b => b.setAlpha(0))
+                        border.setAlpha(1)
+
+                        return
+                    }
+
+                    selectedItem = item
 
                     borders.forEach(b => b.setAlpha(0))
                     border.setAlpha(1)
 
-                    return
-                }
-                selectedItem = item
-
-                // border reset
-                borders.forEach(b => b.setAlpha(0))
-                border.setAlpha(1)
-
-                buyBtn.setAlpha(1)
-
+                    buyBtn.setAlpha(1)
+                })
             })
-        })
+        }
 
+        // ======================
+        // RENDER
+        // ======================
+        renderItems(pathItems, 0)
+        renderItems(boardItems, 320)
+
+        // ======================
+        // TITLES
+        // ======================
+        this.add.text(width/2, startY - 40, "PATH", {
+            fontSize: "32px",
+            color: "#00ffcc"
+        }).setOrigin(0.5)
+
+        this.add.text(width/2, startY + 280, "BOARD", {
+            fontSize: "32px",
+            color: "#ffaa00"
+        }).setOrigin(0.5)
 
         const refreshUI = () => {
 
@@ -190,7 +206,7 @@ export default class ShopScene extends Phaser.Scene
                 // sahip ama seçili mi?
                 if(
                     (ui.type === "path" && ui.id === player.equippedPath) ||
-                    (ui.type === "background" && ui.id === player.equippedBackground)
+                    (ui.type === "board" && ui.id === player.equippedBoard)
                 )
                 {
                     ui.priceText.setText("EQUIPPED")
@@ -243,7 +259,7 @@ export default class ShopScene extends Phaser.Scene
                 if(selectedItem.type === "path")
                     PlayerService.equipPath(selectedItem.id)
 
-                if(selectedItem.type === "equipBoard")
+                if(selectedItem.type === "board")
                     PlayerService.equipBoard(selectedItem.id)
 
                 refreshUI()
