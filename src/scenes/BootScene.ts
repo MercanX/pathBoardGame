@@ -84,6 +84,8 @@ export default class BootScene extends Phaser.Scene
         this.load.image("cardbg_06", "assets/cards/cardbg_06.jpg")
         this.load.image("cardbg_07", "assets/cards/cardbg_07.jpg")
         this.load.image("cardbg_08", "assets/cards/cardbg_08.jpg")
+        this.load.image("cardbg_09", "assets/cards/cardbg_09.jpg")
+        this.load.image("cardbg_10", "assets/cards/cardbg_10.jpg")
 
 
 

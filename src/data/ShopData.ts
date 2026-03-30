@@ -154,7 +154,21 @@ export const ShopData: ShopItem[] =
         title: "Grass Path",
         price: 200,
         asset: "cardbg_08"
-    }
+    },
+    {
+        id: "bg_stone_path",
+        type: "background",
+        title: "Stone Path",
+        price: 200,
+        asset: "cardbg_09"
+    },
+    {
+        id: "bg_water_path",
+        type: "background",
+        title: "Water Path",
+        price: 200,
+        asset: "cardbg_10"
+    },
 
 
 ]
