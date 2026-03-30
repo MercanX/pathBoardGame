@@ -11,6 +11,7 @@ import Phaser from "phaser"
 import { Port } from "../data/CardData"
 import { rotatePort } from "../core/CardEngine"
 import { GameConfig } from "../config/GameConfig"
+import { PlayerService } from "../core/PlayerService"
 
 export default class CellView
 {
@@ -98,7 +99,7 @@ export default class CellView
         this.bgSprite = this.scene.add.image(
             this.px + (this.size / 2),
             this.py + (this.size / 2),
-            "cardbg_04"
+            PlayerService.get().equippedBackground
         )
 
         this.bgSprite.setDisplaySize(
