@@ -61,7 +61,11 @@ export default class BootScene extends Phaser.Scene
 
         this.load.image("btn_back", "assets/ui/btn_exit.png")
 
+        this.load.image("btn_buy", "assets/ui/btn_reward.png")
+        this.load.image("btn_reset", "assets/ui/btn_exit.png")
 
+
+        
         // =========================
         // AVATAR UI
         // =========================

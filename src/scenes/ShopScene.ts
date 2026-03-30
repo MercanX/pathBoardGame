@@ -60,7 +60,7 @@ export default class ShopScene extends Phaser.Scene
         // =========================
         const homeBtn = this.add.image(
             width / 2,
-            250,
+            150,
             "btn_home"
         )
         .setScale(0.5)
@@ -78,19 +78,15 @@ export default class ShopScene extends Phaser.Scene
         // =========================
         // GOLD UI
         // =========================
-        const goldLabel = this.add.text(width / 2 - 120, 315, "GOLD", {
-            fontFamily: "Cinzel",
-            fontSize: "28px",
-            color: "#ffffff"
-        }).setOrigin(1, 0.5)
 
-        const goldText = this.add.text(width / 2 - 90, 315, `${player.gold}`, {
+        const goldText = this.add.text(width / 2, 335, `${player.gold}`, {
             fontFamily: "Orbitron",
-            fontSize: "34px",
+            fontSize: "70px",
             color: "#FFD700",
+            fontStyle: "bold",
             stroke: "#000000",
             strokeThickness: 4
-        }).setOrigin(0, 0.5)
+        }).setOrigin(0.5)
 
         // =========================
         // DATA
@@ -114,9 +110,11 @@ export default class ShopScene extends Phaser.Scene
         // =========================
 
         this.add.text(width / 2, boardStartY - 125, "BOARD", {
-            fontFamily: "Cinzel",
-            fontSize: "30px",
-            color: "#ffaa00"
+            fontFamily: "Orbitron",
+            fontSize: "50px",
+            color: "#ffaa00",
+            fontStyle: "bold"
+
         }).setOrigin(0.5)
 
         const clearAllBorders = () => {
@@ -204,9 +202,10 @@ export default class ShopScene extends Phaser.Scene
 
                 const titleText = this.add.text(x, y + size / 2 + 16, item.title, {
                     fontFamily: "Cinzel",
-                    fontSize: "18px",
+                    fontSize: "21px",
                     color: "#ffffff",
                     align: "center",
+                    fontStyle: "bold",
                     wordWrap: { width: size + 30 }
                 }).setOrigin(0.5, 0)
 
@@ -217,7 +216,8 @@ export default class ShopScene extends Phaser.Scene
                     {
                         fontFamily: "Orbitron",
                         fontSize: "22px",
-                        color: owned ? "#00ff99" : "#ffffff"
+                        fontStyle: "bold",
+                        color: owned ? "#00ff99" : "#dd2222"
                     }
                 ).setOrigin(0.5, 0)
 
@@ -274,16 +274,15 @@ export default class ShopScene extends Phaser.Scene
 // BUY BUTTON (IMAGE)
 // =========================
 const buyBtn = this.add.image(
-    width / 2,
-    height - 215,
+    width / 2 - 150,
+    height - 350,
     "btn_buy" // 👉 bunu değiştirirsin
 )
-.setScale(0.8)
+.setScale(0.5)
 .setInteractive()
 
 this.addButtonEffects(buyBtn)
 
-buyBtn.setAlpha(0.5)
 
 buyBtn.on("pointerdown", () => {
 
@@ -331,12 +330,15 @@ buyBtn.on("pointerdown", () => {
 // RESET BUTTON (IMAGE)
 // =========================
 const resetBtn = this.add.image(
-    width / 2,
-    height - 125,
+    width / 2 + 150,
+    height - 350,
     "btn_reset" // 👉 bunu değiştirirsin
 )
-.setScale(0.7)
+.setScale(0.5)
 .setInteractive()
+
+
+
 
 this.addButtonEffects(resetBtn)
 
