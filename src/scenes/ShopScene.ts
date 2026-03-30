@@ -119,9 +119,8 @@ export default class ShopScene extends Phaser.Scene
 
             // EQUIPPED STATE
             if(
-                (item.type === "avatar" && item.id === player.equippedAvatar) ||
                 (item.type === "path" && item.id === player.equippedPath) ||
-                (item.type === "background" && item.id === player.equippedBackground)
+                (item.type === "board" && item.id === player.equippedBackground)
             )
             {
                 priceText.setText("EQUIPPED")
@@ -149,15 +148,11 @@ export default class ShopScene extends Phaser.Scene
                 // OWNED → direkt equip
                 if(PlayerService.hasItem(item.id))
                 {
-                    if(item.type === "avatar")
-                        PlayerService.equipAvatar(item.id)
-
                     if(item.type === "path")
                         PlayerService.equipPath(item.id)
 
-                    if(item.type === "background")
+                    if(item.type === "board")
                         PlayerService.equipBackground(item.id)
-
 
                     refreshUI()
 
@@ -194,7 +189,6 @@ export default class ShopScene extends Phaser.Scene
 
                 // sahip ama seçili mi?
                 if(
-                    (ui.type === "avatar" && ui.id === player.equippedAvatar) ||
                     (ui.type === "path" && ui.id === player.equippedPath) ||
                     (ui.type === "background" && ui.id === player.equippedBackground)
                 )
@@ -246,11 +240,11 @@ export default class ShopScene extends Phaser.Scene
             // zaten sahipse → equip
             if(PlayerService.hasItem(selectedItem.id))
             {
-                if(selectedItem.type === "avatar")
-                    PlayerService.equipAvatar(selectedItem.id)
-
                 if(selectedItem.type === "path")
                     PlayerService.equipPath(selectedItem.id)
+
+                if(selectedItem.type === "background")
+                    PlayerService.equipBackground(selectedItem.id)
 
                 refreshUI()
 

@@ -5,7 +5,7 @@
  * - Avatar, Path ve Background item'ları içerir
  */
 
-export type ShopItemType = "avatar" | "path" | "background"
+export type ShopItemType = "avatar" | "path" | "board"
 
 export type ShopItem =
 {
@@ -101,70 +101,70 @@ export const ShopData: ShopItem[] =
     // =========================
     {
         id: "bg_autumn_dirt",
-        type: "background",
+        type: "board",
         title: "Autumn Dirt",
         price: 200,
         asset: "cardbg_01"
     },
     {
         id: "bg_lava_full",
-        type: "background",
+        type: "board",
         title: "Lava Core",
         price: 500,
         asset: "cardbg_02"
     },
     {
         id: "bg_dark_forest",
-        type: "background",
+        type: "board",
         title: "Dark Forest",
         price: 300,
         asset: "cardbg_03"
     },
     {
         id: "bg_autumn_soft",
-        type: "background",
+        type: "board",
         title: "Soft Autumn",
         price: 250,
         asset: "cardbg_04"
     },
     {
         id: "bg_leaves_dense",
-        type: "background",
+        type: "board",
         title: "Leaf Carpet",
         price: 350,
         asset: "cardbg_05"
     },
     {
         id: "bg_ice_cracked",
-        type: "background",
+        type: "board",
         title: "Frozen Ice",
         price: 400,
         asset: "cardbg_06"
     },
     {
         id: "bg_lava_crack",
-        type: "background",
+        type: "board",
         title: "Lava Cracks",
         price: 450,
         asset: "cardbg_07"
     },
     {
         id: "bg_grass_path",
-        type: "background",
+        type: "board",
         title: "Grass Path",
         price: 200,
         asset: "cardbg_08"
     },
     {
         id: "bg_stone_path",
-        type: "background",
+        type: "board",
         title: "Stone Path",
         price: 200,
         asset: "cardbg_09"
     },
     {
         id: "bg_water_path",
-        type: "background",
+        type: "board",
         title: "Water Path",
         price: 200,
         asset: "cardbg_10"
