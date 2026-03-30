@@ -157,7 +157,7 @@ export default class GhostController
             this.scene.highlightCell.setFillStyle(0x000000, 0)
             this.scene.highlightCell.setBlendMode(Phaser.BlendModes.ADD);
 
-            (this.scene.ghostCard as any).setAlpha(0.5)
+            (this.scene.ghostCard as any).setAlpha(1)
         }
 
         if(this.scene.pathPreview)
