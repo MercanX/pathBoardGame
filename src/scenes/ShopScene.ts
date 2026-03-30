@@ -130,6 +130,9 @@ export default class ShopScene extends Phaser.Scene
 
                 const owned = PlayerService.hasItem(ui.id)
 
+                // her tur başta sıfırla
+                ui.border.setAlpha(0)
+
                 if(!owned)
                 {
                     const item = ShopData.find(i => i.id === ui.id)
@@ -137,28 +140,31 @@ export default class ShopScene extends Phaser.Scene
                     ui.priceText.setText(`${item?.price ?? 0}G`)
                     ui.priceText.setColor("#ffffff")
                     ui.img.setTint(0x777777)
-                    ui.border.setAlpha(selectedItem && selectedItem.id === ui.id ? 1 : 0)
+
+                    if(selectedItem && selectedItem.id === ui.id)
+                    {
+                        ui.border.setAlpha(1)
+                    }
+
                     return
                 }
 
                 ui.img.clearTint()
 
                 const isEquipped =
-                    //(ui.type === "path" && ui.id === currentPlayer.equippedPath) ||
-                    (ui.type === "board" && ui.id === currentPlayer.equippedBoard)
+                    ui.type === "board" &&
+                    ui.id === currentPlayer.equippedBoard
 
                 if(isEquipped)
                 {
                     ui.priceText.setText("EQUIPPED")
                     ui.priceText.setColor("#00ffcc")
                     ui.border.setAlpha(1)
+                    return
                 }
-                else
-                {
-                    ui.priceText.setText("OWNED")
-                    ui.priceText.setColor("#00ff99")
-                    ui.border.setAlpha(selectedItem && selectedItem.id === ui.id ? 1 : 0)
-                }
+
+                ui.priceText.setText("OWNED")
+                ui.priceText.setColor("#00ff99")
             })
 
         }
@@ -229,40 +235,33 @@ export default class ShopScene extends Phaser.Scene
                     priceText
                 })
 
-                const isEquipped =
-                    //(item.type === "path" && item.id === player.equippedPath) ||
-                    (item.type === "board" && item.id === player.equippedBoard)
-
-                if(isEquipped)
-                {
-                    priceText.setText("EQUIPPED")
-                    priceText.setColor("#00ffcc")
-                    border.setAlpha(1)
-                }
 
                 img.on("pointerdown", () => {
 
                     SoundService.play("click")
 
+                    // 👉 önce owned kontrol
+                    if(PlayerService.hasItem(item.id))
+                    {
+                        // SELECT YOK
+                        selectedItem = null
+
+                        clearAllBorders()
+
+                        if(item.type === "board")
+                            PlayerService.equipBoard(item.id)
+
+                        refreshUI()
+                        return
+                    }
+
+                    // 👉 sadece satın alınmamışsa select
                     selectedItem = item
 
                     clearAllBorders()
                     border.setAlpha(1)
 
-                    if(PlayerService.hasItem(item.id))
-                    {
-                        if(item.type === "path")
-                        {
-                            PlayerService.equipPath(item.id)
-                        }
-
-                        if(item.type === "board")
-                        {
-                            PlayerService.equipBoard(item.id)
-                        }
-                    }
-
-                    refreshUI()
+                
                 })
             })
         }
