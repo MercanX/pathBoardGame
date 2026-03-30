@@ -93,6 +93,61 @@ export const GameConfig =
             "card_57",
 
 
+        ],
+
+        balance:
+        [
+            "card_02",
+            "card_03",
+            "card_04",
+            "card_05",
+            "card_07",
+            "card_08",
+            "card_10",
+            "card_11",
+            "card_15",
+            "card_20",
+            "card_21",
+            "card_25",
+            "card_26",
+            "card_27",
+            "card_30",
+            "card_32",
+            "card_33",
+            "card_36",
+            "card_37",
+            "card_39",
+            "card_41",
+            "card_44",
+            "card_46",
+            "card_51",
+            "card_55",
+            "card_56",
+            "card_57",
+            "card_61"
+        ],
+        old:
+        [
+            "card_04",
+            "card_07",
+            "card_08",
+            "card_11",
+            "card_25",
+            "card_27",
+            "card_30",
+            "card_32",
+            "card_33",
+            "card_36",
+            "card_37",
+            "card_39",
+            "card_41",
+            "card_44",
+            "card_46",
+            "card_51",
+            "card_55",
+            "card_56",
+            "card_57",
+            "card_61"
         ]
     }
 
