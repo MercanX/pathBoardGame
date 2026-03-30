@@ -120,7 +120,8 @@ export default class ShopScene extends Phaser.Scene
             // EQUIPPED STATE
             if(
                 (item.type === "avatar" && item.id === player.equippedAvatar) ||
-                (item.type === "path" && item.id === player.equippedPath)
+                (item.type === "path" && item.id === player.equippedPath) ||
+                (item.type === "background" && item.id === player.equippedBackground)
             )
             {
                 priceText.setText("EQUIPPED")
@@ -153,6 +154,10 @@ export default class ShopScene extends Phaser.Scene
 
                     if(item.type === "path")
                         PlayerService.equipPath(item.id)
+
+                    if(item.type === "background")
+                        PlayerService.equipBackground(item.id)
+
 
                     refreshUI()
 
@@ -190,7 +195,8 @@ export default class ShopScene extends Phaser.Scene
                 // sahip ama seçili mi?
                 if(
                     (ui.type === "avatar" && ui.id === player.equippedAvatar) ||
-                    (ui.type === "path" && ui.id === player.equippedPath)
+                    (ui.type === "path" && ui.id === player.equippedPath) ||
+                    (ui.type === "background" && ui.id === player.equippedBackground)
                 )
                 {
                     ui.priceText.setText("EQUIPPED")
