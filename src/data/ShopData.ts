@@ -18,51 +18,9 @@ export type ShopItem =
 
 export const ShopData: ShopItem[] =
 [
-    // =========================
-    // AVATARS
-    // =========================
-    {
-        id: "avatar_1",
-        type: "avatar",
-        title: "Avatar 01",
-        price: 0,
-        asset: "avatar_1"
-    },
-    {
-        id: "avatar_2",
-        type: "avatar",
-        title: "Avatar 02",
-        price: 200,
-        asset: "avatar_2"
-    },
-    {
-        id: "avatar_3",
-        type: "avatar",
-        title: "Avatar 03",
-        price: 300,
-        asset: "avatar_3"
-    },
-    {
-        id: "avatar_4",
-        type: "avatar",
-        title: "Avatar 04",
-        price: 400,
-        asset: "avatar_4"
-    },
-    {
-        id: "avatar_5",
-        type: "avatar",
-        title: "Avatar 05",
-        price: 500,
-        asset: "avatar_5"
-    },
-    {
-        id: "avatar_6",
-        type: "avatar",
-        title: "Avatar 06",
-        price: 600,
-        asset: "avatar_6"
-    },
+
+
+    
 
     // =========================
     // PATH COLORS

@@ -17,10 +17,12 @@ export type PlayerProfile =
     losses: number
     gold: number
 
-    ownedItems: string[]        // ✅ sahip olunanlar
-    equippedAvatar: string      // ✅ aktif avatar
-    equippedPath: string        // ✅ aktif path
+    ownedItems: string[]
+    equippedAvatar: string
+    equippedPath: string
     equippedBackground: string
+
+    equippedBoard: string // ✅ YENİ
 }
 
 const STORAGE_KEY = "game_player_profile"
@@ -57,7 +59,9 @@ class PlayerServiceClass
 
                     equippedPath: parsed.equippedPath ?? "path_blue",
 
-                    equippedBackground: parsed.equippedBackground ?? "cardbg_01"
+
+                    equippedBackground: parsed.equippedBackground ?? "cardbg_01",
+                    equippedBoard: parsed.equippedBoard ?? parsed.equippedBackground ?? "bg_autumn_dirt"
                 }
 
 
@@ -76,7 +80,8 @@ class PlayerServiceClass
                     ownedItems: ["avatar_1"],
                     equippedAvatar: "avatar_1",
                     equippedPath: "path_blue",
-                    equippedBackground: "bg_autumn_dirt"
+                    equippedBackground: "bg_autumn_dirt",
+                    equippedBoard: "bg_autumn_dirt",
                 }
 
 
@@ -97,7 +102,8 @@ class PlayerServiceClass
                 ownedItems: ["avatar_1"],
                 equippedAvatar: "avatar_1",
                 equippedPath: "path_blue",
-                equippedBackground: "bg_autumn_dirt"
+                equippedBackground: "bg_autumn_dirt",
+                equippedBoard: "bg_autumn_dirt",
             }
         }
     }
@@ -202,6 +208,19 @@ class PlayerServiceClass
 
 
     // =========================
+    // EQUIP BOARD
+    // =========================
+    equipBoard(id: string)
+    {
+        this.player.equippedBoard = id
+
+        // eski sistemle uyumluluk için (geçici)
+        this.player.equippedBackground = id
+
+        this.save()
+    }
+
+    // =========================
     // BUY ITEM
     // =========================
     buyItem(item: { id: string, price: number }): boolean
@@ -239,6 +258,7 @@ class PlayerServiceClass
         if(item.id.startsWith("bg_"))
         {
             this.player.equippedBackground = item.id
+            this.player.equippedBoard = item.id
         }
 
 
@@ -263,7 +283,8 @@ class PlayerServiceClass
             ownedItems: ["avatar_1"],
             equippedAvatar: "avatar_1",
             equippedPath: "path_blue",
-            equippedBackground: "bg_autumn_dirt"
+            equippedBackground: "bg_autumn_dirt",
+            equippedBoard: "bg_autumn_dirt",
         }
 
         this.save()
