@@ -285,6 +285,109 @@ export default class SettingsScene extends Phaser.Scene
             })
         })
 
+// =========================
+// NAME EDIT (FIXED)
+// =========================
+
+// LABEL
+const nameLabel = this.add.text(width / 2, height - 250, "PLAYER NAME", {
+    fontFamily: "Orbitron",
+    fontSize: "28px",
+    color: "#ffaa00",
+    fontStyle: "bold"
+}).setOrigin(0.5)
+
+// EDIT ICON
+const editIcon = this.add.text(width / 2 + 150, height - 190, "✎", {
+    fontFamily: "Arial",
+    fontSize: "38px",
+    color: "#ffaa00",
+    fontStyle: "bold"
+})
+.setOrigin(0.5)
+.setInteractive()
+
+// ⚠️ addButtonEffects kaldırıyoruz (text için yazılmamış)
+
+// NAME TEXT
+const nameText = this.add.text(width / 2, height - 190, player.name, {
+    fontFamily: "Orbitron",
+    fontSize: "42px",
+    color: "#ffffff",
+    fontStyle: "bold",
+    backgroundColor: "#00000088",
+    padding: { x: 20, y: 10 }
+}).setOrigin(0.5)
+
+
+// =========================
+// DOM INPUT (DOĞRU KULLANIM)
+// =========================
+const inputElement = document.createElement("input")
+
+inputElement.type = "text"
+inputElement.value = player.name
+inputElement.maxLength = 16
+
+inputElement.style.width = "300px"
+inputElement.style.height = "60px"
+inputElement.style.fontSize = "32px"
+inputElement.style.fontFamily = "Orbitron"
+inputElement.style.textAlign = "center"
+inputElement.style.backgroundColor = "#222"
+inputElement.style.color = "#fff"
+inputElement.style.border = "3px solid #ffaa00"
+inputElement.style.borderRadius = "8px"
+inputElement.style.outline = "none"
+
+// Phaser içine bağla
+const nameInput = this.add.dom(width / 2, height - 190, inputElement)
+nameInput.setVisible(false)
+
+
+// =========================
+// EDIT CLICK
+// =========================
+editIcon.on("pointerdown", () => {
+
+    SoundService.play("click")
+
+    nameText.setVisible(false)
+    nameInput.setVisible(true)
+
+    inputElement.focus()
+    inputElement.select()
+})
+
+
+// =========================
+// BLUR (EN KRİTİK FIX)
+// =========================
+inputElement.addEventListener("blur", () => {
+
+    const newName = inputElement.value.trim()
+
+    if(newName.length > 0)
+    {
+        PlayerService.update({ name: newName })
+        nameText.setText(newName)
+    }
+
+    nameText.setVisible(true)
+    nameInput.setVisible(false)
+})
+
+
+// =========================
+// ENTER
+// =========================
+inputElement.addEventListener("keydown", (e) => {
+
+    if(e.key === "Enter")
+    {
+        inputElement.blur()
+    }
+})
 
 
     }

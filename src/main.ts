@@ -7,7 +7,9 @@ import GameScene from "./scenes/GameScene"
 import SettingsScene from "./scenes/SettingsScene"
 import ShopScene from "./scenes/ShopScene"
 
-// 🔥 BURAYA (config DIŞINA)
+// =========================
+// RESPONSIVE CALC
+// =========================
 const baseW = 1080
 const baseH = 1920
 
@@ -23,12 +25,19 @@ if (deviceRatio > baseRatio) {
     newW = baseH / deviceRatio
 }
 
-// 🔥 CONFIG
+// =========================
+// CONFIG
+// =========================
 const config: Phaser.Types.Core.GameConfig = {
 
     type: Phaser.AUTO,
     parent: "game",
     backgroundColor: "#1d1d1d",
+
+    // 🔥 DOM ŞART (INPUT İÇİN)
+    dom: {
+        createContainer: true
+    },
 
     scale: {
         mode: Phaser.Scale.FIT,
@@ -36,6 +45,11 @@ const config: Phaser.Types.Core.GameConfig = {
 
         width: newW,
         height: newH
+    },
+
+    // 🔥 MOBİL PERFORMANS + INPUT FIX
+    input: {
+        activePointers: 3
     },
 
     scene: [
