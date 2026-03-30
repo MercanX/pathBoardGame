@@ -100,7 +100,7 @@ export default class CellView
         this.bgSprite = this.scene.add.image(
             this.px + (this.size / 2),
             this.py + (this.size / 2),
-            getItemAssetById(PlayerService.get().equippedBackground) || "cardbg_01"
+            getItemAssetById(PlayerService.get().equippedBoard) || "cardbg_01"
         )
 
         this.bgSprite.setDisplaySize(

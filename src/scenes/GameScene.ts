@@ -106,6 +106,12 @@ export default class GameScene extends Phaser.Scene
 
     set pathPreview(value: Phaser.GameObjects.Graphics | undefined)
     {
+        // 🔥 eski çizimi sil
+        if(this.ghost.preview)
+        {
+            this.ghost.preview.destroy()
+        }
+
         this.ghost.preview = value
     }
 
