@@ -53,18 +53,21 @@ export default class MainMenuScene extends Phaser.Scene
         
         const { width, height } = this.scale
 
-        const baseW = 1080
-        const baseH = 1920
+        const baseW = GameConfig.BASEW
+        const baseH = GameConfig.BASEH
 
         const scaleX = width / baseW
         const scaleY = height / baseH
+
+        const centerX = width / 2
+        const centerY = height / 2
 
         const iconW = 250
 
         // ======================
         // BACKGROUND
         // ======================
-        const bg = this.add.image(width/2, height/2, "menu_bg")
+        const bg = this.add.image(centerX, height/2, "menu_bg")
         //bg.setDisplaySize(width * 1.2, height * 1.2)
         const scaleX_bg = width / bg.width
         const scaleY_bg = height / bg.height
@@ -120,25 +123,25 @@ export default class MainMenuScene extends Phaser.Scene
         // ======================
         // TITLE
         // ======================
-        const title = this.add.image(width/2, (height / 2) - (400 * scaleY), "title")
+        const title = this.add.image(centerX, centerY - (350 * scaleY), "title")
 
         // ======================
         // BUTTONS
         // ======================
 
-        //const btnMultiplayer = this.add.image(width/2, 666 * scaleY, "btn_arena")
-        const btnArena = this.add.image(width/2, (height / 2) * scaleY, "btn_arena")
-        //const btnPlayfriend  = this.add.image(width/2, 933* scaleY, "btn_playfriend")
+        //const btnMultiplayer = this.add.image(centerX, 666 * scaleY, "btn_arena")
+        const btnArena = this.add.image(centerX, centerY, "btn_arena")
+        //const btnPlayfriend  = this.add.image(centerX, 933* scaleY, "btn_playfriend")
 
-        const btnSettings = this.add.image(width/2 - iconW, (height / 2) + (350 * scaleY), "btn_settings")
-        const btn_sound   = this.add.image(width/2, (height / 2) + (350 * scaleY), "btn_sound")
-        const btn_shop    = this.add.image(width/2 + iconW, (height / 2) + (350 * scaleY), "btn_shop")
+        const btnSettings = this.add.image(centerX - iconW, centerY + (350 * scaleY), "btn_settings")
+        //const btn_sound   = this.add.image(centerX, centerY + (350 * scaleY), "btn_sound")
+        const btn_shop    = this.add.image(centerX + iconW, centerY + (350 * scaleY), "btn_shop")
 
         // ======================
         // SCALE
         // ======================
         btnSettings.setScale(0.5)
-        btn_sound.setScale(0.5)
+        //btn_sound.setScale(0.5)
         btn_shop.setScale(0.5)
 
         // ======================
@@ -147,12 +150,13 @@ export default class MainMenuScene extends Phaser.Scene
         btnArena.setInteractive({ useHandCursor: true })
        // btnPlayfriend.setInteractive({ useHandCursor: true })
         btnSettings.setInteractive({ useHandCursor: true })
-        btn_sound.setInteractive({ useHandCursor: true })
+        //btn_sound.setInteractive({ useHandCursor: true })
         btn_shop.setInteractive({ useHandCursor: true })
 
         //const buttons = [btnMultiplayer, btnPlayfriend]
         const buttons = [btnArena]
-        const buttons02 = [btnSettings, btn_sound, btn_shop]
+        const buttons02 = [btnSettings, //btn_sound,
+         btn_shop]
 
         // ======================
         // SECONDARY BUTTON EFFECTS

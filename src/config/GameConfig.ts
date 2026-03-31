@@ -19,6 +19,9 @@
 
 export const GameConfig =
 {
+    BASEW: 1080,
+    BASEH: 1920,
+
     BOT_THINK_MIN: 1907,
     BOT_THINK_MID: 2907,
     BOT_THINK_MAX: 6123,
