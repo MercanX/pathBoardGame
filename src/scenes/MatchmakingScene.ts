@@ -309,6 +309,34 @@ showVSIntro()
 
     const playerData = PlayerService.get()
 
+
+    const createPlayerInfo = (x: number, y: number, data: any) =>
+    {
+        this.add.text(x, y, data.name, {
+            fontSize: "52px",
+            fontStyle: "bold",
+            color: "#ffffff",
+            stroke: "#000",
+            strokeThickness: 4
+        }).setOrigin(0.5).setDepth(230)
+
+        this.add.text(x, y + 40, "Rating: " + data.rating, {
+            fontSize: "44px",
+            fontStyle: "bold",
+            color: "#ffffff",
+            stroke: "#000",
+            strokeThickness: 4
+        }).setOrigin(0.5).setDepth(230)
+
+        this.add.text(x, y + 80, `${data.wins}W - ${data.losses}L`, {
+            fontSize: "44px",
+            fontStyle: "bold",
+            color: "#ffffff",
+            stroke: "#000",
+            strokeThickness: 4
+        }).setOrigin(0.5).setDepth(230)
+    }
+
     // =========================
     // BACKGROUND IMAGE (VS BG)
     // =========================
@@ -357,62 +385,13 @@ showVSIntro()
     // =========================
     // PLAYER INFO
     // =========================
-    this.add.text(
-        width / 2 - 250,
-        height / 2 + 120,
-        playerData.name,
-        { fontSize: "52px", fontStyle: "bold", color: "#ffffff", stroke: "#000", strokeThickness: 4 }
-    )
-    .setOrigin(0.5)
-    .setDepth(230)
 
-    this.add.text(
-        width / 2 - 250,
-        height / 2 + 160,
-        "Rating: " + playerData.rating,
-        { fontSize: "48px", fontStyle: "bold", color: "#ffffff", stroke: "#000", strokeThickness: 4 }
-    )
-    .setOrigin(0.5)
-    .setDepth(230)
-
-    this.add.text(
-        width / 2 - 250,
-        height / 2 + 200,
-        `${playerData.wins}W - ${playerData.losses}L`,
-        { fontSize: "48px", fontStyle: "bold", color: "#ffffff", stroke: "#000", strokeThickness: 4 }
-    )
-    .setOrigin(0.5)
-    .setDepth(230)
+    createPlayerInfo(width / 2 - 250, height / 2 + 120, playerData)
 
     // =========================
     // BOT INFO
     // =========================
-    this.add.text(
-        width / 2 + 250,
-        height / 2 + 120,
-        this.selectedBot.name,
-        { fontSize: "52px", fontStyle: "bold", color: "#ffffff", stroke: "#000", strokeThickness: 4 }
-    )
-    .setOrigin(0.5)
-    .setDepth(230)
-
-    this.add.text(
-        width / 2 + 250,
-        height / 2 + 160,
-        "Rating: " + this.selectedBot.rating,
-        { fontSize: "48px", fontStyle: "bold", color: "#ffffff", stroke: "#000", strokeThickness: 4 }
-    )
-    .setOrigin(0.5)
-    .setDepth(230)
-
-    this.add.text(
-        width / 2 + 250,
-        height / 2 + 200,
-        `${this.selectedBot.wins}W - ${this.selectedBot.losses}L`,
-        { fontSize: "48px", fontStyle: "bold", color: "#ffffff", stroke: "#000", strokeThickness: 4 }
-    )
-    .setOrigin(0.5)
-    .setDepth(230)
+    createPlayerInfo(width / 2 + 250, height / 2 + 120, this.selectedBot)
 
     // =========================
     // VS IMAGE
