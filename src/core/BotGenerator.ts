@@ -1,12 +1,12 @@
 /**
- * File: src/core/Generator.ts
+ * File: src/core/BotGenerator.ts
  * Purpose:
- * - Player'a göre dinamik  üretir
+ * - Player'a göre dinamik bot üretir
  */
 
 import { PlayerService } from "./PlayerService"
 
-export type Generated =
+export type GeneratedBot =
 {
     name: string
     rating: number
@@ -16,7 +16,7 @@ export type Generated =
     difficulty: "easy" | "normal" | "hard" | "ultra"
 }
 
-const Names: string[] =
+const BotNames: string[] =
 [
     "ShadowX","DarkNova","HexaMind","ZeroPulse","NightByte","CyberWolf","Ghost","QuantumX","NeuroEdge","OmegaCore",
     "AlphaStrike","Iron","PixelHunter","NovaStorm","BrnHack","VoidRunner","StormByte","LunaCore","SteelMind","Hyper",
@@ -24,13 +24,12 @@ const Names: string[] =
     "Zenith","PulseRider","MegaBrn","CodeHunter","Titan","Flux","NebulaX","RapidMind","CyberKnight","Ultra",
     "DarkPulse","NovaHunter","CoreBreaker","BitStorm","OmegaMind","Silent","Vector","NeonCore","WarpMind","Prime"
 ]
-
-export function generate(): Generated
+export function generateBot(): GeneratedBot
 {
     const player = PlayerService.get()
 
     const name =
-        Names[Math.floor(Math.random() * Names.length)]
+        BotNames[Math.floor(Math.random() * BotNames.length)]
 
     // 🎯 player’a yakın rating
     const ratingOffset = Math.floor(Math.random() * 200) - 100
@@ -81,7 +80,7 @@ export function generate(): Generated
 
 
     // difficulty mapping
-    let difficulty: Generated["difficulty"] = "normal"
+    let difficulty: GeneratedBot["difficulty"] = "normal"
 
     /*
     if(rating < 1100) difficulty = "easy"
