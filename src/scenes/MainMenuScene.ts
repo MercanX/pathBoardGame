@@ -91,35 +91,34 @@ export default class MainMenuScene extends Phaser.Scene
 
 
 
-        this.add.text(230 * scaleX, 100 * scaleY, player.name, {
+        this.add.text(230 * scaleX, 100 * scaleY -20, player.name, {
             fontFamily: "Orbitron",
-            fontSize: "49px",
+            fontSize: "59px",
             color: "#ffffff",
             fontStyle: "bold",
              stroke: "#000000",
             strokeThickness: 4
         })
-        .setDepth(10)
 
 
-        const goldText = this.add.text(width - (120 * scaleX), 100 * scaleY, `${player.gold}`, {
+
+        const goldText = this.add.text(width - (120 * scaleX) - 150, 100 * scaleY - 20, `${player.gold}`, {
             fontFamily: "Orbitron",
-            fontSize: "49px",
+            fontSize: "69px",
             color: "#FFD700",
             fontStyle: "bold",
             stroke: "#000000",
             strokeThickness: 4
         })
 
-        .setOrigin(1, 0.5)
-        .setDepth(10)
 
-        this.add.text(width - (120 * scaleX), 140 * scaleY, "GOLD", {
-            fontFamily: "Cinzel",
-            fontSize: "24px",
+
+        this.add.text(width - (120 * scaleX) - 140, 140 * scaleY  + 15, "GOLD", {
+            fontFamily: "Orbitron",
+            fontSize: "31px",
             fontStyle: "bold",
             color: "#ffffff"
-        }).setOrigin(1, 0.5)
+        })
 
         // ======================
         // BUTTONS
