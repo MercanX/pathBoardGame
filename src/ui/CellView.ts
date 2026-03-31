@@ -11,8 +11,8 @@ import Phaser from "phaser"
 import { Port } from "../data/CardData"
 import { rotatePort } from "../core/CardEngine"
 import { GameConfig } from "../config/GameConfig"
-import { PlayerService } from "../core/PlayerService"
 import { getItemAssetById } from "../data/ShopData"
+import { PlayerState } from "../core/GameState"
 
 export default class CellView
 {
@@ -27,6 +27,8 @@ export default class CellView
     rect: Phaser.GameObjects.Rectangle
     cardSprite?: Phaser.GameObjects.Image
     bgSprite?: Phaser.GameObjects.Image
+
+    
 
     px: number
     py: number
@@ -107,7 +109,7 @@ export default class CellView
 
             if(state)
             {
-                const player = state.players.find(p => p.id === ownerPlayerId)
+                const player = state.players.find((p: PlayerState) => p.id === ownerPlayerId)
 
                 if(player?.equippedBoard)
                 {
