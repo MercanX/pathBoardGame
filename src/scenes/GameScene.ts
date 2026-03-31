@@ -200,8 +200,8 @@ export default class GameScene extends Phaser.Scene
         this.load.image("ui_lost", "assets/ui/lost.png")
 
         this.load.image("ui_confirm_bg", "assets/ui/quit.png")
-        this.load.image("btn_yes", "assets/ui/btn_home.png")
-        this.load.image("btn_no", "assets/ui/btn_exit.png")
+        this.load.image("btn_yes", "assets/ui/btn_yes.png")
+        this.load.image("btn_no", "assets/ui/btn_no.png")
 
 
         /*
@@ -510,16 +510,19 @@ export default class GameScene extends Phaser.Scene
         // ======================
         // GOLD UI
         // ======================
-        const goldIcon = this.add.image(width - 120, 90, "gold_icon")
-        goldIcon.setScale(0.5)
+        /*
+        const goldIcon = this.add.image(width / 2 + 50, 90, "gold_icon")
+        goldIcon.setScale(0.3)
+        */
 
-        this.goldText = this.add.text(width - 70, 90, "0", {
-            fontFamily: "Arial",
-            fontSize: "32px",
+        this.goldText = this.add.text(width / 2 , 40, "0", {
+            fontFamily: "Orbitron",
+            fontSize: "69px",
             color: "#FFD700",
+            fontStyle: "bold",
             stroke: "#000000",
             strokeThickness: 4
-        }).setOrigin(0, 0.5)
+        })
    
         this.goldText.setText(PlayerService.get().gold.toString())
 
@@ -534,7 +537,8 @@ export default class GameScene extends Phaser.Scene
         boardFrame.setStrokeStyle(2, 0x3a4654)
         boardFrame.setFillStyle(0x111827, 0.15)
 
-        this.uiLayer.add([goldIcon, this.goldText, boardFrame])
+        //this.uiLayer.add([goldIcon, this.goldText, boardFrame])
+        this.uiLayer.add([this.goldText, boardFrame])
     }
 
     setupInput()
