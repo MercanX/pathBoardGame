@@ -113,12 +113,14 @@ export default class MainMenuScene extends Phaser.Scene
 
 
 
+        /*
         this.add.text(width - (120 * scaleX) - 140, 140 * scaleY  + 15, "GOLD", {
             fontFamily: "Orbitron",
             fontSize: "31px",
             fontStyle: "bold",
             color: "#ffffff"
         })
+        */
 
         // ======================
         // BUTTONS
