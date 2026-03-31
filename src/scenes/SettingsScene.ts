@@ -80,7 +80,7 @@ export default class SettingsScene extends Phaser.Scene
 
         const soundBtn = this.add.image(
             width/2 - 150,
-            height/2 - 200,
+            height/2 - 150,
             soundOn ? "btn_sound_on" : "btn_sound_off"
         )
         .setScale(0.5)
@@ -113,7 +113,7 @@ export default class SettingsScene extends Phaser.Scene
 
         const musicBtn = this.add.image(
             width/2 + 150,
-            height/2 - 200,
+            height/2 - 150,
             musicOn ? "btn_music_on" : "btn_music_off"
         )
         .setScale(0.5)
@@ -151,7 +151,7 @@ export default class SettingsScene extends Phaser.Scene
         const barHeight = 70
 
         const barX = width/2 - 10
-        const barY = height/2 - 40
+        const barY = height/2 - 20
 
         const minX = barX - barWidth/2
         const maxX = barX + barWidth/2
@@ -230,7 +230,7 @@ export default class SettingsScene extends Phaser.Scene
         const gap = 10
 
         const startX = width/2 - ((cols * size + (cols - 1) * gap) / 2) + 100
-        const startY = height/2 + 125
+        const startY = height/2 + 150
 
         avatars.forEach((key, index) => {
 
@@ -285,109 +285,114 @@ export default class SettingsScene extends Phaser.Scene
             })
         })
 
-// =========================
-// NAME EDIT (FIXED)
-// =========================
-
-// LABEL
-const nameLabel = this.add.text(width / 2, height - 250, "PLAYER NAME", {
-    fontFamily: "Orbitron",
-    fontSize: "28px",
-    color: "#ffaa00",
-    fontStyle: "bold"
-}).setOrigin(0.5)
-
-// EDIT ICON
-const editIcon = this.add.text(width / 2 + 150, height - 190, "✎", {
-    fontFamily: "Arial",
-    fontSize: "38px",
-    color: "#ffaa00",
-    fontStyle: "bold"
-})
-.setOrigin(0.5)
-.setInteractive()
-
-// ⚠️ addButtonEffects kaldırıyoruz (text için yazılmamış)
-
-// NAME TEXT
-const nameText = this.add.text(width / 2, height - 190, player.name, {
-    fontFamily: "Orbitron",
-    fontSize: "42px",
-    color: "#ffffff",
-    fontStyle: "bold",
-    backgroundColor: "#00000088",
-    padding: { x: 20, y: 10 }
-}).setOrigin(0.5)
+        // =========================
+        // NAME EDIT (FIXED)
+        // =========================
 
 
-// =========================
-// DOM INPUT (DOĞRU KULLANIM)
-// =========================
-const inputElement = document.createElement("input")
-
-inputElement.type = "text"
-inputElement.value = player.name
-inputElement.maxLength = 16
-
-inputElement.style.width = "300px"
-inputElement.style.height = "60px"
-inputElement.style.fontSize = "32px"
-inputElement.style.fontFamily = "Orbitron"
-inputElement.style.textAlign = "center"
-inputElement.style.backgroundColor = "#222"
-inputElement.style.color = "#fff"
-inputElement.style.border = "3px solid #ffaa00"
-inputElement.style.borderRadius = "8px"
-inputElement.style.outline = "none"
-
-// Phaser içine bağla
-const nameInput = this.add.dom(width / 2, height - 190, inputElement)
-nameInput.setVisible(false)
+        // NAME TEXT
+        const nameText = this.add.text(width / 2, height / 2 - 290, player.name, {
+            fontFamily: "Orbitron",
+            fontSize: "42px",
+            color: "#ffffff",
+            fontStyle: "bold",
+            backgroundColor: "#00000088",
+            padding: { x: 20, y: 10 }
+        }).setOrigin(0.5)
 
 
-// =========================
-// EDIT CLICK
-// =========================
-editIcon.on("pointerdown", () => {
+        // =========================
+        // DOM INPUT (DOĞRU KULLANIM)
+        // =========================
+        const inputElement = document.createElement("input")
 
-    SoundService.play("click")
+        inputElement.type = "text"
+        inputElement.value = player.name
+        inputElement.maxLength = 12
 
-    nameText.setVisible(false)
-    nameInput.setVisible(true)
+        inputElement.style.width = "400px"
+        inputElement.style.height = "60px"
+        inputElement.style.fontSize = "32px"
+        inputElement.style.fontFamily = "Orbitron"
+        inputElement.style.textAlign = "center"
+        inputElement.style.backgroundColor = "#222"
+        inputElement.style.color = "#fff"
+        inputElement.style.border = "3px solid #ffaa00"
+        inputElement.style.borderRadius = "8px"
+        inputElement.style.outline = "none"
 
-    inputElement.focus()
-    inputElement.select()
-})
-
-
-// =========================
-// BLUR (EN KRİTİK FIX)
-// =========================
-inputElement.addEventListener("blur", () => {
-
-    const newName = inputElement.value.trim()
-
-    if(newName.length > 0)
-    {
-        PlayerService.update({ name: newName })
-        nameText.setText(newName)
-    }
-
-    nameText.setVisible(true)
-    nameInput.setVisible(false)
-})
+        // Phaser içine bağla
+        const nameInput = this.add.dom(width / 2, height / 2 - 290, inputElement)
+        nameInput.setVisible(false)
 
 
-// =========================
-// ENTER
-// =========================
-inputElement.addEventListener("keydown", (e) => {
+        // =========================
+        // EDIT CLICK
+        // =========================
+        nameText.setInteractive()
+        nameText.on("pointerdown", () => {
 
-    if(e.key === "Enter")
-    {
-        inputElement.blur()
-    }
-})
+            SoundService.play("click")
+
+            nameText.setVisible(false)
+            nameInput.setVisible(true)
+
+            inputElement.focus()
+            inputElement.select()
+        })
+
+
+
+        this.input.on("pointerdown", (pointer: any) => {
+
+            if(!nameInput.visible) return
+
+            const bounds = inputElement.getBoundingClientRect()
+
+            const x = pointer.x
+            const y = pointer.y
+
+            const inside =
+                x >= bounds.left &&
+                x <= bounds.right &&
+                y >= bounds.top &&
+                y <= bounds.bottom
+
+            // 👉 input dışına tıklanırsa
+            if(!inside)
+            {
+                inputElement.blur()
+            }
+        })
+
+        // =========================
+        // BLUR (EN KRİTİK FIX)
+        // =========================
+        inputElement.addEventListener("blur", () => {
+
+            const newName = inputElement.value.trim()
+
+            if(newName.length > 0)
+            {
+                PlayerService.update({ name: newName })
+                nameText.setText(newName)
+            }
+
+            nameText.setVisible(true)
+            nameInput.setVisible(false)
+        })
+
+
+        // =========================
+        // ENTER
+        // =========================
+        inputElement.addEventListener("keydown", (e) => {
+
+            if(e.key === "Enter")
+            {
+                inputElement.blur()
+            }
+        })
 
 
     }
