@@ -30,7 +30,6 @@ export default class ShopScene extends Phaser.Scene
     preload()
     {
         this.load.image("settings_bg", "assets/ui/settings_bg.png")
-        this.load.image("btn_home", "assets/ui/btn_home.png")
     }
 
     create()
@@ -53,7 +52,7 @@ export default class ShopScene extends Phaser.Scene
         // PANEL (SettingsScene style)
         // =========================
         const panel = this.add.image(width / 2, height / 2, "settings_bg")
-        panel.setScale(0.9)
+        panel.setScale(1)
 
         // =========================
         // HOME BUTTON (SettingsScene style)
@@ -79,7 +78,7 @@ export default class ShopScene extends Phaser.Scene
         // GOLD UI
         // =========================
 
-        const goldText = this.add.text(width / 2, 335, `${player.gold}`, {
+        const goldText = this.add.text(width / 2, 300, `${player.gold}`, {
             fontFamily: "Orbitron",
             fontSize: "70px",
             color: "#FFD700",
@@ -103,7 +102,7 @@ export default class ShopScene extends Phaser.Scene
 
         const startX = width / 2 - ((cols * size + (cols - 1) * gap) / 2) + (size / 2)
         //const pathStartY = 450
-        const boardStartY = 800
+        const boardStartY = height / 2 - 150
 
         // =========================
         // SECTION TITLES
@@ -274,7 +273,7 @@ export default class ShopScene extends Phaser.Scene
 // =========================
 const buyBtn = this.add.image(
     width / 2 - 150,
-    height - 350,
+    height - 450,
     "btn_buy" // 👉 bunu değiştirirsin
 )
 .setScale(0.5)
@@ -330,7 +329,7 @@ buyBtn.on("pointerdown", () => {
 // =========================
 const resetBtn = this.add.image(
     width / 2 + 150,
-    height - 350,
+    height - 450,
     "btn_reset" // 👉 bunu değiştirirsin
 )
 .setScale(0.5)
