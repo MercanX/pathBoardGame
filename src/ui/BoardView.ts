@@ -131,7 +131,6 @@ render(nextCell?: {x:number,y:number})
     const state = this.gameEngine.getState()
     if(!state) return
 
-
     for(let y = 0; y < this.boardSize; y++)
     {
         for(let x = 0; x < this.boardSize; x++)
@@ -148,32 +147,51 @@ render(nextCell?: {x:number,y:number})
         console.log(state)
     }
 
-    // 1️⃣ Önce kart sprite'larını çiz
+    // 🔥 OWNER MAP (OPTIMIZED)
+    const cellOwnerMap = new Map<string, number>()
+
+    for(const player of state.players)
+    {
+        const path = tracePlayerPathDetailed(state, player.id)
+
+        for(const step of path)
+        {
+            const key = `${step.x}_${step.y}`
+            cellOwnerMap.set(key, player.id)
+        }
+    }
+
+    // 1️⃣ Kartları çiz
     for(let y = 0; y < this.boardSize; y++)
     {
         for(let x = 0; x < this.boardSize; x++)
         {
             const cellState = board[y][x]
 
+            const key = `${x}_${y}`
+            const ownerId = cellOwnerMap.get(key)
+
             this.cells[y][x].setCard(
                 cellState.cardId,
-                cellState.rotation
+                cellState.rotation,
+                ownerId
             )
         }
     }
 
-
-    // 2️⃣ Tüm oyuncular için path çiz
+    // 2️⃣ Path çiz
     for(const player of state.players)
     {
         const path = tracePlayerPathDetailed(
             state,
             player.id
         )
+
         if(GameConfig.DEBUG)
         {
             console.log("RENDER PATH PLAYER:", player.id, path)
         }
+
         for(const step of path)
         {
             const x = step.x
@@ -188,7 +206,6 @@ render(nextCell?: {x:number,y:number})
             const max = Math.max(step.entry, step.exit)
 
             const cellData = state.board.board[y][x]
-
             if(!cellData.cardId) continue
 
             const color = player.isBot
@@ -204,8 +221,8 @@ render(nextCell?: {x:number,y:number})
             )
         }
     }
-    // 4️⃣ NEXT CELL HIGHLIGHT
 
+    // 4️⃣ NEXT CELL
     if(this.nextCellHighlight)
     {
         this.nextCellHighlight.destroy()

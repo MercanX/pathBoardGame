@@ -17,6 +17,7 @@ export interface PlayerState
     startX:number
     startY:number
     entryPort:number
+    equippedBoard?: string
 }
 
 export interface GameState

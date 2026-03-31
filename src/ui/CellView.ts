@@ -75,7 +75,7 @@ export default class CellView
         this.overlays = []
     }
 
-    setCard(cardId: string | null, rotation: number)
+    setCard(cardId: string | null, rotation: number, ownerPlayerId?: number)
     {
         
         if(this.cardSprite)
@@ -97,10 +97,35 @@ export default class CellView
         }
 
         // 🔥 ZEMİN
+        let bgKey = "cardbg_00"
+
+        // 👤 HUMAN
+        // 🔥 OWNER BASED SKIN (DOĞRU SİSTEM)
+        if(ownerPlayerId !== undefined)
+        {
+            const state = (this.scene as any).gameEngine.getState()
+
+            if(state)
+            {
+                const player = state.players.find(p => p.id === ownerPlayerId)
+
+                if(player?.equippedBoard)
+                {
+                    bgKey = getItemAssetById(player.equippedBoard) || "cardbg_00"
+                }
+            }
+        }
+
+        // fallback
+        if(!ownerPlayerId)
+        {
+            bgKey = "cardbg_00"
+        }
+
         this.bgSprite = this.scene.add.image(
             this.px + (this.size / 2),
             this.py + (this.size / 2),
-            getItemAssetById(PlayerService.get().equippedBoard) || "cardbg_00"
+            bgKey
         )
 
         this.bgSprite.setDisplaySize(

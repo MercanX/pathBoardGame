@@ -53,13 +53,13 @@ export const ShopData: ShopItem[] =
     },
 
     // =========================
-    // BACKGROUNDS
+    // CARD BACKGROUNDS
     // =========================
     {
         id: "bg_blank",
         type: "board",
         title: "Blank Board",
-        price: 200,
+        price: 0,
         asset: "cardbg_00"
     },
     {

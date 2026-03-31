@@ -43,6 +43,7 @@ import { giveCardToPlayer } from "../core/DeckEngine"
 import ChangeCardController from "../controllers/ChangeCardController"
 import { GameConfig } from "../config/GameConfig"
 import RewardService from "../services/RewardService"
+import { ShopData } from "../data/ShopData"
 
 export default class GameScene extends Phaser.Scene
 {
@@ -310,6 +311,12 @@ export default class GameScene extends Phaser.Scene
     initGame()
     {
 
+        const boardItems = ShopData.filter(i => i.type === "board")
+
+        const randomBoard =
+            boardItems[Math.floor(Math.random() * boardItems.length)]?.id || "bg_blank"
+
+
         const players: PlayerState[] =
         [
             {
@@ -319,17 +326,19 @@ export default class GameScene extends Phaser.Scene
                 isBot: false,
                 startX: 0,
                 startY: this.boardSize-1,
-                entryPort: 6
+                entryPort: 6,
+                equippedBoard: PlayerService.get().equippedBoard
             },
             {
                 id: 2,
                 hand: [],
                 isAlive: true,
                 isBot: true,
-                botLevel: "ultra",//"easy" | "normal" | "hard"
+                botLevel: "ultra",
                 startX: this.boardSize-1,
                 startY: 0,
-                entryPort: 2
+                entryPort: 2,
+                equippedBoard: randomBoard
             }
         ]
 
