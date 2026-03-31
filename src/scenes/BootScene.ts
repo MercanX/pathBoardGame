@@ -41,8 +41,9 @@ export default class BootScene extends Phaser.Scene
         // =========================
         // GLOBAL UI
         // =========================
-        this.load.image("btn_multiplayer", "assets/ui/multiplayerbtn.png")
-        this.load.image("btn_playfriend", "assets/ui/playfriendbtn.png")
+        //this.load.image("btn_multiplayer", "assets/ui/multiplayerbtn.png")
+        this.load.image("btn_arena", "assets/ui/btn_arena.png")
+        //this.load.image("btn_playfriend", "assets/ui/playfriendbtn.png")
 
         this.load.image("btn_settings", "assets/ui/btn_settings.png")
         this.load.image("btn_help", "assets/ui/btn_help.png")

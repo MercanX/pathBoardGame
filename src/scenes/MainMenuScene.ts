@@ -73,11 +73,6 @@ export default class MainMenuScene extends Phaser.Scene
 
         bg.setScale(scale)
 
-        // ======================
-        // TITLE
-        // ======================
-        const title = this.add.image(width/2, 350 * scaleY, "title")
-
 
         // ======================
         // PLAYER
@@ -123,15 +118,21 @@ export default class MainMenuScene extends Phaser.Scene
         */
 
         // ======================
+        // TITLE
+        // ======================
+        const title = this.add.image(width/2, (height / 2) - (400 * scaleY), "title")
+
+        // ======================
         // BUTTONS
         // ======================
 
-        const btnMultiplayer = this.add.image(width/2, 666 * scaleY, "btn_multiplayer")
-        const btnPlayfriend  = this.add.image(width/2, 933* scaleY, "btn_playfriend")
+        //const btnMultiplayer = this.add.image(width/2, 666 * scaleY, "btn_arena")
+        const btnArena = this.add.image(width/2, (height / 2) * scaleY, "btn_arena")
+        //const btnPlayfriend  = this.add.image(width/2, 933* scaleY, "btn_playfriend")
 
-        const btnSettings = this.add.image(width/2 - iconW, height - (500 * scaleY), "btn_settings")
-        const btn_sound   = this.add.image(width/2, height - (500 * scaleY), "btn_sound")
-        const btn_shop    = this.add.image(width/2 + iconW, height - (500 * scaleY), "btn_shop")
+        const btnSettings = this.add.image(width/2 - iconW, (height / 2) + (350 * scaleY), "btn_settings")
+        const btn_sound   = this.add.image(width/2, (height / 2) + (350 * scaleY), "btn_sound")
+        const btn_shop    = this.add.image(width/2 + iconW, (height / 2) + (350 * scaleY), "btn_shop")
 
         // ======================
         // SCALE
@@ -143,13 +144,14 @@ export default class MainMenuScene extends Phaser.Scene
         // ======================
         // INTERACTION
         // ======================
-        btnMultiplayer.setInteractive({ useHandCursor: true })
-        btnPlayfriend.setInteractive({ useHandCursor: true })
+        btnArena.setInteractive({ useHandCursor: true })
+       // btnPlayfriend.setInteractive({ useHandCursor: true })
         btnSettings.setInteractive({ useHandCursor: true })
         btn_sound.setInteractive({ useHandCursor: true })
         btn_shop.setInteractive({ useHandCursor: true })
 
-        const buttons = [btnMultiplayer, btnPlayfriend]
+        //const buttons = [btnMultiplayer, btnPlayfriend]
+        const buttons = [btnArena]
         const buttons02 = [btnSettings, btn_sound, btn_shop]
 
         // ======================
@@ -250,7 +252,7 @@ export default class MainMenuScene extends Phaser.Scene
         buttons.forEach(btn => {
             this.tweens.add({
                 targets: btn,
-                alpha: { from: 1, to: 0.7 },
+                alpha: { from: 1, to: 0.9 },
                 duration: 2000,
                 yoyo: true,
                 repeat: -1
@@ -272,7 +274,7 @@ export default class MainMenuScene extends Phaser.Scene
         // BUTTON ACTIONS
         // ======================
 
-        btnMultiplayer.on("pointerdown", async () => {
+        btnArena.on("pointerdown", async () => {
 
             if (isNavigating) return
             isNavigating = true
@@ -311,6 +313,7 @@ export default class MainMenuScene extends Phaser.Scene
             this.scene.start("ShopScene")
         })
 
+        /*
         btnPlayfriend.on("pointerdown", () => {
 
             this.addConfettiRain()
@@ -318,16 +321,18 @@ export default class MainMenuScene extends Phaser.Scene
 
             // this.scene.start("GameScene")
         })
+            */
 
 
         // ======================
         // REWARDED BUTTON
         // ======================
 
-        const rewardText = this.add.text(width / 2, height - 325, "", {
+        const rewardText = this.add.text(width / 2, height - 350, "", {
             fontFamily: "Orbitron",
-            fontSize: "42px",
-            color: "#00ffcc",
+            fontSize: "49px",
+            color: "#FFD700",
+            fontStyle: "bold",
             stroke: "#000000",
             strokeThickness: 4
         })
@@ -338,8 +343,11 @@ export default class MainMenuScene extends Phaser.Scene
 
         const cooldownText = this.add.text(width / 2, height - 275, "", {
             fontFamily: "Orbitron",
-            fontSize: "28px",
-            color: "#aaaaaa"
+            fontSize: "29px",
+            color: "#ffffff",
+            fontStyle: "bold",
+            stroke: "#000000",
+            strokeThickness: 2
         })
         .setOrigin(0.5)
         .setDepth(20)
