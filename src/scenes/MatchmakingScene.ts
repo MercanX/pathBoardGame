@@ -55,9 +55,6 @@ export default class MatchmakingScene extends Phaser.Scene
         this.load.image("ui_searching_spinner", "assets/ui/btn_rotate.png")
 
         // Match found ekranı için
-        this.load.image("ui_match_found_panel", "assets/ui/match_found_panel.png")
-
-
         this.load.image("avatar_player", "assets/ui/avatar_player.png")
         this.load.image("avatar_enemy", "assets/ui/avatar_enemy.png")
         this.load.image("ui_vs", "assets/ui/vs.png")
@@ -187,85 +184,6 @@ export default class MatchmakingScene extends Phaser.Scene
 
     }
 
-    showMatchFound()
-    {
-        const width = this.scale.width
-        const height = this.scale.height
-
-        // Searching UI kapat
-        if(this.searchingLoopEvent)
-        {
-            this.searchingLoopEvent.remove(false)
-            this.searchingLoopEvent = undefined
-        }
-
-        if(this.searchingPanel && this.searchingPanel.active)
-        {
-            this.searchingPanel.destroy()
-        }
-
-        if(this.searchingSpinner && this.searchingSpinner.active)
-        {
-            this.searchingSpinner.destroy()
-        }
-
-        // =========================
-        // MATCH FOUND OVERLAY
-        // =========================
-        this.matchFoundOverlay = this.add.rectangle(
-            width / 2,
-            height / 2,
-            width,
-            height,
-            0x000000,
-            0.55
-        )
-
-        this.matchFoundOverlay
-            .setDepth(120)
-            .setScrollFactor(0)
-
-        // =========================
-        // MATCH FOUND PANEL
-        // =========================
-        this.matchFoundPanel = this.add.image(
-            width / 2,
-            height / 2,
-            "ui_match_found_panel"
-        )
-
-        this.matchFoundPanel
-            .setDepth(121)
-            .setScrollFactor(0)
-            .setScale(0.4)
-            .setAlpha(0)
-
-        this.tweens.add({
-            targets: this.matchFoundPanel,
-            alpha: 1,
-            scale: 0.5,
-            duration: 350,
-            ease: "Back.easeOut"
-        })
-
-        // hafif pulse
-        this.tweens.add({
-            targets: this.matchFoundPanel,
-            scale: { from: 0.52, to: 0.56 },
-            duration: 700,
-            yoyo: true,
-            repeat: -1,
-            ease: "Sine.easeInOut"
-        })
-
-        // =========================
-        // START GAME AFTER DELAY
-        // =========================
-        this.time.delayedCall(1200, () => {
-            this.showVSIntro()
-        })
-    }
-
     shutdownCleanup()
     {
         if(this.searchingLoopEvent)
@@ -309,33 +227,66 @@ showVSIntro()
 
     const playerData = PlayerService.get()
 
+const getRank = (rating: number) =>
+{
+    if(rating < 1000) return { name: "Bronze", color: "#cd7f32" }
+    if(rating < 1400) return { name: "Silver", color: "#c0c0c0" }
+    if(rating < 1800) return { name: "Gold", color: "#ffd700" }
+    return { name: "Elite", color: "#00e5ff" }
+}
 
-    const createPlayerInfo = (x: number, y: number, data: any) =>
-    {
-        this.add.text(x, y, data.name, {
-            fontSize: "52px",
-            fontStyle: "bold",
-            color: "#ffffff",
-            stroke: "#000",
-            strokeThickness: 4
-        }).setOrigin(0.5).setDepth(230)
+const createPlayerInfo = (x: number, y: number, data: any) =>
+{
+    const total = data.wins + data.losses
+    const winrate = total > 0 ? Math.round((data.wins / total) * 100) : 0
 
-        this.add.text(x, y + 40, "Rating: " + data.rating, {
-            fontSize: "44px",
-            fontStyle: "bold",
-            color: "#ffffff",
-            stroke: "#000",
-            strokeThickness: 4
-        }).setOrigin(0.5).setDepth(230)
+    this.add.text(x, y, data.name, {
+        fontSize: "52px",
+        fontStyle: "bold",
+        color: "#ffffff",
+        stroke: "#000",
+        strokeThickness: 4
+    }).setOrigin(0.5).setDepth(230)
 
-        this.add.text(x, y + 80, `${data.wins}W - ${data.losses}L`, {
-            fontSize: "44px",
-            fontStyle: "bold",
-            color: "#ffffff",
-            stroke: "#000",
-            strokeThickness: 4
-        }).setOrigin(0.5).setDepth(230)
-    }
+    this.add.text(x, y + 40, "Rating: " + data.rating, {
+        fontSize: "44px",
+        fontStyle: "bold",
+        color: "#ffffff",
+        stroke: "#000",
+        strokeThickness: 4
+    }).setOrigin(0.5).setDepth(230)
+
+    this.add.text(x, y + 80, `${data.wins}W - ${data.losses}L`, {
+        fontSize: "44px",
+        fontStyle: "bold",
+        color: "#ffffff",
+        stroke: "#000",
+        strokeThickness: 4
+    }).setOrigin(0.5).setDepth(230)
+
+    // 🔥 YENİ: WINRATE
+    this.add.text(x, y + 120, `Winrate: %${winrate}`, {
+        fontSize: "40px",
+        fontStyle: "bold",
+        color: "#ffaa00",
+        stroke: "#000",
+        strokeThickness: 3
+    }).setOrigin(0.5).setDepth(230)
+
+    const rank = getRank(data.rating)
+
+    this.add.text(x, y + 160, rank.name, {
+        fontSize: "42px",
+        fontStyle: "bold",
+        color: rank.color,
+        stroke: "#000",
+        strokeThickness: 3
+    })
+    .setOrigin(0.5)
+    .setDepth(230)
+
+
+}
 
     // =========================
     // BACKGROUND IMAGE (VS BG)
