@@ -56,6 +56,13 @@ export const ShopData: ShopItem[] =
     // BACKGROUNDS
     // =========================
     {
+        id: "bg_blank",
+        type: "board",
+        title: "Blank Board",
+        price: 200,
+        asset: "cardbg_00"
+    },
+    {
         id: "bg_autumn_dirt",
         type: "board",
         title: "Autumn Dirt",

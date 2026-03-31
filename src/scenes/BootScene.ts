@@ -82,6 +82,7 @@ export default class BootScene extends Phaser.Scene
         // =========================
         // BACKGROUNDS (SHOP)
         // =========================
+        this.load.image("cardbg_00", "assets/cards/cardbg_00.png")
         this.load.image("cardbg_01", "assets/cards/cardbg_01.jpg")
         this.load.image("cardbg_02", "assets/cards/cardbg_02.jpg")
         this.load.image("cardbg_03", "assets/cards/cardbg_03.jpg")

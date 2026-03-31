@@ -42,7 +42,7 @@ export const GameConfig =
     },
 
     VS: {
-        startDelayMs: 40000
+        startDelayMs: 4000
     },
 
     REWARDED: {

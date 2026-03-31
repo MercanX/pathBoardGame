@@ -60,8 +60,8 @@ class PlayerServiceClass
                     equippedPath: parsed.equippedPath ?? "path_blue",
 
 
-                    equippedBackground: parsed.equippedBackground ?? "cardbg_01",
-                    equippedBoard: parsed.equippedBoard ?? parsed.equippedBackground ?? "bg_autumn_dirt"
+                    equippedBackground: parsed.equippedBackground ?? "cardbg_00",
+                    equippedBoard: parsed.equippedBoard ?? parsed.equippedBackground ?? "bg_blank"
                 }
 
 
@@ -80,8 +80,8 @@ class PlayerServiceClass
                     ownedItems: ["avatar_1"],
                     equippedAvatar: "avatar_1",
                     equippedPath: "path_blue",
-                    equippedBackground: "bg_autumn_dirt",
-                    equippedBoard: "bg_autumn_dirt",
+                    equippedBackground: "bg_blank",
+                    equippedBoard: "bg_blank",
                 }
 
 
@@ -102,8 +102,8 @@ class PlayerServiceClass
                 ownedItems: ["avatar_1"],
                 equippedAvatar: "avatar_1",
                 equippedPath: "path_blue",
-                equippedBackground: "bg_autumn_dirt",
-                equippedBoard: "bg_autumn_dirt",
+                equippedBackground: "bg_blank",
+                equippedBoard: "bg_blank",
             }
         }
     }
@@ -283,8 +283,8 @@ class PlayerServiceClass
             ownedItems: ["avatar_1"],
             equippedAvatar: "avatar_1",
             equippedPath: "path_blue",
-            equippedBackground: "bg_autumn_dirt",
-            equippedBoard: "bg_autumn_dirt",
+            equippedBackground: "bg_blank",
+            equippedBoard: "bg_blank",
         }
 
         this.save()
