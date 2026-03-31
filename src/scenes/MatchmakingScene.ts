@@ -20,6 +20,7 @@ import { PlayerService } from "../core/PlayerService"
 import { generateBot } from "../core/BotGenerator"
 import { SoundService } from "../core/SoundService"
 import { GameConfig } from "../config/GameConfig"
+import { SettingsService } from "../core/SettingsService"
 
 export default class MatchmakingScene extends Phaser.Scene
 {
@@ -216,234 +217,195 @@ export default class MatchmakingScene extends Phaser.Scene
     }
 
 
-showVSIntro()
-{
-    const width = this.scale.width
-    const height = this.scale.height
-    const impactTime = 350
+    showVSIntro()
+    {
+        const width = this.scale.width
+        const height = this.scale.height
+        const impactTime = 350
 
-    // temizle
-    this.children.removeAll()
+        // temizle
+        this.children.removeAll()
 
-    const playerData = PlayerService.get()
+        const playerData = PlayerService.get()
 
-const getRank = (rating: number) =>
-{
-    if(rating < 1000) return { name: "Bronze", color: "#cd7f32" }
-    if(rating < 1400) return { name: "Silver", color: "#c0c0c0" }
-    if(rating < 1800) return { name: "Gold", color: "#ffd700" }
-    return { name: "Elite", color: "#00e5ff" }
-}
+        const vsContainer = this.add.container(0, 0)
 
-const createPlayerInfo = (x: number, y: number, data: any) =>
-{
-    const total = data.wins + data.losses
-    const winrate = total > 0 ? Math.round((data.wins / total) * 100) : 0
+        const getRank = (rating: number) =>
+        {
+            if(rating < 1000) return { name: "Bronze", color: "#cd7f32" }
+            if(rating < 1400) return { name: "Silver", color: "#c0c0c0" }
+            if(rating < 1800) return { name: "Gold", color: "#ffd700" }
+            return { name: "Elite", color: "#00e5ff" }
+        }
 
-    this.add.text(x, y, data.name, {
-        fontSize: "52px",
-        fontStyle: "bold",
-        color: "#ffffff",
-        stroke: "#000",
-        strokeThickness: 4
-    }).setOrigin(0.5).setDepth(230)
+        const createPlayerInfo = (x: number, y: number, data: any) =>
+        {
+            const total = data.wins + data.losses
+            const winrate = total > 0 ? Math.round((data.wins / total) * 100) : 0
 
-    this.add.text(x, y + 40, "Rating: " + data.rating, {
-        fontSize: "44px",
-        fontStyle: "bold",
-        color: "#ffffff",
-        stroke: "#000",
-        strokeThickness: 4
-    }).setOrigin(0.5).setDepth(230)
+            const name = this.add.text(x, y, data.name, {
+                fontSize: "52px",
+                fontStyle: "bold",
+                color: "#ffffff",
+                stroke: "#000",
+                strokeThickness: 4
+            }).setOrigin(0.5).setDepth(230)
 
-    this.add.text(x, y + 80, `${data.wins}W - ${data.losses}L`, {
-        fontSize: "44px",
-        fontStyle: "bold",
-        color: "#ffffff",
-        stroke: "#000",
-        strokeThickness: 4
-    }).setOrigin(0.5).setDepth(230)
+            const rating = this.add.text(x, y + 50, "Rating: " + data.rating, {
+                fontSize: "44px",
+                fontStyle: "bold",
+                color: "#ffffff",
+                stroke: "#000",
+                strokeThickness: 4
+            }).setOrigin(0.5).setDepth(230)
 
-    // 🔥 YENİ: WINRATE
-    this.add.text(x, y + 120, `Winrate: %${winrate}`, {
-        fontSize: "40px",
-        fontStyle: "bold",
-        color: "#ffaa00",
-        stroke: "#000",
-        strokeThickness: 3
-    }).setOrigin(0.5).setDepth(230)
+            const wl = this.add.text(x, y + 100, `${data.wins}W - ${data.losses}L`, {
+                fontSize: "44px",
+                fontStyle: "bold",
+                color: "#ffffff",
+                stroke: "#000",
+                strokeThickness: 4
+            }).setOrigin(0.5).setDepth(230)
 
-    const rank = getRank(data.rating)
+            const wr = this.add.text(x, y + 150, `Winrate: %${winrate}`, {
+                fontSize: "40px",
+                fontStyle: "bold",
+                color: "#ffaa00",
+                stroke: "#000",
+                strokeThickness: 3
+            }).setOrigin(0.5).setDepth(230)
 
-    this.add.text(x, y + 160, rank.name, {
-        fontSize: "42px",
-        fontStyle: "bold",
-        color: rank.color,
-        stroke: "#000",
-        strokeThickness: 3
-    })
-    .setOrigin(0.5)
-    .setDepth(230)
+            const rankData = getRank(data.rating)
 
+            const rank = this.add.text(x, y + 200, rankData.name, {
+                fontSize: "42px",
+                fontStyle: "bold",
+                color: rankData.color,
+                stroke: "#000",
+                strokeThickness: 3
+            }).setOrigin(0.5).setDepth(230)
 
-}
+            vsContainer.add([name, rating, wl, wr, rank])
+        }
 
-    // =========================
-    // BACKGROUND IMAGE (VS BG)
-    // =========================
-    const bg = this.add.image(
-        width / 2,
-        height / 2,
-        "menu_bg"
-    )
+        // =========================
+        // BACKGROUND IMAGE
+        // =========================
+        const bg = this.add.image(width / 2, height / 2, "menu_bg")
+            .setDisplaySize(width, height)
+            .setDepth(190)
 
-    bg
-        .setDisplaySize(width, height)
-        .setDepth(190)
+        const overlay = this.add.rectangle(
+            width / 2,
+            height / 2,
+            width,
+            height,
+            0x000000,
+            0.7
+        ).setDepth(200)
 
-    // =========================
-    // DARK OVERLAY
-    // =========================
-    const overlay = this.add.rectangle(
-        width / 2,
-        height / 2,
-        width,
-        height,
-        0x000000,
-        0.7
-    )
-    .setDepth(200)
+        const player = this.add.image(
+            width / 2 - 250,
+            height / 2,
+            playerData.avatar
+        ).setDepth(210).setScale(0.8)
 
-    // =========================
-    // AVATARS
-    // =========================
-    const player = this.add.image(
-        width / 2 - 250,
-        height / 2,
-        playerData.avatar
-    )
-    .setDepth(210)
-    .setScale(0.8)
+        const enemy = this.add.image(
+            width / 2 + 250,
+            height / 2,
+            this.selectedBot.avatar
+        ).setDepth(210).setScale(0.8)
 
-    const enemy = this.add.image(
-        width / 2 + 250,
-        height / 2,
-        this.selectedBot.avatar
-    )
-    .setDepth(210)
-    .setScale(0.8)
+        const vs = this.add.image(
+            width / 2,
+            height / 2 - 400,
+            "ui_vs"
+        ).setDepth(220).setScale(0.15).setAlpha(0)
 
-    // =========================
-    // PLAYER INFO
-    // =========================
+        const flash = this.add.rectangle(
+            width / 2,
+            height / 2,
+            width,
+            height,
+            0xffffff,
+            1
+        ).setDepth(300).setAlpha(0)
 
-    createPlayerInfo(width / 2 - 250, height / 2 + 120, playerData)
+        // Container'a ekle
+        vsContainer.add([bg, overlay, player, enemy, vs, flash])
 
-    // =========================
-    // BOT INFO
-    // =========================
-    createPlayerInfo(width / 2 + 250, height / 2 + 120, this.selectedBot)
+        // Info
+        createPlayerInfo(width / 2 - 250, height / 2 + 120, playerData)
+        createPlayerInfo(width / 2 + 250, height / 2 + 120, this.selectedBot)
 
-    // =========================
-    // VS IMAGE
-    // =========================
-    const vs = this.add.image(
-        width / 2,
-        height / 2 - 400,
-        "ui_vs"
-    )
-    .setDepth(220)
-    .setScale(0.15)
-    .setAlpha(0)
+        // EFFECTS
+        this.tweens.add({
+            targets: flash,
+            alpha: { from: 0.8, to: 0 },
+            duration: 250,
+            delay: impactTime,
+            ease: "Cubic.easeOut"
+        })
 
-    // =========================
-    // FLASH EFFECT
-    // =========================
-    const flash = this.add.rectangle(
-        width / 2,
-        height / 2,
-        width,
-        height,
-        0xffffff,
-        1
-    )
-    .setDepth(300)
-    .setAlpha(0)
+        this.time.delayedCall(impactTime, () => {
 
-    this.tweens.add({
-        targets: flash,
-        alpha: { from: 0.8, to: 0 },
-        duration: 250,
-        delay: impactTime,
-        ease: "Cubic.easeOut"
-    })
+            const settings = SettingsService.get()
 
-    // =========================
-    // SOUND + CAMERA IMPACT
-    // =========================
-    this.time.delayedCall(impactTime, () => {
-        SoundService.play("vs_impact")
-        this.cameras.main.shake(250, 0.01)
-        this.cameras.main.flash(150, 255, 255, 255)
-    })
+            if(settings.music)
+            {
+                SoundService.play("vs_impact")
+            }
 
-    // =========================
-    // ENTRY ANIMATION
-    // =========================
+            this.cameras.main.shake(250, 0.01)
+            this.cameras.main.flash(150, 255, 255, 255)
+        })
 
-    // player soldan gelir
-    player.x = width / 2 - 600
-    this.tweens.add({
-        targets: player,
-        x: width / 2 - 250,
-        duration: 400,
-        ease: "Back.easeOut"
-    })
+        // ENTRY
+        player.x = width / 2 - 600
+        this.tweens.add({
+            targets: player,
+            x: width / 2 - 250,
+            duration: 400,
+            ease: "Back.easeOut"
+        })
 
-    // enemy sağdan gelir
-    enemy.x = width / 2 + 600
-    this.tweens.add({
-        targets: enemy,
-        x: width / 2 + 250,
-        duration: 400,
-        ease: "Back.easeOut"
-    })
+        enemy.x = width / 2 + 600
+        this.tweens.add({
+            targets: enemy,
+            x: width / 2 + 250,
+            duration: 400,
+            ease: "Back.easeOut"
+        })
 
-    // VS pop
-    this.tweens.add({
-        targets: vs,
-        alpha: 1,
-        scale: { from: 0.1, to: 0.4 },
-        duration: 300,
-        delay: impactTime,
-        ease: "Back.easeOut"
-    })
+        this.tweens.add({
+            targets: vs,
+            alpha: 1,
+            scale: { from: 0.1, to: 0.4 },
+            duration: 300,
+            delay: impactTime,
+            ease: "Back.easeOut"
+        })
 
-    // VS pulse
-    this.tweens.add({
-        targets: vs,
-        scale: { from: 0.4, to: 0.55 },
-        duration: 600,
-        yoyo: true,
-        repeat: -1
-    })
+        this.tweens.add({
+            targets: vs,
+            scale: { from: 0.4, to: 0.55 },
+            duration: 600,
+            yoyo: true,
+            repeat: -1
+        })
 
-    // Overlay pulse
-    this.tweens.add({
-        targets: overlay,
-        alpha: { from: 0.7, to: 0.85 },
-        duration: 200,
-        yoyo: true
-    })
-    
+        this.tweens.add({
+            targets: overlay,
+            alpha: { from: 0.7, to: 0.85 },
+            duration: 200,
+            yoyo: true
+        })
 
-    // =========================
-    // GAME START
-    // =========================
-    this.time.delayedCall(GameConfig.VS.startDelayMs, () => {
-        SoundService.stopSFX()
-        this.scene.start("GameScene")
-    })
-}
+        // GAME START
+        this.time.delayedCall(GameConfig.VS.startDelayMs, () => {
+            SoundService.stopSFX()
+            this.scene.start("GameScene")
+        })
+    }
 
 }
