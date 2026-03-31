@@ -36,7 +36,12 @@ export const GameConfig =
 
     DEBUG: false,
 
-    // 🔥 EKLENDİ
+    MATCHMAKING: {
+        minWaitMs: 1000,
+        maxWaitMs: 2000
+    },
+
+
     REWARDED: {
         maxViews: 5,
         cooldownMs: 5 * 60 * 1000,

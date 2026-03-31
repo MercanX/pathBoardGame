@@ -19,6 +19,7 @@ import Phaser from "phaser"
 import { PlayerService } from "../core/PlayerService"
 import { generateBot } from "../core/BotGenerator"
 import { SoundService } from "../core/SoundService"
+import { GameConfig } from "../config/GameConfig"
 
 export default class MatchmakingScene extends Phaser.Scene
 {
@@ -169,10 +170,14 @@ export default class MatchmakingScene extends Phaser.Scene
         // =========================
         // Online oyuncu aranıyormuş hissi için random süre
         // İstersen bunu sonra 2-6 sn, 3-7 sn vb. değiştiririz
-        const randomWaitMs = Phaser.Math.Between(5000, 10000)
+        const randomWaitMs = Phaser.Math.Between(
+            GameConfig.MATCHMAKING.minWaitMs,
+            GameConfig.MATCHMAKING.maxWaitMs
+        )
+        //GameConfig.BASEW
 
         this.matchDelayEvent = this.time.delayedCall(randomWaitMs, () => {
-            this.showMatchFound()
+            this.showVSIntro()
         })
 
         this.selectedBot = generateBot()
