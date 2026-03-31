@@ -510,7 +510,7 @@ showVSIntro()
     // =========================
     // GAME START
     // =========================
-    this.time.delayedCall(4000, () => {
+    this.time.delayedCall(GameConfig.VS.startDelayMs, () => {
         SoundService.stopSFX()
         this.scene.start("GameScene")
     })

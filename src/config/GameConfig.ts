@@ -41,6 +41,9 @@ export const GameConfig =
         maxWaitMs: 2000
     },
 
+    VS: {
+        startDelayMs: 40000
+    },
 
     REWARDED: {
         maxViews: 5,
