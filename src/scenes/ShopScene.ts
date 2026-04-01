@@ -338,16 +338,17 @@ const resetBtn = this.add.image(
 
 
 
-this.addButtonEffects(resetBtn)
+        this.addButtonEffects(resetBtn)
 
-resetBtn.on("pointerdown", () => {
+        resetBtn.on("pointerdown", () => {
 
-    SoundService.play("click")
+            SoundService.play("click")
 
-    PlayerService.resetProgress()
-    selectedItem = null
-    refreshUI()
-})
+            PlayerService.resetProgress()
+            localStorage.removeItem("tutorial_done")
+            selectedItem = null
+            refreshUI()
+        })
 
         refreshUI()
     }

@@ -44,6 +44,7 @@ import ChangeCardController from "../controllers/ChangeCardController"
 import { GameConfig } from "../config/GameConfig"
 import RewardService from "../services/RewardService"
 import { ShopData } from "../data/ShopData"
+import HintController from "../controllers/HintController"
 
 export default class GameScene extends Phaser.Scene
 {
@@ -59,6 +60,8 @@ export default class GameScene extends Phaser.Scene
     gameOverUIController!: GameOverUIController
     effectController!: EffectController
     changeCardController!: ChangeCardController
+    hint!: HintController
+
     changePopupElements: Phaser.GameObjects.GameObject[] = []
 
     uiCamera!: Phaser.Cameras.Scene2D.Camera
@@ -72,6 +75,7 @@ export default class GameScene extends Phaser.Scene
 
     changeBadgeCircle!: Phaser.GameObjects.Arc
     changeBadgeText!: Phaser.GameObjects.Text
+
 
     ghost =
     {
@@ -237,7 +241,11 @@ export default class GameScene extends Phaser.Scene
         )
 
         this.ghostController = new GhostController(this)
+        this.hint = new HintController()
 
+
+
+        
         this.inputController = new InputController(
             this,
 
@@ -299,12 +307,19 @@ export default class GameScene extends Phaser.Scene
 
                 this.ghostController.updateGhostForSelectedCard()
 
-                // 🔥 YENİ EKLE
                 this.selectedHandIndex = this.handView.selectedIndex
 
                 console.log("Selected index:", this.selectedHandIndex)
+
+                // 🔥 HINT
+                this.hint.onCardSelected(this.btnRotate)
             }
         )
+
+        this.time.delayedCall(500, () => {
+            this.hint.showHandHint(this.uiLayer, this.scale.height)
+        })
+
 
     }
 
@@ -915,16 +930,20 @@ export default class GameScene extends Phaser.Scene
             this.currentRotation = (this.currentRotation + 1) % 4
 
             this.ghostController.updateGhostForSelectedCard()
+            this.hint.onRotate()
 
         })
 
         // CHANGE BUTTON
         this.btnChange.on("pointerdown", () => {
 
+            this.hint.onChangeOpened?.()
+
             if (this.selectedHandIndex === null) {
                 console.log("Kart seçilmedi")
                 return
             }
+            
 
             this.openChangePopup()
 
@@ -935,7 +954,20 @@ export default class GameScene extends Phaser.Scene
 
         // MAP BUTTON
         this.btnMap.on("pointerdown", () => {
+
             this.toggleMapMode()
+
+            // 🔥 HINT
+            if (this.isMapMode)
+            {
+
+                this.hint.onMapOpened(this.btnMap)
+            }
+            else
+            {
+                this.hint.onMapClosed(this.btnMap)
+            }
+
         })
 
         this.updateChangeButtonVisual()

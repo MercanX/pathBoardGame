@@ -36,6 +36,9 @@ export default class BootScene extends Phaser.Scene
         this.load.image("ates", "assets/ui/ates.png")
 
 
+        this.load.image("arrow_down", "assets/ui/confetti.png")
+
+
 
 
         // =========================

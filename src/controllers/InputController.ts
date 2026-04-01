@@ -170,9 +170,13 @@ handleClick(pointer: Phaser.Input.Pointer)
         {
             return
         }
-
+        (this.scene as any).hint.onPlace()
         // sonra bot
         this.checkBotTurn()
+
+        this.scene.time.delayedCall(800, () => {
+            (this.scene as any).hint.onBotPlayed((this.scene as any).btnMap)
+        })
 
         const newState = this.gameEngine.getState()
 
