@@ -932,6 +932,22 @@ export default class GameScene extends Phaser.Scene
             this.ghostController.updateGhostForSelectedCard()
             this.hint.onRotate()
 
+            // 🔥 EKLE
+            const state = this.gameEngine.getState()
+
+            if(!state) return
+
+            const currentPlayer = state.players[state.currentPlayer]
+
+            const nextCell = findCurrentPlayerNextCell(state, currentPlayer.id)
+
+            if(nextCell && this.hint.step === 2)
+            {
+                const center = this.getCellCenter(nextCell.x, nextCell.y)
+
+                this.hint.showBoardPulse(center.x, center.y, this)
+            }
+
         })
 
         // CHANGE BUTTON

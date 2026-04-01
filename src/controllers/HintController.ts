@@ -297,6 +297,78 @@ showHandHint(uiLayer: Phaser.GameObjects.Container, screenHeight: number)
     this.hintText = text
 }
 
+showBoardHint()
+{
+    const scene = this.arrow?.scene || null
 
+    if(!scene) return
+
+    this.clearArrow()
+
+    const x = scene.scale.width / 2
+    const y = scene.scale.height / 2
+
+    const arrow = scene.add.image(x, y - 100, "arrow_down")
+    arrow.setDepth(99999)
+    arrow.setScrollFactor(0)
+    arrow.setScale(0.7)
+
+    scene.tweens.add({
+        targets: arrow,
+        y: arrow.y + 20,
+        duration: 600,
+        yoyo: true,
+        repeat: -1
+    })
+
+    const text = scene.add.text(
+        x,
+        y - 150,
+        "Buraya tıkla",
+        {
+            fontFamily: "Arial",
+            fontSize: "28px",
+            color: "#ffffff",
+            stroke: "#000000",
+            strokeThickness: 4
+        }
+    ).setOrigin(0.5)
+
+    text.setDepth(99999)
+    text.setScrollFactor(0)
+
+    this.arrow = arrow
+    this.hintText = text
+}
+
+showBoardPulse(worldX: number, worldY: number, scene: Phaser.Scene)
+{
+    this.clearArrow()
+
+    const core = scene.add.circle(worldX, worldY, 20, 0xff3b3b, 0.8)
+    core.setDepth(99999)
+
+    const ring = scene.add.circle(worldX, worldY, 40, 0xff3b3b, 0.3)
+    ring.setDepth(99999)
+
+    scene.tweens.add({
+        targets: ring,
+        scale: 1.6,
+        alpha: 0,
+        duration: 800,
+        repeat: -1
+    })
+
+    scene.tweens.add({
+        targets: core,
+        scale: 1.2,
+        duration: 300,
+        yoyo: true,
+        repeat: -1
+    })
+
+    this.arrow = core as any
+    this.hintText = ring as any
+}
 
 }
