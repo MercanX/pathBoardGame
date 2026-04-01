@@ -46,9 +46,8 @@ export default class HintController
         if(this.step === 0)
         {
             this.clearArrow()
-            console.log("👉 Rotate yap")
 
-            this.showArrow(btnRotate, "Rotate yap")
+            this.showArrow(btnRotate, "")
 
             this.step = 1
         }
@@ -62,7 +61,6 @@ export default class HintController
         if(!this.isFirstTime) return
         if(this.step === 1)
         {
-            console.log("👉 Kartı yerleştir")
 
             this.clearArrow()
 
@@ -94,9 +92,8 @@ export default class HintController
         if(!this.isFirstTime) return
         if(this.step === 3 && !this.shown.map)
         {
-            console.log("👉 Map aç")
 
-            this.showArrow(btnMap, "Map aç")
+            this.showArrow(btnMap, "")
 
             this.shown.map = true
             this.step = 4
@@ -112,9 +109,8 @@ export default class HintController
 
         if(this.step === 4)
         {
-            console.log("👉 Map kapat")
 
-            this.showArrow(btnMap, "Kapat")
+            this.showArrow(btnMap, "")
 
             this.step = 5
         }
@@ -128,13 +124,8 @@ export default class HintController
         if(!this.isFirstTime) return
         if(this.step === 5)
         {
-            console.log("👉 Devam et")
 
             this.clearArrow()
-
-            //localStorage.setItem("tutorial_done", "1")
-            //this.isFirstTime = false
-
             this.step = 6
         }
     }
@@ -148,9 +139,8 @@ export default class HintController
 
         if(this.step === 6 && !this.shown.change)
         {
-            console.log("👉 Kart değiştir")
 
-            this.showArrow(btnChange, "Kart değiştir")
+            this.showArrow(btnChange, "")
 
             this.shown.change = true
             this.step = 7
@@ -218,8 +208,6 @@ export default class HintController
     {
         if(!this.isFirstTime) return 
         if(this.shown.change) return
-
-        console.log("👉 Kart değiştir")
 
         this.shown.change = true
     }
@@ -292,25 +280,7 @@ showArrow(target: Phaser.GameObjects.Image, text: string)
         ease: "Sine.easeInOut"
     })
 
-    // TEXT
-    const hintText = scene.add.text(
-        target.x,
-        target.y - 140,
-        text,
-        {
-            fontFamily: "Arial",
-            fontSize: "28px",
-            color: "#ffffff",
-            stroke: "#000000",
-            strokeThickness: 4
-        }
-    ).setOrigin(0.5)
-
-    hintText.setDepth(99999)
-    hintText.setScrollFactor(0)
-
     this.arrow = arrow
-    this.hintText = hintText
 }
 clearArrow()
 {
@@ -335,7 +305,7 @@ showHandHint(uiLayer: Phaser.GameObjects.Container, screenHeight: number)
     this.clearArrow()
 
     const x = scene.scale.width / 2
-    const y = screenHeight - 180 // 👈 hand bölgesi
+    const y = screenHeight - 400 // 👈 hand bölgesi
 
     const arrow = scene.add.image(x, y, "arrow_down")
     arrow.setDepth(99999)
@@ -350,24 +320,9 @@ showHandHint(uiLayer: Phaser.GameObjects.Container, screenHeight: number)
         repeat: -1
     })
 
-    const text = scene.add.text(
-        x,
-        y - 50,
-        "Kart seç",
-        {
-            fontFamily: "Arial",
-            fontSize: "28px",
-            color: "#ffffff",
-            stroke: "#000000",
-            strokeThickness: 4
-        }
-    ).setOrigin(0.5)
 
-    text.setDepth(99999)
-    text.setScrollFactor(0)
 
     this.arrow = arrow
-    this.hintText = text
 }
 
 showBoardHint()
@@ -394,24 +349,9 @@ showBoardHint()
         repeat: -1
     })
 
-    const text = scene.add.text(
-        x,
-        y - 150,
-        "Buraya tıkla",
-        {
-            fontFamily: "Arial",
-            fontSize: "28px",
-            color: "#ffffff",
-            stroke: "#000000",
-            strokeThickness: 4
-        }
-    ).setOrigin(0.5)
 
-    text.setDepth(99999)
-    text.setScrollFactor(0)
 
     this.arrow = arrow
-    this.hintText = text
 }
 
 showBoardPulse(worldX: number, worldY: number, scene: Phaser.Scene)
