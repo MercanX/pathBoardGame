@@ -132,12 +132,85 @@ export default class HintController
 
             this.clearArrow()
 
-            localStorage.setItem("tutorial_done", "1")
-            this.isFirstTime = false
+            //localStorage.setItem("tutorial_done", "1")
+            //this.isFirstTime = false
+
+            this.step = 6
+        }
+    }
+
+    // ======================
+    // STEP 7 — CHANGE OPEN
+    // ======================
+    onChangeStart(btnChange: Phaser.GameObjects.Image)
+    {
+        if(!this.isFirstTime) return
+
+        if(this.step === 6 && !this.shown.change)
+        {
+            console.log("👉 Kart değiştir")
+
+            this.showArrow(btnChange, "Kart değiştir")
+
+            this.shown.change = true
+            this.step = 7
+        }
+    }
+
+    // ======================
+    // STEP 8 — SELECT CARD
+    // ======================
+    onChangePopupOpened(scene: Phaser.Scene)
+    {
+        if(!this.isFirstTime) return
+
+        if(this.step === 7)
+        {
+            console.log("👉 Yeni kart seç")
+
+            this.clearArrow()
+
+            const x = scene.scale.width / 2
+            const y = scene.scale.height / 2
+
+            const arrow = scene.add.image(x, y - 150, "arrow_down")
+            arrow.setDepth(99999).setScrollFactor(0).setScale(0.7)
+
+            scene.tweens.add({
+                targets: arrow,
+                y: arrow.y + 20,
+                duration: 600,
+                yoyo: true,
+                repeat: -1
+            })
+
+            const text = scene.add.text(x, y - 200, "Kart seç", {
+                fontSize: "28px",
+                color: "#fff",
+                stroke: "#000",
+                strokeThickness: 4
+            }).setOrigin(0.5)
+
+            text.setDepth(99999).setScrollFactor(0)
+
+            this.arrow = arrow
+            this.hintText = text
+
+            
 
             this.step = 0
         }
     }
+
+
+    finish()
+    {
+        this.clearArrow()
+        this.step = 0
+        this.isFirstTime = false
+        localStorage.setItem("tutorial_done", "1")
+    }
+
     // ======================
     // OPTIONAL
     // ======================

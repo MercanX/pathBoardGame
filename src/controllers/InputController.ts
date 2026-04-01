@@ -140,17 +140,6 @@ handleClick(pointer: Phaser.Input.Pointer)
         return
     }
 
-
-
-    // 🔥 SADECE STEP 2'DE GÖSTER
-    const hint = (this.scene as any).hint
-
-    if(hint && hint.step === 2 && nextCell)
-    {
-        const center = this.getCellCenter(nextCell.x, nextCell.y)
-
-        hint.showBoardPulse(center.x, center.y, this.scene)
-    }
     
     const isCorrectCell =
         cell.x === nextCell.x &&

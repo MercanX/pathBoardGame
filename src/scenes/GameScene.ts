@@ -982,6 +982,7 @@ export default class GameScene extends Phaser.Scene
             else
             {
                 this.hint.onMapClosed(this.btnMap)
+                this.hint.onChangeStart(this.btnChange)
             }
 
         })
@@ -1037,6 +1038,9 @@ export default class GameScene extends Phaser.Scene
     {
         const width = this.scale.width
         const height = this.scale.height
+
+        this.hint.clearArrow()
+        this.hint.finish()
         
         //this.input.enabled = false
         
@@ -1397,7 +1401,12 @@ export default class GameScene extends Phaser.Scene
         })
 
 
-        cancelBtn.on("pointerdown", destroyPopup)
+        cancelBtn.on("pointerdown", () => {
+
+            // 🔥 tutorial bitir / temizle
+
+            destroyPopup()
+        })
     }
 
 
